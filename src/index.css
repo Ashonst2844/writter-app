@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #161616;
+  --text: rgb(216, 216, 216);
+  --primary: #222;
+  --accent: #3f72ff;
+
+  --success: #91ff6f;
+  --warning: #ff6f6f;
+
+  background-color: var(--bg);
+  color: var(--text)
+}
+* {
+  scrollbar-width: none;
+}
