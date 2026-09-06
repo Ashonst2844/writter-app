@@ -9,8 +9,7 @@ import { useState, useEffect, type ChangeEvent, type FormEvent } from "react";
 import { Routes, Route, useParams } from "react-router-dom"
 import { useFetch } from "../../Hooks/useFetch"
 import { useForm } from "../../Hooks/useForm";
-
-import Pinning from "../../Utils/Pinning";
+import Pinning, {getPins} from "../../Utils/Pinning";
 
 interface EventProps {
     event_id:string;
@@ -28,6 +27,15 @@ function EventAccordion(props: EventProps) {
     const slug = createSlug(props.title)
     const {onDelete} = useForm([], "event", props.event_id)
 
+    const [pinned, setPinned] = useState<boolean>(() =>
+        getPins().some((item) => item.id === props.event_id && item.type === "Events")
+    )
+
+    const handlePin = () => {
+        Pinning(props?.title || "", props?.content || "", "Note", props?.event_id)
+        setPinned(true)
+    }
+
     return <Card>
         <div className="h-full flex flex-col justify-between">
             <h2 className="text-4xl font-black capitalize">{slug.replaceAll("-", " ")}</h2>
@@ -38,8 +46,8 @@ function EventAccordion(props: EventProps) {
                 <Button onClick={onDelete} type='warning' use="button" target={slug} className='rounded-md w-12'>
                     <Icon type="normal" use="cancel" width={6} color="white"/>
                 </Button>
-                <Button type='normal' use='button' className='rounded-md w-12' onClick={() => Pinning(props.title || "", props.content || "", "Event")}>
-                    <Icon type="online" use="pin" color="white" fill/>
+                <Button type={pinned ? "normal" : "alternate"} use='button' className='rounded-md w-12' onClick={handlePin}>
+                    <Icon type="online" use="pin" color={pinned ? "var(--text)" : "var(--primary)"} fill/>
                 </Button>
                 <Button type='normal' use='link' target={slug} className='rounded-md w-12'>
                     <Icon type="online" use="eye" color="white" fill/>
@@ -82,8 +90,8 @@ function EventPage({props, loading}: {props: EventProps[]; loading: boolean}) {
 
     return <form onSubmit={handleSubmit} className="w-full h-full p-4 flex flex-col gap-4">
         <input type="hidden" name="content" value={htmlContent}/>
-        <Editable type="input" name="title" editMode={mode} text={(getValue('title') as string) ?? event.title} onChange={(v)=>setValue('title', v)} className="text-4xl font=bold">
-            <h2 className="text-4xl font=bold">{(getValue('title') as string) ?? event.title}</h2>
+        <Editable type="input" name="title" editMode={mode} text={(getValue('title') as string) ?? event.title} onChange={(v)=>setValue('title', v)} className="text-4xl font-bold">
+            <h2 className="text-4xl font-bold">{(getValue('title') as string) ?? event.title}</h2>
         </Editable>
 
         <Editable type="richedit" text={htmlContent} onChange={(html) => setValue("content", html)} editMode={mode} onClick={() => setMode(true)}/>

@@ -27,7 +27,7 @@ function CharacterCard(props: CharacterProps) {
     return <Card>
         <div className="h-full flex flex-col justify-between">
             <h2 className="text-4xl font-black">{props.name}</h2>
-            <div className='flex w-full h-12 justify-end gap-4'>
+            <div className='flex w-full h-12 justify-end gap-2'>
                 <Button onClick={onDelete} type='warning' use="button" target={slug} className='rounded-md w-12'>
                     <Icon type="normal" use="cancel" width={3} color="white"/>
                 </Button>
@@ -95,7 +95,7 @@ function CharacterPage({props, loading}: {props: CharacterProps[]; loading: bool
                     <p className="text-justify">{(getValue('desc') as string) ?? character.desc}</p>
                 </Editable>
             </div>
-            <div className='flex w-full h-12 justify-end gap-4 z-90'>
+            <div className='flex w-full h-12 justify-end gap-2 z-90'>
                 {mode?<> 
                     <Button type='warning' use='button' onClick={()=>{
                         setMode(false)
@@ -104,11 +104,11 @@ function CharacterPage({props, loading}: {props: CharacterProps[]; loading: bool
                         setValue('gender', character.gender)
                         setValue('faction', character.faction)
                         setValue('desc', character.desc)
-                    }} className='rounded-full w-12'>
+                    }} className='rounded-md w-12'>
                         <Icon type="normal" use="cancel" color="white" width={3}/>
                     </Button>
-                    <Button type='normal' use='submit' className='rounded-full w-12'><p>{formLoading ? '...' : <Icon type="normal" use="submit" color="white" fill width={1}/>}</p></Button>
-                </>:<Button type='alternate' use='button' onClick={()=>setMode(prev=>!prev)} className='rounded-full w-12 h-12'>
+                    <Button type='normal' use='submit' className='rounded-md w-12'><p>{formLoading ? '...' : <Icon type="normal" use="submit" color="white" fill width={1}/>}</p></Button>
+                </>:<Button type='alternate' use='button' onClick={()=>setMode(prev=>!prev)} className='rounded-md w-12 h-12'>
                     <Icon type="online" use="edit" width={1} color="var(--bg)"/>
                 </Button>}
             </div>

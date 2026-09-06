@@ -42,7 +42,7 @@ function Projects(props: ProjectData) {
         <span className='opacity-50'>Author: Masagus Ahmad Ramadhan</span>
         <span className='opacity-50'>Created: {props.created_at}</span>
       </div>
-      <div className='flex w-full h-12 justify-end gap-4'>
+      <div className='flex w-full h-12 justify-end gap-2'>
         {mode?<> 
           <Button type='warning' use='button' onClick={()=>{
             setMode(false) 

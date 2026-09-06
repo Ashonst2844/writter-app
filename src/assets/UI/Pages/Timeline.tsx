@@ -47,22 +47,22 @@ function Content({timeline_id, name, timeline, desc}: {timeline_id: string, name
                 <p className="text-justify">{(getValue('desc') as string) ?? desc}</p>
             </Editable>
         </div>
-        <div className='flex w-full h-12 justify-end gap-4 z-90'>
+        <div className='flex w-full h-12 justify-end gap-2 z-90'>
             {mode?<> 
                 <Button type='warning' use='button' onClick={()=>{
                     setMode(false)
                     setValue('name', name)
                     setValue('timeline', timeline)
                     setValue('desc', desc)
-                }} className='rounded-full w-12'>
+                }} className='rounded-md w-12'>
                     <Icon type="normal" use="cancel" color="white" width={3}/>
                 </Button>
-                <Button type='normal' use='submit' className='rounded-full w-12'><p>{loading ? '...' : <Icon type="normal" use="submit" color="white" fill width={1}/>}</p></Button>
+                <Button type='normal' use='submit' className='rounded-md w-12'><p>{loading ? '...' : <Icon type="normal" use="submit" color="white" fill width={1}/>}</p></Button>
             </>:<>
-                <Button onClick={onDelete} type='warning' use="button" className='rounded-full w-12'>
+                <Button onClick={onDelete} type='warning' use="button" className='rounded-md w-12'>
                     <Icon type="normal" use="cancel" width={3} color="white"/>
                 </Button>
-                <Button type='alternate' use='button' onClick={()=>setMode(prev=>!prev)} className='rounded-full w-12 h-12'>
+                <Button type='alternate' use='button' onClick={()=>setMode(prev=>!prev)} className='rounded-md w-12 h-12'>
                     <Icon type="online" use="edit" width={1} color="var(--bg)"/>
                 </Button>
             </>}

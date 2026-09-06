@@ -52,7 +52,7 @@ function Content({timeline, name, map}: {timeline: string, name: string, map: st
                 <i>File Not Found</i>
             </div>}
             <div className="z-20 absolute top-0 bg-black/25 left-0 w-full h-full opacity-0 hover:opacity-100 transition-all duration-150 cursor-pointer flex justify-end items-end p-4">
-                <Button type="normal" use="link" target={slug} className="p-4 rounded-2xl w-16 h-12">
+                <Button type="normal" use="link" target={slug} className="p-4 rounded-md w-16 h-12">
                     <Icon type="normal" use="submit" color="white" scale="2" width={4} fill/>
                 </Button>
             </div>

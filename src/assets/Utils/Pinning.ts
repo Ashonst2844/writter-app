@@ -1,15 +1,55 @@
-export function Sanitizer(html: string) {
-    return html
-        .replace(/<br\s*\/?>/gi, '\n')
-        .replace(/&nbsp;/g, ' ')
-        .replace(/<[^>]*>/g, '')
+import { Sanitizer } from "./Sanitizer";
+
+export type PinEntry = {
+    id?: string;
+    type: string;
+    title: string;
+    content: string;
+    pinnedAt?: string;
 }
 
-export default function Pinning(head: string, body: string, from: string) {
-    if(!head && !body && !from) return
-    window.localStorage.setItem('pinned', JSON.stringify({
-        head: Sanitizer(head),
-        body: Sanitizer(body),
-        from: Sanitizer(from)
-    }))
+const STORAGE_KEY = "writter_multipins";
+
+export function getPins(): PinEntry[] {
+    const raw = localStorage.getItem(STORAGE_KEY) ?? "[]";
+    
+    if (raw) return JSON.parse(raw) as PinEntry[];
+    else return []
+}
+
+export function savePins(pins: PinEntry[]) {
+    if (pins) localStorage.setItem(STORAGE_KEY, JSON.stringify(pins));
+    else return null    
+}
+
+export function clearPins() {
+    localStorage.removeItem(STORAGE_KEY);
+}
+
+export default function Pinning(title: string, content: string, type: string, id?: string) {
+    const pins = getPins();
+    const idx = pins.findIndex(p => p.type === type && (id ? p.id === id : p.title === title));
+    if (idx > -1) {
+        // already pinned -> unpin
+        pins.splice(idx, 1);
+        savePins(pins);
+        try {alert(`${type} unpinned`)} catch(err) {return err}
+        return false;
+    }
+
+    const entry: PinEntry = {
+        id,
+        type,
+        title,
+        content: Sanitizer(content),
+        pinnedAt: new Date().toISOString()
+    };
+
+    pins.unshift(entry);
+
+    if (pins.length > 10) pins.splice(10);
+
+    savePins(pins);
+    try {alert(`${type} pinned`)} catch(err) {return err}
+    return true;
 }

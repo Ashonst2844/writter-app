@@ -35,11 +35,11 @@ Projek Aplikasi Pribadi untuk **Penulis** yang ingin membangun sebuah Novel deng
 - ***Fitur Tambahan***
   - **Pinning**
   Terdapat fitur untuk melakukan pin konten khususnya untuk **Notes** dan **Event** agar tidak perlu untuk sering pindah halaman saat sedang menulis di halaman **Chapter Page**
+  - **Average Word Count**
+  Menghitung seluruh jumlah kata per Chapter lalu melakukan penghitungan untuk rata-rata. 
 
 ----
 ## How To Use:
-
-- **Fork App**
 
 - **Custom Hooks**
   - **useFetch**
@@ -73,48 +73,46 @@ Projek Aplikasi Pribadi untuk **Penulis** yang ingin membangun sebuah Novel deng
   ```
 
 - **Utils**
-  - *Pinning Utils*
-  Kegunaan untuk melakukan pinning 
+  - *Sanitizer Utils*
+  Kegunaan untuk melakukan pembersihan terhadap teks.
   ```ts
-  {/*Sanitasi teks yang ingin di pin menjadi plain-text*/}
   export function Sanitizer(html: string) {
     return html
       .replace(/<br\s*\/?>/gi, '\n')
       .replace(/&nbsp;/g, ' ')
       .replace(/<[^>]*>/g, '')
   }
-
-  {/*Fungsi untuk set Item dengan key pinned ke localStorage*/}
-  export default function Pinning(head: string, body: string, from: string) {
-    if(!head && !body && !from) return
-    window.localStorage.setItem('pinned', JSON.stringify({
-      head: Sanitizer(head), // Judul Pinned
-      body: Sanitizer(body), // Badan/Teks Pinned
-      from: Sanitizer(from) // Berasal dari mana Pinned nya
-    }))
-  }
-
-  {/*Akan di ambil dengan fungsi*/}
-  const handleOn = () => {
-    const data = window.localStorage.getItem('pinned')
-    setPin(JSON.parse(data))
-  }
   ```
   Contoh penggunaan:
   ```tsx
-  Pinned(text)
+  Sanitizer(text)
   ```
-
 ----
 
 ## Follow Me:
 - Nama : **Masagus Ahmad Ramadhan** 
 - NPM : *(202643500545)*
 
-![Gmail](https://img.shields.io/badge/Gmail-%23D14836.svg?style=for-the-badge&logo=gmail&logoColor=white) :
+![Gmail](https://img.shields.io/badge/Gmail-%23D14836.svg?style=for-the-badge&logo=gmail&logoColor=white) : agusyantosugiyanto@gmail.com
 ![Instagram](https://img.shields.io/badge/Instagram-%23E4405F.svg?style=for-the-badge&logo=Instagram&logoColor=white) : 
 ![Facebook](https://img.shields.io/badge/Facebook-%231877F2.svg?style=for-the-badge&logo=Facebook&logoColor=white) :
-![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white) :
+![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white) : [Github Link](https://github.com/Ashonst2844)
 ![TikTok](https://img.shields.io/badge/TikTok-%23000000.svg?style=for-the-badge&logo=TikTok&logoColor=white) : 
 
 ----
+
+## ChangeLog
+
+Keterangan:
+*digit ke-1* : Update Versi Aplikasi
+*digit ke-2* : Update Fitur
+*digit ke-3* : Update Fix
+
+- (4 Sept. 2026) **app-build v1.0**
+  - (5 Sept. 2026) **update-build v1.0.1**
+    Perbaikan backend saat melakukan pembuatan, penghapusan, dan pembaruan data ke supabase
+  - (7 Sept. 2026) **update-build v1.1.0**
+    - Melakukan pembaruan UI/UX
+    - penambahan fitur hitung estimasi rata-rata jumlah kata
+    - Membuat tombol minimize navigasi dashboard
+    - Perbaruan Single Pinning -> Multi Pinning

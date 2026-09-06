@@ -10,7 +10,7 @@ import { Routes, Route, useParams } from "react-router-dom"
 import { useFetch } from "../../Hooks/useFetch"
 import { useForm } from "../../Hooks/useForm";
 
-import Pinning from "../../Utils/Pinning";
+import Pinning, { getPins } from "../../Utils/Pinning";
 
 interface NoteProps {
     note_id:string;
@@ -27,6 +27,14 @@ const createSlug = (text: string | null | undefined) => {
 function NoteAccordion(props: NoteProps) {
     const slug = createSlug(props.title)
     const {onDelete} = useForm([], "note", props.note_id)
+    const [pinned, setPinned] = useState(() =>
+        getPins().some((item) => item.id === props.note_id && item.type === "Note")
+    )
+
+    const handlePin = () => {
+        Pinning(props?.title || "", props?.content || "", "Note", props?.note_id)
+        setPinned(true)
+    }
 
     return <Card>
         <div className="h-full flex flex-col justify-between">
@@ -38,8 +46,8 @@ function NoteAccordion(props: NoteProps) {
                 <Button onClick={onDelete} type='warning' use="button" target={slug} className='rounded-md w-12'>
                     <Icon type="normal" use="cancel" width={6} color="white"/>
                 </Button>
-                <Button type='normal' use='button' className='rounded-md w-12' onClick={() => Pinning(props.title || "", props.content || "", "Note")}>
-                    <Icon type="online" use="pin" color="white" fill/>
+                <Button type={pinned ? "normal" : "alternate"} use='button' className='rounded-md w-12' onClick={handlePin}>
+                    <Icon type="online" use="pin" color={pinned ? "var(--text)" : "var(--primary)"} fill/>
                 </Button>
                 <Button type='normal' use='link' target={slug} className='rounded-md w-12'>
                     <Icon type="online" use="eye" fill color="var(--text)"/>

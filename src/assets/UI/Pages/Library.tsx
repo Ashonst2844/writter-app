@@ -5,12 +5,13 @@ import Icon from "../Components/Icon";
 import Editable from "../Components/Editable";
 
 import { Route, Routes, useParams } from "react-router-dom";
-import { useState, useEffect, type ChangeEvent, type FormEvent } from "react";
+import { useState, useEffect, useMemo, type ChangeEvent, type FormEvent } from "react";
 import { useFetch } from "../../Hooks/useFetch";
 import { useForm } from "../../Hooks/useForm";
 import { useUpload } from "../../Hooks/useUpload";
-import { useWordCounter } from "../../Hooks/useWordCounter";
 import { supabase } from "../../Utils/supabase";
+
+import { Sanitizer } from "../../Utils/Sanitizer";
 
 interface BookProps {
     book_id: string;
@@ -30,6 +31,7 @@ interface ChapterProps {
     name: string;
     content: string;
     status: "draft" | "finish";
+    word: number;
 }
 
 const createSlug = (text: string | null | undefined) => {
@@ -40,7 +42,12 @@ const createSlug = (text: string | null | undefined) => {
 function Book(props: BookProps) {
     const { data } = useFetch<ChapterProps>("chapters");
     const chapterData = data ?? [];
-    const chapterCount = (chapterData.filter(item => item.book_id === props.book_id).filter(item => item.status == "finish").length)
+    const chapters = chapterData.filter(item => item.book_id === props.book_id).filter(item => item.status == "finish")
+
+    const wordAverage = useMemo(() => {
+        const words = chapters.map(item => item.word)
+        return Math.round(words.reduce((a, b) => a + b, 0) / words.length)
+    }, [chapters])
 
     const slug = createSlug(props.title);
     const [mode, setMode] = useState<boolean>(false);
@@ -89,12 +96,16 @@ function Book(props: BookProps) {
                     <Editable type="input" name='title' text={(getValue('title') as string) ?? props.title} onChange={(v)=>setValue('title', v)} editMode={mode} className='text-2xl font-black capitalize w-full'>
                         <h2 className="text-2xl font-black capitalize">{(getValue('title') as string) ?? props.title}</h2>
                     </Editable>
-                    <p>{(chapterCount) || "..."} Chapters</p>
+                    <div className="flex gap-2">
+                        <p>{(chapters.length) || "..."} Chapters</p>
+                        <p>|</p>
+                        <p>Word Average(Estimated) : {wordAverage}</p>
+                    </div>
                     <Editable type="input" name='synopsys' text={(getValue('synopsys') as string) ?? props.synopsys} onChange={(v)=>setValue('synopsys', v)} editMode={mode} className='w-full text-justify opacity-50"'>
                         <p className="w-full text-justify opacity-50">{(getValue('synopsys') as string) ?? props.synopsys}</p>
                     </Editable>
                 </div>
-                <div className='flex w-full h-12 justify-end gap-4 absolute bottom-0'>
+                <div className='flex w-full h-12 justify-end gap-2 absolute bottom-0'>
                     {mode ? <>
                         <Button type='warning' use="button" className='rounded-md w-12' onClick={() => {
                             setMode(false);
@@ -118,7 +129,7 @@ function Book(props: BookProps) {
                             <Icon type="online" use="edit" width={1} color="var(--bg)"/>
                         </Button>
                         <Button type='normal' use='link' target={slug} className='rounded-md w-25'>
-                            <p>View</p>
+                            Read!
                         </Button>
                     </>}
                 </div>
@@ -152,20 +163,27 @@ function ChapterPage({props, loading}: {props: ChapterProps[]; loading: boolean}
     const { slug } = useParams<{ slug: string }>()
     const chapter = props.find((item) => createSlug(item.name) === slug)
     
-    const { onSubmit, loading: formLoading, setValue, getValue } = useForm(['name','content','status'], 'chapter', chapter?.chapter_id ?? "")
+    const { onSubmit, loading: formLoading, setValue, getValue } = useForm(['name','content','status','word'], 'chapter', chapter?.chapter_id ?? "")
 
     const [mode, setMode] = useState<boolean>(false)
 
+    const htmlContent = (getValue('content') as string) ?? ""
+    const wordCount = useMemo(() => {
+        const doc = htmlContent ? new DOMParser().parseFromString(htmlContent, 'text/html') : new DOMParser().parseFromString('', 'text/html');
+        const plainText = doc.body.textContent || "";
+        const pureText = Sanitizer(plainText);
+        const words = pureText ? pureText.split(/\s+/) : [];
+
+        return words.length
+    }, [htmlContent])
+    
     useEffect(()=>{
         if (!chapter) return
         setValue('name', chapter.name)
         setValue('content', chapter.content)
         setValue('status', chapter.status)
+        setValue('word', chapter.word)
     }, [chapter, setValue])
-
-    const htmlContent = (getValue('content') as string) ?? ""
-
-    const {wordCount} = useWordCounter(htmlContent)
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -183,8 +201,9 @@ function ChapterPage({props, loading}: {props: ChapterProps[]; loading: boolean}
 
     return <form onSubmit={handleSubmit} className="w-full h-full p-4 flex flex-col gap-4">
         <input type="hidden" name="content" value={htmlContent}/>
+        <input type="hidden" name="word" value={wordCount}/>
         <Editable type="input" name="name" editMode={mode} text={(getValue('name') as string) ?? chapter.name} onChange={(v)=>setValue('name', v)} className="text-4xl font=bold">
-            <h2 className="text-4xl font=bold">{(getValue('name') as string) ?? chapter.name} - {wordCount}</h2>
+            <h2 className="text-4xl font=bold">{(getValue('name') as string) ?? chapter.name} - {chapter.word}</h2>
         </Editable>
 
         <Editable type="richedit" text={htmlContent} onChange={(html) => setValue("content", html)} editMode={mode} onClick={() => setMode(true)}/>
