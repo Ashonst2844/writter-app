@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 interface ButtonProps {
     type: "normal"|"alternate"|"warning"|"custom";
-    use?: "button"|"link"|"submit";
+    use?: "button"|"link"|"submit"|"url";
     target?: string;
     onClick?: MouseEventHandler<HTMLElement>;
     children: ReactNode;
@@ -38,4 +38,10 @@ export default function Button(props: ButtonProps) {
             {props.children}
         </button>
     }
+    if (props.use==="url") {
+        return <a href={props.target} style={props.style} className={props.type=="custom"?props.className:buttonStyle} target="_blank">
+            {props.children}
+        </a>
+    }
+    
 }

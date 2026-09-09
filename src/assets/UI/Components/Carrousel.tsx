@@ -1,10 +1,12 @@
 import Button from "./Button"
 import Icon from "./Icon"
 
-import { useState, type ReactNode } from "react"
+import { useState, type ReactNode, Children } from "react"
 
 export default function Carrousel({length, children}: {length:number, children:ReactNode}) {
     const [index, setIndex] = useState<number>(0)
+    const slides = Children.toArray(children)
+
     const handlePrev = () => {
         setIndex((prev) => (prev === 0 ? length - 1 : prev - 1));
     }
@@ -12,9 +14,11 @@ export default function Carrousel({length, children}: {length:number, children:R
         setIndex((prev) => (prev === length - 1 ? 0 : prev + 1));
     }
 
-    return <div className="overflow-x-hidden center w-full h-full">
-        <div className="flex h-full w-full transition-transform transition-300" style={{transform: `translateX(-${100 * index}%)`}}>
-            {children}
+    return <div className="overflow-x-hidden center w-full h-full relative">
+        <div className="flex h-full w-full transition-transform transition-300 relative" style={{transform: `translateX(-${100 * index}%)`}}>
+            {slides.map((slide, i) => (
+                <div key={i} className="min-w-full">{slide}</div>
+            ))}
         </div>
         <div className="absolute center gap-4 bottom-0 w-auto h-16">
             <Button onClick={handlePrev} type="custom" use="button" className="hover:brightness-150 bg-(--primary)/20 w-16 h-16 center rounded-full">

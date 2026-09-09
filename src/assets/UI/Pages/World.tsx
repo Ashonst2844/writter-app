@@ -3,11 +3,12 @@ import Loading from "../Components/Loading"
 import Icon from "../Components/Icon"
 import Button from "../Components/Button"
 import Editable from "../Components/Editable"
+import Error from "../Components/Error"
+import Modal from "../Components/Modal"
 
-import { useEffect, useState, type ChangeEvent, type FormEvent } from "react"
+import { useState, type ChangeEvent, type FormEvent } from "react"
 import { Routes, Route, useParams } from "react-router-dom" 
 import { useFetch } from "../../Hooks/useFetch"
-import { supabase } from "../../Utils/supabase"
 import { useForm } from "../../Hooks/useForm"
 import { useUpload } from "../../Hooks/useUpload"
 
@@ -73,7 +74,7 @@ function PlaceAccordion({props}: {props: PlaceData}) {
             setMode(false);
         }
     };
-    
+    const [showModal, setShowModal] = useState<boolean>(false)
 
     return <form onSubmit={handleSubmit} className="w-full p-4 flex flex-col">
         <div className="flex gap-4 items-center">
@@ -90,6 +91,7 @@ function PlaceAccordion({props}: {props: PlaceData}) {
             <Editable type="textarea" name='desc' text={(getValue('desc') as string) ?? props.desc} onChange={(v)=>setValue('desc', v)} editMode={mode} className='opacity-75'>
                 <p className="opacity-75">{(getValue('desc') as string) ?? props.desc}</p>
             </Editable>
+            {showModal && <Modal message={`Delete ${props.name}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
             <div className="flex h-12 gap-2">
                 {mode ? <>
                     <Button type='warning' use="button" className='rounded-md w-12' onClick={() => {
@@ -103,8 +105,8 @@ function PlaceAccordion({props}: {props: PlaceData}) {
                         <Icon type="normal" use="submit" width={3} color="white" fill/>
                     </Button>
                 </> : <>
-                    <Button onClick={onDelete} type='warning' use='button' className='rounded-md w-12'>
-                        <Icon type="normal" use="cancel" width={3} color="white"/>
+                    <Button onClick={() => setShowModal(true)} type='warning' use='button' className='rounded-md w-12'>
+                        <Icon type="online" use="trash" width={3} color="white" fill/>
                     </Button>
                     <Button type='alternate' use='button' onClick={()=>{
                         setMode(true);
@@ -117,39 +119,16 @@ function PlaceAccordion({props}: {props: PlaceData}) {
     </form>
 }
 
-function ContinentPage({props, loading}: {props: ContinentData, loading: boolean}) {
+function ContinentPage({props}: {props: ContinentData}) {
     const slug = createSlug(props.name)
-    const [placeLoading, isLoading] = useState<boolean>(false)
-    const [placeData, setData] = useState<PlaceData[]>([])
 
-    useEffect(() => {
-        let isMounted = true
-        if (!props.continent_id) return
-                        
-        const fetch = async () => {
-            isLoading(true)
-            const { data, error } = await supabase
-                .from('places')
-                .select('*', { count: 'exact' })
-                .eq('continent_id', props?.continent_id)
-                .order('created_at', { ascending: true })
-
-            if (!isMounted) return
-
-            if (error) {
-                console.error(`Error fetching:`, error)
-            } else {
-                setData((data ?? []) as PlaceData[])
-            }
-            isLoading(false)
+    const { data, isLoading, error } = useFetch<PlaceData>("places", '', {
+        eq: {continent_id: props?.continent_id},
+        ascend: {
+            col: "created_at",
+            order: true
         }
-
-        fetch()
-
-        return () => {
-            isMounted = false
-        }
-    }, [props.continent_id])
+    });
 
     const { onCreate } = useForm([], 'place', "", {
         name: "New Place",
@@ -157,8 +136,10 @@ function ContinentPage({props, loading}: {props: ContinentData, loading: boolean
         desc: "Write Description"
     })
 
+    const [showModal, setShowModal] = useState<boolean>(false)
+
     const [mode, setMode] = useState<boolean>(false);
-    const { onSubmit, onDelete, setValue, getValue } = useForm(['image', 'name', 'desc'], 'continent', props.continent_id);
+    const { onSubmit, onDelete, setValue, getValue, loading } = useForm(['image', 'name', 'desc'], 'continent', props.continent_id);
     const { upload, uploading } = useUpload("book-cover/continents");
 
     const [uploadedCover, setUploadedCover] = useState<string | null>(null);
@@ -185,7 +166,8 @@ function ContinentPage({props, loading}: {props: ContinentData, loading: boolean
         }
     };
 
-    if (loading || placeLoading) return <Loading message="Continent"/>
+    if (loading && isLoading) return <Loading message="Continent"/>
+    if (error || !data) return <Error err={error || "Continent not found!"}/>
     return <div className="w-full h-full p-4 flex flex-col gap-4 overflow-auto">
         <form onSubmit={handleSubmit} className="w-full h-48 bg-(--primary) rounded-xl flex justify-between items-end p-4 shadow-md">
             <div className="center gap-4 h-full">
@@ -205,6 +187,7 @@ function ContinentPage({props, loading}: {props: ContinentData, loading: boolean
                     </Editable>
                 </div>
             </div>
+            {showModal && <Modal message={`Delete ${props.name}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
             <div className='flex h-12 gap-2'>
                 {mode ? <>
                     <Button type='warning' use="button" className='rounded-md w-12' onClick={() => {
@@ -220,8 +203,8 @@ function ContinentPage({props, loading}: {props: ContinentData, loading: boolean
                         <Icon type="normal" use="submit" width={3} color="white" fill/>
                     </Button>
                 </> : <>
-                    <Button onClick={onDelete} type='warning' use='button' target={slug} className='rounded-md w-12'>
-                        <Icon type="normal" use="cancel" width={3} color="white"/>
+                    <Button onClick={() => setShowModal(true)} type='warning' use='button' target={slug} className='rounded-md w-12'>
+                        <Icon type="online" use="trash" width={3} color="white" fill/>
                     </Button>
                     <Button type='alternate' use='button' onClick={()=>{
                         setMode(true);
@@ -235,48 +218,24 @@ function ContinentPage({props, loading}: {props: ContinentData, loading: boolean
             <h2 className="text-4xl font-black">Places :</h2>
             <Button type="normal" use="button" onClick={onCreate} className="rounded-full w-12">+</Button>
         </div>
-        {placeData.map((item, i) => <PlaceAccordion key={i} props={item}/>)}
+        {data.map((item, i) => <PlaceAccordion key={i} props={item}/>)}
     </div>
 }
 
-function Continent({props, loading}: {props: TimelineData[]; loading: boolean}) {
+function Continent({props}: {props: TimelineData[]}) {
     const { slug } = useParams<{ slug: string }>()
     const world = props.find((item) => createSlug(`Dunia ${item.name}`) === slug)
 
     const [isOpen, setOpen] = useState<"map" | "continent">("map")
     const [zoomLevel, setZoomLevel] = useState<number>(1) 
 
-    const [continentLoading, isLoading] = useState<boolean>(false)
-    const [continentData, setData] = useState<ContinentData[]>([])
-
-    useEffect(() => {
-        let isMounted = true
-        if (!world?.timeline_id) return
-                        
-        const fetch = async () => {
-            isLoading(true)
-            const { data, error } = await supabase
-                .from('continents')
-                .select('*', { count: 'exact' })
-                .eq('timeline_id', world?.timeline_id)
-                .order('created_at', { ascending: true })
-
-            if (!isMounted) return
-
-            if (error) {
-                console.error(`Error fetching:`, error)
-            } else {
-                setData((data ?? []) as ContinentData[])
-            }
-            isLoading(false)
+    const { data, isLoading, error } = useFetch<ContinentData>("continents", '', {
+        eq: {timeline_id: world?.timeline_id},
+        ascend: {
+            col: "created_at",
+            order: true
         }
-
-        fetch()
-
-        return () => {
-            isMounted = false
-        }
-    }, [world?.timeline_id])
+    });
 
     const { onCreate } = useForm([], 'continent', "", {
         name: "New Continent",
@@ -284,7 +243,8 @@ function Continent({props, loading}: {props: TimelineData[]; loading: boolean}) 
         desc: "Write Description"
     })
 
-    if (loading || continentLoading) return <Loading message="Continents"/>
+    if (isLoading) return <Loading message="Continents"/>
+    if (error || !data) return <Error err={error || "Continents not found!"}/>
     return <div className="flex flex-col w-full h-full overflow-hidden">
         <Routes>
             <Route path="/" element={<>
@@ -305,7 +265,7 @@ function Continent({props, loading}: {props: TimelineData[]; loading: boolean}) 
                         </div>
                     </div>
                     <div className="min-w-full h-full p-4 flex flex-col gap-4 overflow-auto">
-                        {continentData.map((item, i)=><div key={i} className="w-full h-32 bg-(--primary) rounded-xl shadow-md p-4 flex justify-between items-center">
+                        {data.map((item, i)=><div key={i} className="w-full h-32 bg-(--primary) rounded-xl shadow-md p-4 flex justify-between items-center">
                             <div className="flex flex-col gap-2">
                                 <h2 className="text-2xl font-bold">{item.name}</h2>
                                 <p className="text-sm opacity-50">{item.desc}</p>
@@ -322,28 +282,32 @@ function Continent({props, loading}: {props: TimelineData[]; loading: boolean}) 
                     </div>
                 </div>
             </>}/>
-            {continentData.map((item, i) => <Route path={createSlug(item.name)} element={<ContinentPage key={i} props={item} loading={loading}/>}/>)}
+            {data.map((item, i) => <Route path={createSlug(item.name)} element={<ContinentPage key={i} props={item}/>}/>)}
         </Routes>
     </div>
 }
 
 export default function World() {
-    const {data, loading} = useFetch<TimelineData>("timelines")
-    const sortedData = data.sort((a, b) => a.index - b.index)
+    const {data, isLoading, error} = useFetch<TimelineData>("timelines", 'index, name, timeline, timeline_id, map', {
+        ascend: {
+            col: "index",
+            order: true
+        }
+    })
 
-    if (loading) return <Loading message="Timelines"/>
-
+    if (isLoading) return <Loading message="Timelines"/>
+    if (error || !data) return <Error err={error || "Worlds not found!"}/>
     return <section className="w-full h-full">
         <Routes>
             <Route path="/" element={<Carrousel length={(data.length+1)}>
-                {sortedData.map((item, i)=><Content key={i} timeline={item.timeline} name={item.name} map={item.map}/>)}
+                {data.map((item, i)=><Content key={i} timeline={item.timeline} name={item.name} map={item.map}/>)}
                 <div className="min-h-full min-w-full p-4">
                     <form className="h-full w-full p-4 flex flex-col hover:bg-(--accent) center transition-colors transition-300 rounded-2xl">
                         <span className="text-white text-2xl"><code>+</code> Create New Timeline</span>
                     </form>
                 </div>
             </Carrousel>}/>
-            <Route path=":slug/*" element={<Continent props={sortedData} loading={loading}/>}/>
+            <Route path=":slug/*" element={<Continent props={data}/>}/>
         </Routes>
     </section>
 }

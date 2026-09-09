@@ -33,7 +33,6 @@ export default function Pinning(title: string, content: string, type: string, id
         // already pinned -> unpin
         pins.splice(idx, 1);
         savePins(pins);
-        try {alert(`${type} unpinned`)} catch(err) {return err}
         return false;
     }
 
@@ -50,6 +49,5 @@ export default function Pinning(title: string, content: string, type: string, id
     if (pins.length > 10) pins.splice(10);
 
     savePins(pins);
-    try {alert(`${type} pinned`)} catch(err) {return err}
     return true;
 }

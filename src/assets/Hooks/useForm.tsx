@@ -1,5 +1,6 @@
 import { useCallback, useState, type FormEvent } from "react"
 import { supabase } from "../Utils/supabase";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function useForm(inputs: string[], enp: string, id: string, defaultValues?: Record<string,unknown>) {
     const [values, setValues] = useState<Record<string, unknown>>({})
@@ -105,34 +106,42 @@ export function useForm(inputs: string[], enp: string, id: string, defaultValues
         }
     }, [enp, id, normalizeValue, values])
 
+    const queryClient = useQueryClient()
+
     const onCreate = useCallback(async () => {
-        const { data, error } = await supabase
-            .from(enp+"s")
-            .insert([
-            { ...defaultValues }
-            ])
-            .select();
+        setLoading(true)
+        setError(null)
+        try {
+            const { data, error } = await supabase
+                .from(`${enp}s`)
+                .insert([{ ...(defaultValues ?? {}) }])
+                .select();
 
-        if (error) {
-            console.error("Failed To Create:", error);
-            return null;
+            if (error) throw error
+
+            // Invalidate cache for this entity
+            try { queryClient.invalidateQueries({ queryKey: [enp + 's'] }) } catch (err) {return {ok: false, error: err}}
+
+            window.location.reload()
+            return { ok: true, data }
+        } catch (err) {
+            console.error(`Gagal create ${enp}:`, err)
+            setError(err as Error | string || `Gagal membuat ${enp}`)
+            return { ok: false, error: err }
+        } finally {
+            setLoading(false)
         }
-
-        console.log("1 Row Created:", data);
-        window.location.reload();
-    }, [enp, defaultValues])
+    }, [enp, defaultValues, queryClient])
 
     const onDelete = useCallback(async () => {        
-        if(window.confirm(`Delete ${enp.toUpperCase()}?`)){
-            const { error } = await supabase
-                .from(`${enp}s`)
-                .delete()
-                .eq(`${enp}_id`, id);
+        const { error } = await supabase
+            .from(`${enp}s`)
+            .delete()
+            .eq(`${enp}_id`, id);
 
-            if (error) {
-                console.error("Failed To Delete:", error.message);
-                return false;
-            }
+        if (error) {
+            console.error("Failed To Delete:", error.message);
+            return false;
         }
 
         console.log("1 Row Deleted!");

@@ -3,13 +3,14 @@ import Card from "../Components/Card";
 import Button from "../Components/Button";
 import Icon from "../Components/Icon";
 import Editable from "../Components/Editable";
+import Error from "../Components/Error";
+import Modal from "../Components/Modal";
 
 import { Route, Routes, useParams } from "react-router-dom";
 import { useState, useEffect, useMemo, type ChangeEvent, type FormEvent } from "react";
 import { useFetch } from "../../Hooks/useFetch";
 import { useForm } from "../../Hooks/useForm";
 import { useUpload } from "../../Hooks/useUpload";
-import { supabase } from "../../Utils/supabase";
 
 import { Sanitizer } from "../../Utils/Sanitizer";
 
@@ -40,18 +41,21 @@ const createSlug = (text: string | null | undefined) => {
 };
 
 function Book(props: BookProps) {
-    const { data } = useFetch<ChapterProps>("chapters");
-    const chapterData = data ?? [];
-    const chapters = chapterData.filter(item => item.book_id === props.book_id).filter(item => item.status == "finish")
+    const { data } = useFetch<ChapterProps>("chapters", 'book_id, word, status');
+    const chapters = data.filter(item => item.book_id === props.book_id)
 
-    const wordAverage = useMemo(() => {
+    const [showModal, setShowModal] = useState<boolean>(false)
+
+    const wordAverage = () => {
         const words = chapters.map(item => item.word)
         return Math.round(words.reduce((a, b) => a + b, 0) / words.length)
-    }, [chapters])
+    }
+
+    const bookStatus = `${chapters.length || "..."} Total Chapters | ${chapters.filter(item => item.status==="finish").length || "..."} Finished | ${chapters.filter(item => item.status==="draft").length || "..."} On Draft | ${wordAverage()} Word Avrg(Est.)`
 
     const slug = createSlug(props.title);
     const [mode, setMode] = useState<boolean>(false);
-    const { onSubmit, onDelete, setValue, getValue } = useForm(['title', 'synopsys', 'cover'], 'book', props.book_id);
+    const { onSubmit, onDelete, setValue, getValue } = useForm(['title', 'synopsys', 'link', 'cover'], 'book', props.book_id);
     const { upload, uploading } = useUpload("book-cover");
 
     const [uploadedCover, setUploadedCover] = useState<string | null>(null);
@@ -66,6 +70,7 @@ function Book(props: BookProps) {
             setValue('cover', url);
             setValue('title', props.title);
             setValue('synopsys', props.synopsys);
+            setValue('link', props.link);
         }
     };
 
@@ -78,70 +83,71 @@ function Book(props: BookProps) {
         }
     };
 
-    return (
-        <Card>
-            <form onSubmit={handleSubmit} className="h-full flex gap-4 relative">
-                <div>
-                    <Editable type="upload" editMode={mode} onChange={handleCoverUpload} uploading={uploading}>
-                        {props.cover==null||props.cover==""?
-                            <div className="w-full h-full bg-(--accent) rounded-md"/>:
-                            <img src={currentCover} alt={props.title} className="w-full h-52 object-fit rounded-lg" />
-                        }
-                    </Editable>
-                </div>
+    return <Card>
+        <form onSubmit={handleSubmit} className="h-full flex gap-4 relative">
+            <div>
+                <Editable type="upload" editMode={mode} onChange={handleCoverUpload} uploading={uploading}>
+                    {props.cover==null||props.cover==""?
+                        <div className="w-full h-full bg-(--accent) rounded-md"/>:
+                        <img src={currentCover} alt={props.title} className="w-full h-52 object-fit rounded-lg" />
+                    }
+                </Editable>
+            </div>
 
-                <input type="hidden" name="cover" value={currentCover} />
-                
-                <div className="flex flex-col gap-2 w-[60%]">
-                    <Editable type="input" name='title' text={(getValue('title') as string) ?? props.title} onChange={(v)=>setValue('title', v)} editMode={mode} className='text-2xl font-black capitalize w-full'>
-                        <h2 className="text-2xl font-black capitalize">{(getValue('title') as string) ?? props.title}</h2>
-                    </Editable>
-                    <div className="flex gap-2">
-                        <p>{(chapters.length) || "..."} Chapters</p>
-                        <p>|</p>
-                        <p>Word Average(Estimated) : {wordAverage}</p>
-                    </div>
-                    <Editable type="input" name='synopsys' text={(getValue('synopsys') as string) ?? props.synopsys} onChange={(v)=>setValue('synopsys', v)} editMode={mode} className='w-full text-justify opacity-50"'>
-                        <p className="w-full text-justify opacity-50">{(getValue('synopsys') as string) ?? props.synopsys}</p>
-                    </Editable>
-                </div>
-                <div className='flex w-full h-12 justify-end gap-2 absolute bottom-0'>
-                    {mode ? <>
-                        <Button type='warning' use="button" className='rounded-md w-12' onClick={() => {
-                            setMode(false);
-                            setUploadedCover(null);
-                            setValue('title', props.title);
-                            setValue('synopsys', props.synopsys);
-                            setValue('cover', props.cover);
-                        }}>
-                            <Icon type="normal" use="cancel" width={3} color="white"/>
-                        </Button>
-                        <Button type='normal' use="submit" className='rounded-md w-12'>
-                            <Icon type="normal" use="submit" width={3} color="white" fill/>
-                        </Button>
-                    </> : <>
-                        <Button onClick={onDelete} type='warning' use='button' target={slug} className='rounded-md w-12'>
-                            <Icon type="normal" use="cancel" width={3} color="white"/>
-                        </Button>
-                        <Button type='alternate' use='button' onClick={()=>{
-                            setMode(true);
-                        }} className='rounded-md w-12'>
-                            <Icon type="online" use="edit" width={1} color="var(--bg)"/>
-                        </Button>
-                        <Button type='normal' use='link' target={slug} className='rounded-md w-25'>
-                            Read!
-                        </Button>
-                    </>}
-                </div>
-            </form>
-        </Card>
-    );
+            <input type="hidden" name="cover" value={currentCover} />
+            
+            <div className="flex flex-col gap-2 w-[60%]">
+                <Editable type="input" name='title' text={(getValue('title') as string) ?? props.title} onChange={(v)=>setValue('title', v)} editMode={mode} className='text-2xl font-black capitalize w-full'>
+                    <h2 className="text-2xl font-black capitalize">{(getValue('title') as string) ?? props.title}</h2>
+                </Editable>
+                <Editable type="input" name='link' text={(getValue('link') as string) ?? props.link} onChange={(v)=>setValue('link', v)} editMode={mode} className='text-xl font-black capitalize w-full'> </Editable>
+                <p>{bookStatus}</p>
+                <Editable type="textarea" name='synopsys' text={(getValue('synopsys') as string) ?? props.synopsys} onChange={(v)=>setValue('synopsys', v)} editMode={mode} className='w-full text-justify opacity-50"'>
+                    <p className="w-full text-justify opacity-50">{(getValue('synopsys') as string) ?? props.synopsys}</p>
+                </Editable>
+            </div>
+            {showModal && <Modal message={`Delete ${props.title}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
+            <div className='flex w-full h-12 justify-end gap-2 absolute bottom-0'>
+                {mode ? <>
+                    <Button type='warning' use="button" className='rounded-md w-12' onClick={() => {
+                        setMode(false);
+                        setUploadedCover(null);
+                        setValue('title', props.title);
+                        setValue('synopsys', props.synopsys);
+                        setValue('link', props.link);
+                        setValue('cover', props.cover);
+                    }}>
+                        <Icon type="normal" use="cancel" width={3} color="white"/>
+                    </Button>
+                    <Button type='normal' use="submit" className='rounded-md w-12'>
+                        <Icon type="normal" use="submit" width={3} color="white" fill/>
+                    </Button>
+                </> : <>
+                    <Button onClick={() => setShowModal(true)} type='warning' use='button' className='rounded-md w-12'>
+                        <Icon type="online" use="trash" width={3} color="white" fill/>
+                    </Button>
+                    <Button type='alternate' use='button' onClick={()=>{
+                        setMode(true);
+                    }} className='rounded-md w-12'>
+                        <Icon type="online" use="edit" width={1} color="var(--bg)"/>
+                    </Button>
+                    <Button type='normal' use='link' target={slug} className='rounded-md w-12'>
+                        <Icon type="normal" use="burger" width={6} color="var(--text)"/>
+                    </Button>
+                    <Button type='normal' use='url' target={props.link} className='rounded-md w-25'>
+                        Read!
+                    </Button>
+                </>}
+            </div>
+        </form>
+    </Card>
 }
 
 function Chapter({name, index, status, chapter_id}: {name: string, index: number, status: string, chapter_id: string}) {
     const slug = createSlug(name);
     const state = status === "finish" ? true : false 
     const {onDelete} = useForm([], "chapter", chapter_id)
+    const [showModal, setShowModal] = useState<boolean>(false)
 
     return <div className="flex items-center w-full h-16 bg-(--primary) rounded-xl overflow-hidden">
         <Button type="normal" use="link" target={slug} className="w-[10%] h-full bg-(--accent) center text-4xl font-black">
@@ -149,21 +155,22 @@ function Chapter({name, index, status, chapter_id}: {name: string, index: number
         </Button>
         <div className="flex justify-between items-center w-[90%] h-full px-2">
             <h2 className="text-2xl">{name}</h2>
+            {showModal && <Modal message={`Delete ${name}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
             <div className="flex h-12 gap-2">
                 <span className={`w-24 h-full inline-block center border-2 rounded-2xl transition-all duration-150 hover:brightness-125 ${state?"bg-(--success)/50 border-(--success)":"bg-(--warning)/50 border-(--warning)"}`}>{status.toUpperCase()}</span>
-                <Button onClick={onDelete} type='warning' use="button" target={slug} className='rounded-xl w-12'>
-                    <Icon type="normal" use="cancel" width={3} color="white"/>
+                <Button onClick={() => setShowModal(true)} type='warning' use="button" target={slug} className='rounded-xl w-12'>
+                    <Icon type="online" use="trash" width={3} color="white" fill/>
                 </Button>
             </div>
         </div>
     </div>
 }
 
-function ChapterPage({props, loading}: {props: ChapterProps[]; loading: boolean}) {
+function ChapterPage({props,error}: {props: ChapterProps[], error: Error | null}) {
     const { slug } = useParams<{ slug: string }>()
     const chapter = props.find((item) => createSlug(item.name) === slug)
     
-    const { onSubmit, loading: formLoading, setValue, getValue } = useForm(['name','content','status','word'], 'chapter', chapter?.chapter_id ?? "")
+    const { onSubmit, loading, setValue, getValue } = useForm(['name','content','status','word'], 'chapter', chapter?.chapter_id ?? "")
 
     const [mode, setMode] = useState<boolean>(false)
 
@@ -191,14 +198,9 @@ function ChapterPage({props, loading}: {props: ChapterProps[]; loading: boolean}
         if (res?.ok) setMode(false);
     }
 
-    if (loading && formLoading) return <div className="p-4">
-        <p className="opacity-50 mb-4">Memuat Chapter...</p>
-    </div>;
-    else if (!chapter) return <div className="p-4">
-        <p className="opacity-50 mb-4">Chapter tidak ditemukan.</p>
-        <Button type="normal" use="link" target="..">Back To List!</Button>
-    </div>
-
+    if (loading) return <Loading message="Chapter" />
+    if (error || !chapter) return <Error err={error || "Chapters not found!"}/>
+    if (!chapter) return <Error err="Chapter not found" />
     return <form onSubmit={handleSubmit} className="w-full h-full p-4 flex flex-col gap-4">
         <input type="hidden" name="content" value={htmlContent}/>
         <input type="hidden" name="word" value={wordCount}/>
@@ -231,50 +233,28 @@ function ChapterPage({props, loading}: {props: ChapterProps[]; loading: boolean}
     </form>
 }
 
-function BookPage({props, loading}: {props: BookProps[]; loading: boolean}) {
+function BookPage({props}: {props: BookProps[]}) {
     const { slug } = useParams<{ slug: string }>()
     const book = props.find((item) => createSlug(item.title) === slug)
-
-    const [chapterLoading, isLoading] = useState<boolean>(false)
-    const [chapterData, setData] = useState<ChapterProps[]>([])
+    
     const [pageIndex, setPageIndex] = useState<number>(1)
-    const [chapterCount, setChapterCount] = useState<number>()
 
-    useEffect(() => {
-        let isMounted = true
-        if (!book?.book_id) return
-        
-        const pageSize = 10;
-        
-        const from = (pageIndex - 1) * pageSize;
-        const to = from + pageSize - 1;
-        
-        const fetch = async () => {
-            isLoading(true)
-            const { data: chapters, count, error } = await supabase
-                .from('chapters')
-                .select('*', { count: 'exact' })
-                .eq('book_id', book?.book_id)
-                .order('created_at', { ascending: true })
-                .range(from, to);
+    const pageSize = 10;
+    const from = (pageIndex - 1) * pageSize;
+    const to = from + pageSize - 1;
 
-            if (!isMounted) return
-
-            if (error) {
-                console.error(`Error fetching:`, error)
-            } else {
-                setData((chapters ?? []) as ChapterProps[])
-                setChapterCount(count || 0)
-            }
-            isLoading(false)
-        }
-
-        fetch()
-
-        return () => {
-            isMounted = false
-        }
-    }, [book?.book_id, pageIndex])
+    const { data, isLoading, error, counted } = useFetch<ChapterProps>("chapters", '', {
+        eq: {book_id: book?.book_id},
+        ascend: {
+            col: "created_at",
+            order: true
+        },
+        range: {
+            from: from,
+            to: to
+        },
+        count: "exact"
+    });
 
     const { onCreate } = useForm([], 'chapter', "", {
         book_id: book?.book_id,
@@ -282,35 +262,31 @@ function BookPage({props, loading}: {props: BookProps[]; loading: boolean}) {
         content: "Write Story"
     });
 
-    if (loading || chapterLoading) return <Loading message="Chapter" />
-    else if (!book) return <div className="p-4">
-        <p className="opacity-50 mb-4">Chapter tidak ditemukan.</p>
-        <Button type="normal" use="link" target="..">Back To List!</Button>
-    </div>
+    const pageLength = Math.ceil((counted ?? 0) / 10);
 
-    const pageLength = Math.ceil((chapterCount ?? 0) / 10);
-
+    if (isLoading) return <Loading message="Chapters" />
+    if (error || !book) return <Error err={error || "Book not found!"}/>
     return <Routes>
         <Route path="/" element={<form className="w-full p-4 flex flex-col gap-2">
-            <div className="flex gap-2 sticky top-0 left-[50%] translate-x-[-50%] z-10 bg-(--primary) p-2 rounded-xl w-fit">
-                {Array.from({length:pageLength}, (_,i)=><Button type="custom" key={i} use="button" onClick={()=>setPageIndex(i+1)} className="w-12 h-12 border border-(--accent) rounded-full font-bold hover:bg-(--accent)" style={{
-                    backgroundColor:pageIndex==(i+1)?"var(--accent)":"none"
-                }}>{i+1}</Button>)}
+            <div className="flex gap-2 flex-col items-center sticky top-0 left-[50%] translate-x-[-50%] z-10 w-fit">
+                <div className="flex gap-2 bg-(--primary) p-2 rounded-xl">
+                    {Array.from({length:pageLength}, (_,i) => <Button type="custom" key={i} use="button" onClick={()=>setPageIndex(i+1)} className="w-12 h-12 border border-(--accent) rounded-full font-bold hover:bg-(--accent)">{i+1}</Button>)}
+                </div>
+                <span className="text-xl">{pageIndex}/{pageLength}</span>
             </div>
-            {chapterData?.map((item, i)=><Chapter key={i} name={item.name} index={(pageIndex - 1) * 10 + i} status={item.status} chapter_id={item.chapter_id}/>)}
+            {data?.map((item, i)=><Chapter key={i} name={item.name} index={(pageIndex - 1) * 10 + i} status={item.status} chapter_id={item.chapter_id}/>)}
             <div className="h-16 w-full bg-(--primary) shadow-2xl rounded-xl overflow-hidden">
                 <Button type="normal" use="button" onClick={onCreate} className="h-full w-full transition-colors transition-300">
                     <span className="text-white text-2xl"><code>+</code> Create New Chapter</span>
                 </Button>
             </div>
         </form>}/>
-        <Route path=":slug" element={<ChapterPage props={chapterData} loading={loading}/>}/>
+        <Route path=":slug" element={<ChapterPage props={data} error={error}/>}/>
     </Routes>
 }
 
 export default function Library() {
-    const { data, loading } = useFetch<BookProps>("books");
-    const bookData = data ?? [];
+    const { data, isLoading, error } = useFetch<BookProps>("books", '');
 
     const { onCreate } = useForm([], 'book', "", {
         title: "Book Title",
@@ -318,19 +294,19 @@ export default function Library() {
         link: "Insert Link"
     });
 
-    if (loading) return <Loading message="Books" />
-
+    if (isLoading) return <Loading message="Books" />
+    if (error || !data) return <Error err={error || "Books not found!"}/>
     return <section className="w-full h-full">
         <Routes>
             <Route path="/" element={<div className="grid gap-4 lg:grid-cols-1 p-4">
-                {bookData.map((item) => <Book key={item.book_id} {...item} />)}
+                {data.map((item) => <Book key={item.book_id} {...item} />)}
                 <div className="h-full w-full bg-(--primary) shadow-2xl rounded-2xl overflow-hidden">
                     <form onClick={onCreate} className="h-full hover:bg-(--accent) center p-4 transition-colors transition-300">
                         <span className="text-white text-2xl"><code>+</code> Create New Book</span>
                     </form>
                 </div>
             </div>} />
-            <Route path=":slug/*" element={<BookPage props={bookData} loading={loading}/>}/>
+            <Route path=":slug/*" element={<BookPage props={data}/>}/>
         </Routes>
     </section>
 }

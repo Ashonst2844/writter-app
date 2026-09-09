@@ -35,11 +35,6 @@ export default function Icon(props: IconProps) {
                     <line x1={30} y1={50} x2={70} y2={50}/>
                     <line x1={30} y1={70} x2={70} y2={70}/>
                 </>
-                :props.use==="save"?
-                <>
-                    <polyline points="40,30 30,30 30,70 70,70 70,30 50,30 50,60" strokeLinecap="round" strokeLinejoin="round"/>
-                    <polyline points="40,50 50,60 60,50" strokeLinecap="round" strokeLinejoin="round"/>
-                </>
                 :""
             }
         </svg>
@@ -84,9 +79,10 @@ export default function Icon(props: IconProps) {
             <path d="M6 22q-.825 0-1.412-.587T4 20V4q0-.825.588-1.412T6 2h8l6 6v12q0 .825-.587 1.413T18 22zm7-13h5l-5-5z"/>
         </svg>}
         if (props.use==="exit") {return <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill={props.fill?props.color:"none"} style={{scale:props.scale}}>
-            <path fill-rule="evenodd" d="M3.5 6A3.5 3.5 0 0 1 7 2.5h5a1.5 1.5 0 0 1 0 3H7a.5.5 0 0 0-.5.5v12a.5.5 0 0 0 .5.5h5a1.5 1.5 0 0 1 0 3H7A3.5 3.5 0 0 1 3.5 18zm12.44 2.11a1.5 1.5 0 0 1 2.12 0l2.829 2.83a1.5 1.5 0 0 1 0 2.12l-2.828 2.83a1.5 1.5 0 1 1-2.122-2.122l.268-.268H12a1.5 1.5 0 0 1 0-3h4.207l-.268-.268a1.5 1.5 0 0 1 0-2.121" clip-rule="evenodd"/>
-        </svg>
-            
-        }
+            <path d="M3.5 6A3.5 3.5 0 0 1 7 2.5h5a1.5 1.5 0 0 1 0 3H7a.5.5 0 0 0-.5.5v12a.5.5 0 0 0 .5.5h5a1.5 1.5 0 0 1 0 3H7A3.5 3.5 0 0 1 3.5 18zm12.44 2.11a1.5 1.5 0 0 1 2.12 0l2.829 2.83a1.5 1.5 0 0 1 0 2.12l-2.828 2.83a1.5 1.5 0 1 1-2.122-2.122l.268-.268H12a1.5 1.5 0 0 1 0-3h4.207l-.268-.268a1.5 1.5 0 0 1 0-2.121"/>
+        </svg>}
+        if (props.use==="trash") {return <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill={props.fill?props.color:"none"} style={{scale:props.scale}}>
+            <path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6z"/>
+        </svg>}
     }
 }

@@ -4,6 +4,8 @@ import Editable from "../Components/Editable";
 import Icon from "../Components/Icon";
 import Loading from "../Components/Loading";
 import Badge from "../Components/Badge";
+import Modal from "../Components/Modal";
+import Error from "../Components/Error";
 
 import { useState, useEffect, type ChangeEvent, type FormEvent } from "react";
 import { Routes, Route, useParams } from "react-router-dom"
@@ -26,14 +28,13 @@ const createSlug = (text: string | null | undefined) => {
 function EventAccordion(props: EventProps) {
     const slug = createSlug(props.title)
     const {onDelete} = useForm([], "event", props.event_id)
+    const [showModal, setShowModal] = useState<boolean>(false)
 
-    const [pinned, setPinned] = useState<boolean>(() =>
-        getPins().some((item) => item.id === props.event_id && item.type === "Events")
-    )
+    const [pinned, setPinned] = useState<boolean>(() => getPins().some((item) => item.id === props.event_id && item.type === "Event"))
 
     const handlePin = () => {
-        Pinning(props?.title || "", props?.content || "", "Note", props?.event_id)
-        setPinned(true)
+        Pinning(props?.title || "", props?.content || "", "Event", props?.event_id)
+        setPinned(prev => !prev)
     }
 
     return <Card>
@@ -42,9 +43,10 @@ function EventAccordion(props: EventProps) {
             <div className="flex gap-2 w-auto">
                 {props.tags?.map((item, i)=><Badge key={i} content={item}/>)}
             </div>
+            {showModal && <Modal message={`Delete ${props.title}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
             <div className='flex w-full h-12 justify-end gap-2'>
-                <Button onClick={onDelete} type='warning' use="button" target={slug} className='rounded-md w-12'>
-                    <Icon type="normal" use="cancel" width={6} color="white"/>
+                <Button onClick={() => setShowModal(true)} type='warning' use="button" target={slug} className='rounded-md w-12'>
+                    <Icon type="online" use="trash" width={3} color="white" fill/>
                 </Button>
                 <Button type={pinned ? "normal" : "alternate"} use='button' className='rounded-md w-12' onClick={handlePin}>
                     <Icon type="online" use="pin" color={pinned ? "var(--text)" : "var(--primary)"} fill/>
@@ -57,11 +59,11 @@ function EventAccordion(props: EventProps) {
     </Card>
 }
 
-function EventPage({props, loading}: {props: EventProps[]; loading: boolean}) {
+function EventPage({props, error}: {props: EventProps[]; error: Error | null}) {
     const { slug } = useParams<{ slug: string }>()
     const event = props.find((item) => createSlug(item.title) === slug)
     
-    const { onSubmit, loading: formLoading, setValue, getValue } = useForm(['title','content','tags'], 'event', event?.event_id ?? "")
+    const { onSubmit, loading, setValue, getValue } = useForm(['title','content','tags'], 'event', event?.event_id ?? "")
 
     const [mode, setMode] = useState<boolean>(false)
 
@@ -80,14 +82,8 @@ function EventPage({props, loading}: {props: EventProps[]; loading: boolean}) {
         if (res?.ok) setMode(false);
     }
 
-    if (loading && formLoading) return <div className="p-4">
-        <p className="opacity-50 mb-4">Memuat Event...</p>
-    </div>;
-    else if (!event) return <div className="p-4">
-        <p className="opacity-50 mb-4">Event tidak ditemukan.</p>
-        <Button type="normal" use="link" target="..">Back To List!</Button>
-    </div>
-
+    if (loading) return <Loading message="Events"/>
+    if (error || !event) return <Error err={error || "Event not found!"}/>
     return <form onSubmit={handleSubmit} className="w-full h-full p-4 flex flex-col gap-4">
         <input type="hidden" name="content" value={htmlContent}/>
         <Editable type="input" name="title" editMode={mode} text={(getValue('title') as string) ?? event.title} onChange={(v)=>setValue('title', v)} className="text-4xl font-bold">
@@ -122,9 +118,8 @@ function EventPage({props, loading}: {props: EventProps[]; loading: boolean}) {
     </form>
 }
 
-export default function Note() {
-    const {data, loading} = useFetch<EventProps>("events")
-    const eventData = data ?? []
+export default function Event() {
+    const {data, isLoading, error} = useFetch<EventProps>("events", 'event_id, title, content, tags')
     const [searchQ, setSearchQ] = useState<string>("")
 
     const { onCreate } = useForm([], 'event', "", {
@@ -132,9 +127,8 @@ export default function Note() {
         content: "Write Description"
     })
 
-    if (loading) {
-        return <Loading message="Events"/>
-    }
+    if (isLoading) return <Loading message="Events"/>
+    if (error || !data) return <Error err={error || "Event not found!"}/>
     return <section className="w-full h-full flex flex-col gap-4">
         <div className="w-full h-12 flex">
             <input autoComplete="off" autoCorrect="off" autoCapitalize="none" spellCheck="false" value={searchQ} onChange={(e: ChangeEvent<HTMLInputElement>) => 
@@ -142,7 +136,7 @@ export default function Note() {
             } type="text" placeholder="Search event..." className="w-full h-full bg-(--primary) p-4 m-4 rounded-xl"/>
         </div>
         <Routes>
-            <Route path="/" element={<div className="grid gap-4 lg:grid-cols-1 p-4">
+            <Route path="/" element={<div className="grid gap-4 lg:grid-cols-2 p-4">
                 {data.map((item) => item.title?.includes(searchQ) && <EventAccordion key={item.event_id} {...item}/>)}
                 <div className="h-full w-full bg-(--primary) shadow-2xl rounded-2xl overflow-hidden">
                     <form onClick={onCreate} className="h-full hover:bg-(--accent) center p-4 transition-colors transition-300">
@@ -150,7 +144,7 @@ export default function Note() {
                     </form>
                 </div>
             </div>}/>
-            <Route path=":slug" element={<EventPage props={eventData} loading={loading}/>}/>
+            <Route path=":slug" element={<EventPage props={data} error={error}/>}/>
         </Routes>
     </section>
 }

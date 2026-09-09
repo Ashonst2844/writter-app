@@ -1,52 +1,60 @@
-import { useState, useEffect, useCallback } from "react"
 import { supabase } from "../Utils/supabase"
+import { useQuery, type UseQueryOptions } from "@tanstack/react-query"
+import { useState } from "react";
 
-export function useFetch<T = unknown>(key: string) {
-    const [data, setData] = useState<T[]>([])
-    const [loading, setLoading] = useState<boolean>(true)
-    const [error, setError] = useState<Error | null>(null)
+export interface SupabaseConfig {
+    eq?: Record<string,unknown>;
+    ascend?: {col: string, order: boolean};
+    limit?: number;
+    range?: {from: number, to: number};
+    count?: string
+}
 
-    const refetch = useCallback(async () => {
-        setLoading(true)
-        setError(null)
+export type UseFetchOptions<T> = Omit<
+    UseQueryOptions<T[], Error>,
+    "queryKey" | "queryFn"
+>
 
-        const res = await supabase.from(key).select("*")
-        const { data: result, error } = res as { data: T[] | null; error: Error | null }
+export function useFetch<T = unknown>(key: string, take: string, q?: SupabaseConfig, option?: UseFetchOptions<T>) {
+    const [counted, setCount] = useState<number>(0)
+    const { data = [], error, isLoading, refetch} = useQuery({
+        queryKey: [key, take || "*", JSON.stringify({ q: q ?? null })],
+        queryFn: async () => {
+            let query = supabase.from(key).select(take || "*", { count: q?.count })
+            if(q?.eq) {
+                Object.entries(q.eq).forEach(([col, value]) => {
+                    if (value !== undefined && value !== null) {
+                        query = query.eq(col, value as never)
+                    }
+                })
+            }
 
-        if (error) {
-            console.error(`Error fetching ${key}:`, error)
-            setError(error)
-        } else {
-            setData((result ?? []) as T[])
-        }
-        setLoading(false)
-    }, [key])
+            if(q?.ascend) {
+                query = query.order(q.ascend.col, {ascending: q.ascend.order ?? true})
+            }
 
-    useEffect(() => {
-        let isMounted = true
+            if(q?.limit) {
+                query = query.limit(q.limit)
+            }
 
-        const loadInitialData = async () => {
-            const res = await supabase.from(key).select("*")
-            const { data: result, error } = res as { data: T[] | null; error: Error | null }
+            if(q?.range) {
+                query = query.range(q.range.from, q.range.to)
+            }
 
-            if (!isMounted) return
+            const { data: result, error, count } = await query
 
             if (error) {
                 console.error(`Error fetching ${key}:`, error)
-                setError(error)
+                throw error
             } else {
-                setData((result ?? []) as T[])
-                setError(null)
+                if(q?.count) {
+                    setCount(count || 0)
+                }
             }
-            setLoading(false)
-        }
 
-        loadInitialData()
-
-        return () => {
-            isMounted = false
-        }
-    }, [key])
-
-    return { data, loading, error, refetch }
+            return (result ?? []) as T[]
+        },
+        ...option
+    })
+    return {data, error, isLoading, refetch, counted}
 }

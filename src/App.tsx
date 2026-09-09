@@ -65,25 +65,25 @@ function Projects(props: ProjectData) {
 }
 
 export default function App() {
-  const {data, loading} = useFetch<ProjectData>("projects")
+  const {data, isLoading} = useFetch<ProjectData>("projects", '')
 
-  if (loading) {
-      return <Loading message="Projects"/>
-  }
-  return <main>
-      <Routes>
-        <Route path='/' element={
-          <section className='p-4'>
-            <div className='text-center mb-4'>
-              <h1 className='text-4xl font-bold uppercase'>Universes</h1>
-              <span className='opacity-50'>Masagus Ahmad Ramadhan</span>
-            </div>
-            <div className='grid gap-2 grid-cols-[repeat(auto-fit,minmax(200px,1fr))] lg:grid-cols-3'>
-              {data.map((item)=><Projects key={item.project_id} name={item.name} created_at={item.created_at.slice(0,10)} project_id={item.project_id}/>) }
-            </div>
-          </section>
-        }/>
-        <Route path='/dashboard/:id/*' element={<Dashboard projects={data}/>}/>
-      </Routes>
-  </main>
+  if (isLoading) return <Loading message="Projects"/>
+  return (
+    <main>
+        <Routes>
+          <Route path='/' element={
+            <section className='p-4'>
+              <div className='text-center mb-4'>
+                <h1 className='text-4xl font-bold uppercase'>Universes</h1>
+                <span className='opacity-50'>Masagus Ahmad Ramadhan</span>
+              </div>
+              <div className='grid gap-2 grid-cols-[repeat(auto-fit,minmax(200px,1fr))] lg:grid-cols-3'>
+                {data.map((item)=><Projects key={item.project_id} name={item.name} created_at={item.created_at.slice(0,10)} project_id={item.project_id}/>) }
+              </div>
+            </section>
+          }/>
+          <Route path='/dashboard/:id/*' element={<Dashboard projects={data}/>}/>
+        </Routes>
+    </main>
+  )
 }

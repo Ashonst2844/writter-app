@@ -3,11 +3,15 @@ import Card from "../Components/Card";
 import Editable from "../Components/Editable";
 import Icon from "../Components/Icon";
 import Loading from "../Components/Loading";
+import Error from "../Components/Error";
+import Modal from "../Components/Modal";
 
 import { useState, useEffect, type ChangeEvent, type FormEvent } from "react";
 import { useFetch } from "../../Hooks/useFetch"
 import { useForm } from "../../Hooks/useForm";
 import { Routes, Route, useParams } from "react-router-dom";
+
+import Pinning, {getPins} from "../../Utils/Pinning";
 
 interface CharacterProps {
     character_id: string;
@@ -23,13 +27,28 @@ const createSlug = (text: string) => text.toLowerCase().trim().replace(/\s+/g, "
 function CharacterCard(props: CharacterProps) {
     const slug = createSlug(props.name)
     const {onDelete} = useForm([], "character", props.character_id)
+    const [showModal, setShowModal] = useState(false)
+
+    const [pinned, setPinned] = useState<boolean>(() => getPins().some((item) => item.id === props.character_id && item.type === "Character"))
+
+    const handlePin = () => {
+        const head = `${props?.name || ""} (${props.age || ""} yo. | ${props.faction || ""})`
+
+        Pinning(head, props?.desc, "Character", props.character_id)
+        setPinned(prev => !prev)
+    }
+
 
     return <Card>
-        <div className="h-full flex flex-col justify-between">
+        <div className="h-full flex flex-col justify-between relative">
             <h2 className="text-4xl font-black">{props.name}</h2>
-            <div className='flex w-full h-12 justify-end gap-2'>
-                <Button onClick={onDelete} type='warning' use="button" target={slug} className='rounded-md w-12'>
-                    <Icon type="normal" use="cancel" width={3} color="white"/>
+            <div className='flex w-full h-12 justify-end gap-2 relative'>
+                <Button onClick={() => setShowModal(true)} type='warning' use="button" target={slug} className='rounded-md w-12'>
+                    <Icon type="online" use="trash" width={3} color="white" fill/>
+                </Button>
+                {showModal && <Modal message={`Delete ${props.name}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
+                <Button type={pinned ? "normal" : "alternate"} use='button' className='rounded-md w-12' onClick={handlePin}>
+                    <Icon type="online" use="pin" color={pinned ? "var(--text)" : "var(--primary)"} fill/>
                 </Button>
                 <Button type='normal' use='link' target={slug} className='rounded-md w-12'>
                     <Icon type="normal" use="burger" width={3} color="white"/>
@@ -39,12 +58,12 @@ function CharacterCard(props: CharacterProps) {
     </Card>
 }
 
-function CharacterPage({props, loading}: {props: CharacterProps[]; loading: boolean}) {
+function CharacterPage({props, error}: {props: CharacterProps[], error: Error | null}) {
     const { slug } = useParams<{ slug: string }>()
     const character = props.find((item) => createSlug(item.name) === slug)
 
     const [mode, setMode] = useState<boolean>(false)
-    const { onSubmit, loading: formLoading, setValue, getValue } = useForm(['name','age','gender','faction','desc'], 'character', character?.character_id ?? "")
+    const { onSubmit, loading, setValue, getValue } = useForm(['name','age','gender','faction','desc'], 'character', character?.character_id ?? "")
 
     useEffect(()=>{
         if (!character) return
@@ -61,14 +80,8 @@ function CharacterPage({props, loading}: {props: CharacterProps[]; loading: bool
         if (res?.ok) setMode(false)
     }
 
-    if (loading && formLoading) return <div className="p-4">
-        <p className="opacity-50 mb-4">Memuat karakter...</p>
-    </div>;
-    else if (!character) return <div className="p-4">
-        <p className="opacity-50 mb-4">Karakter tidak ditemukan.</p>
-        <Button type="normal" use="link" target="..">Back To List!</Button>
-    </div>
-
+    if (loading) return <Loading message="Characters"/>
+    if (error || !character) return <Error err={error || "Character not found!"}/>
     return <form onSubmit={handleSubmit} className="w-full h-full p-4 flex flex-col gap-4">
         <div className="flex flex-col gap-4">
             <Editable type="input" name='name' text={(getValue('name') as string) ?? character.name} onChange={(v)=>setValue('name', v)} editMode={mode} className='text-4xl font-black'>
@@ -107,7 +120,7 @@ function CharacterPage({props, loading}: {props: CharacterProps[]; loading: bool
                     }} className='rounded-md w-12'>
                         <Icon type="normal" use="cancel" color="white" width={3}/>
                     </Button>
-                    <Button type='normal' use='submit' className='rounded-md w-12'><p>{formLoading ? '...' : <Icon type="normal" use="submit" color="white" fill width={1}/>}</p></Button>
+                    <Button type='normal' use='submit' className='rounded-md w-12'><p>{loading ? '...' : <Icon type="normal" use="submit" color="white" fill width={1}/>}</p></Button>
                 </>:<Button type='alternate' use='button' onClick={()=>setMode(prev=>!prev)} className='rounded-md w-12 h-12'>
                     <Icon type="online" use="edit" width={1} color="var(--bg)"/>
                 </Button>}
@@ -117,8 +130,7 @@ function CharacterPage({props, loading}: {props: CharacterProps[]; loading: bool
 }
 
 export default function Character() {
-    const {data, loading} = useFetch<CharacterProps>("characters")
-    const characterData = data ?? []
+    const {data, isLoading, error} = useFetch<CharacterProps>("characters", '')
     const [searchQ, setSearchQ] = useState<string>("")
 
     const { onCreate } = useForm([], 'character', "", {
@@ -129,9 +141,8 @@ export default function Character() {
         faction: "neutral"
     })
 
-    if (loading) {
-        return <Loading message="Characters"/>
-    }
+    if (isLoading) return <Loading message="Characters"/>
+    if (error || !data) return <Error err={error || "Characters not found!"}/>
     return <section className="w-full h-full flex flex-col gap-4">
         <div className="w-full h-12 flex">
             <input autoComplete="off" autoCorrect="off" autoCapitalize="none" spellCheck="false" value={searchQ} onChange={(e: ChangeEvent<HTMLInputElement>) => 
@@ -147,7 +158,7 @@ export default function Character() {
                     </form>
                 </div>
             </div>}/>
-            <Route path=":slug" element={<CharacterPage props={characterData} loading={loading}/>}/>
+            <Route path=":slug" element={<CharacterPage props={data} error={error}/>}/>
         </Routes>
     </section>
 }

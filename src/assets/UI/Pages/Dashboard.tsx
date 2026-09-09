@@ -1,6 +1,7 @@
 import Button from "../Components/Button";
 import Breadcrumb from "../Components/Breadcrumb";
 import Icon from "../Components/Icon";
+import Modal from "../Components/Modal";
 
 import Timeline from "./Timeline";
 import World from "./World";
@@ -68,10 +69,12 @@ function Pin() {
         setPin(getPins)
         setShow(true)
     }
+    const [showModal, setShowModal] = useState<boolean>(false)
 
     return show ? <div className="absolute min-w-screen h-full top-0 right-0 bg-black/75 z-40 flex flex-col gap-2 overflow-auto p-4">
         <div className="flex gap-2 fixed top-0 right-0 m-4 rounded-full z-50">
-            <Button type="warning" use="button" onClick={() => {clearPins(); window.location.reload()}} className="w-24 rounded-md">Clear</Button>
+            {showModal && pin && <Modal message={`Clear All Pinned? (${pin.length}) Pinned Found`} type="alert" onConfirm={() => {clearPins(); window.location.reload()}} onClose={() => setShowModal(false)}/> }
+            <Button type="warning" use="button" onClick={(() => setShowModal(true))} className="w-24 rounded-md">Clear</Button>
             <Button type="warning" use="button" onClick={() => setShow(false)} className="w-16 rounded-md">
                 <Icon type="normal" use="cancel" width={6} color="var(--text)" fill/>
             </Button>
