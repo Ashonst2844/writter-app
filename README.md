@@ -36,7 +36,9 @@ Projek Aplikasi Pribadi untuk **Penulis** yang ingin membangun sebuah Novel deng
   - **Pinning**
   Terdapat fitur untuk melakukan pin konten khususnya untuk **Notes** dan **Event** agar tidak perlu untuk sering pindah halaman saat sedang menulis di halaman **Chapter Page**
   - **Average Word Count**
-  Menghitung seluruh jumlah kata per Chapter lalu melakukan penghitungan untuk rata-rata. 
+  Menghitung seluruh jumlah kata per Chapter lalu melakukan penghitungan untuk rata-rata.
+  - **Export To Document** 
+  Dapat melakukan export ke file document (.docx) sebagai *draft script* serta melakukan kostumisasi pemformatan export.
 
 ----
 ## How To Use:
@@ -116,8 +118,10 @@ Keterangan:
     - penambahan fitur hitung estimasi rata-rata jumlah kata
     - Membuat tombol minimize navigasi dashboard
     - Perbaruan Single Pinning -> Multi Pinning
-  - (9 Sept. 2026) **update-build v1.1.1**
+  - (9 Sept. 2026) **update-build v1.2.0**
     - Optimalisasi code-source
     - Melakukan pembaruan UI/UX
     - Menambahkan Modal Box untuk beberapa aksi krusial
     - Integrasi TanStack agar load data menjadi lebih cepat
+  - (12 Sept. 2026) **update-build v1.3.0**
+    - Menambahkan fitur copy-to-clipboard

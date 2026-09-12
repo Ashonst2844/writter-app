@@ -35,6 +35,11 @@ export default function Icon(props: IconProps) {
                     <line x1={30} y1={50} x2={70} y2={50}/>
                     <line x1={30} y1={70} x2={70} y2={70}/>
                 </>
+                :props.use==="copy"?
+                <>
+                    <polyline points="30,30 60,30 60,70 30,70 30,30 60,30" strokeLinecap="round" strokeLinejoin="round"/>
+                    <polyline points="65,40 70,40 70,80 35,80" strokeLinecap="round" strokeLinejoin="round"/>
+                </>
                 :""
             }
         </svg>
@@ -83,6 +88,9 @@ export default function Icon(props: IconProps) {
         </svg>}
         if (props.use==="trash") {return <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill={props.fill?props.color:"none"} style={{scale:props.scale}}>
             <path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6z"/>
+        </svg>}
+        if (props.use==="print") {return <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill={props.fill?props.color:"none"} style={{scale:props.scale}}>
+            <path d="M16 8V5H8v3H6V3h12v5zM4 10h16zm14 2.5q.425 0 .713-.288T19 11.5t-.288-.712T18 10.5t-.712.288T17 11.5t.288.713t.712.287M16 19v-4H8v4zm2 2H6v-4H2v-6q0-1.275.875-2.137T5 8h14q1.275 0 2.138.863T22 11v6h-4zm2-6v-4q0-.425-.288-.712T19 10H5q-.425 0-.712.288T4 11v4h2v-2h12v2z"/>
         </svg>}
     }
 }

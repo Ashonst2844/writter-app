@@ -1,7 +1,9 @@
 import Button from "./Button";
+import Icon from "./Icon";
 
 import { useRef, useEffect, type ReactNode, type ChangeEvent } from "react";
 import { useFormat } from "../../Hooks/useFormat";
+import { Sanitizer } from "../../Utils/Sanitizer";
 
 interface EditableProps {
     type: "input"|"textarea"|"option"|"date"|"checklist"|"upload"|"richedit";
@@ -40,13 +42,20 @@ export function RichText({ value, onChange, editMode, onClickView, className }: 
 
     if (!editMode) {
         return <div>
-            <div onClick={onClickView} dangerouslySetInnerHTML={{ __html: value || "<p class='opacity-50'>Klik untuk mengedit...</p>" }} className={`p-4 bg-(--primary) border hover:border-white cursor-pointer transition-all whitespace-pre-wrap leading-relaxed ${className ?? ""}`}/>
+            <div onClick={onClickView} dangerouslySetInnerHTML={{ __html: value || "<p class='opacity-50'>Klik untuk mengedit...</p>" }} className={`p-4 bg-(--primary) border hover:border-white cursor-pointer transition-all whitespace-pre-wrap leading-relaxed ${className ?? ""}`}>
+            </div>
             <span className="text-xs text-neutral-500 mt-2 block">Klik teks untuk mengedit & meformat</span>
         </div>
     }
-
+    
     return <div className="flex flex-col gap-4">
         <div className="flex gap-2">
+            <Button type="alternate" use="button" className="w-12 rounded-xl" onClick={() => {
+                navigator.clipboard.writeText(Sanitizer(value))
+                alert("Copy To Clipboard!")
+            }}>
+                <Icon type="normal" use="copy" color="black" width={3}/>
+            </Button>
             <Button type="normal" use="button" onClick={() => executeCommand("bold")} className="w-12 rounded-xl font-bold">
                 B
             </Button>

@@ -13,6 +13,7 @@ import { useForm } from "../../Hooks/useForm";
 import { useUpload } from "../../Hooks/useUpload";
 
 import { Sanitizer } from "../../Utils/Sanitizer";
+import { type DocxSettings, generateAndDownloadDocx } from "../../Utils/Save";
 
 interface BookProps {
     book_id: string;
@@ -35,16 +36,120 @@ interface ChapterProps {
     word: number;
 }
 
+interface ExportModalProps {
+    bookTitle: string;
+    chapters: ChapterProps[];
+    onClose: () => void;
+}
+
 const createSlug = (text: string | null | undefined) => {
     if (!text) return "Untitled";
     return text.toLowerCase().trim().replaceAll(" ", "-");
 };
+
+function Export({ bookTitle, chapters, onClose }: ExportModalProps) {
+    const [exporting, setExporting] = useState<boolean>(false)
+    const [settings, setSettings] = useState<DocxSettings>({
+        fontFamily: "Times New Roman",
+        fontSizePt: 12,
+        lineSpacing: 1.5,
+        paragraphSpacingAfterPt: 6,
+        marginTopCm: 3,
+        marginBottomCm: 4,
+        marginLeftCm: 4,
+        marginRightCm: 3,
+        showPageNumbers: true,
+    })
+
+    const handleExport = async () => {
+    setExporting(true);
+    try {
+        await generateAndDownloadDocx(bookTitle, chapters, settings);
+        onClose();
+    } catch (err) {
+        console.error("Gagal mengunduh file docx:", err);
+        alert("Terjadi kesalahan saat membuat file .docx");
+    } finally {
+        setExporting(false);
+    }}
+
+    return <section className="center w-screen h-screen fixed top-0 left-0 bg-black/75 inset-0 z-100">
+        <div className="w-[50%] bg-(--primary) rounded-xl shadow-xl flex flex-col p-4 gap-4">
+
+            <div className="w-full h-16 flex gap-2">
+                <div className="w-[50%] flex flex-col">
+                    <span className="text-sm opacity-50">Font Family</span>
+                    <select value={settings.fontFamily} onChange={(e) => setSettings({ ...settings, fontFamily: e.target.value })}>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Calibri">Calibri</option>
+                        <option value="Arial">Arial</option>
+                        <option value="Garamond">Garamond</option>
+                        <option value="Courier New">Courier New</option>
+                    </select>
+                </div>
+                <div className="w-[50%] flex flex-col">
+                    <span className="text-sm opacity-50">Font Size</span>
+                    <input type="number" value={settings.fontSizePt} onChange={(e) => setSettings({ ...settings, fontSizePt: Number(e.target.value)})}/>
+                </div>
+            </div>
+
+            <div className="w-full h-16 flex gap-2">
+                <div className="w-[50%] flex flex-col">
+                    <span className="text-sm opacity-50">Line Spacing</span>
+                    <select value={settings.lineSpacing} onChange={(e) => setSettings({ ...settings, lineSpacing: Number(e.target.value)})}>
+                        <option value={1.0}>1.0 (Single)</option>
+                        <option value={1.15}>1.15</option>
+                        <option value={1.5}>1.5 Line</option>
+                        <option value={2.0}>2.0 (Double)</option>
+                    </select>
+                </div>
+                <div className="w-[50%] flex flex-col">
+                    <span className="text-sm opacity-50">Paragraph Size</span>
+                    <input type="number" value={settings.paragraphSpacingAfterPt} onChange={(e) => setSettings({ ...settings, paragraphSpacingAfterPt: Number(e.target.value)})}/>
+                </div>
+            </div>
+
+            <div className="w-full h-16 flex gap-4">
+                <div className="w-[25%] flex flex-col">
+                    <span className="text-sm opacity-50">Top</span>
+                    <input type="number" value={settings.marginTopCm} onChange={(e) => setSettings({ ...settings, marginTopCm: Number(e.target.value)})}/>
+                </div>
+                <div className="w-[25%] flex flex-col">
+                    <span className="text-sm opacity-50">Right</span>
+                    <input type="number" value={settings.marginRightCm} onChange={(e) => setSettings({ ...settings, marginRightCm: Number(e.target.value)})}/>
+                </div>
+                <div className="w-[25%] flex flex-col">
+                    <span className="text-sm opacity-50">Bottom</span>
+                    <input type="number" value={settings.marginBottomCm} onChange={(e) => setSettings({ ...settings, marginBottomCm: Number(e.target.value)})}/>
+                </div>
+                <div className="w-[25%] flex flex-col">
+                    <span className="text-sm opacity-50">Left</span>
+                    <input type="number" value={settings.marginLeftCm} onChange={(e) => setSettings({ ...settings, marginLeftCm: Number(e.target.value)})}/>
+                </div>
+            </div>
+
+            <div className="w-full h-16">
+                <div className="w-full center gap-4">
+                    <span className="text-sm opacity-50">Page Number</span>
+                    <input type="checkbox" checked={settings.showPageNumbers} onChange={(e) => setSettings({ ...settings, showPageNumbers: e.target.checked})}/>
+                </div>
+            </div>
+
+            <div className="flex gap-4">
+                <Button onClick={onClose} type="warning" use="button" className="w-[50%] rounded-md">Cancel</Button>
+                <Button onClick={handleExport} type="normal" use="button" className="w-[50%] rounded-md">{exporting?"Exporting...":"Export"}</Button>
+            </div>
+        </div>
+    </section>
+}
 
 function Book(props: BookProps) {
     const { data } = useFetch<ChapterProps>("chapters", 'book_id, word, status');
     const chapters = data.filter(item => item.book_id === props.book_id)
 
     const [showModal, setShowModal] = useState<boolean>(false)
+    const [showMenu, setShowMenu] = useState<boolean>(false)
+    const [showExport, setShowExport] = useState<boolean>(false)
 
     const wordAverage = () => {
         const words = chapters.map(item => item.word)
@@ -74,6 +179,14 @@ function Book(props: BookProps) {
         }
     };
 
+    const { data: chapter, isLoading, error } = useFetch<ChapterProps>("chapters", 'content', {
+        eq: {book_id: props.book_id},
+        ascend: {
+            col: "created_at",
+            order: true
+        }
+    });
+
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const res = await onSubmit(e);
@@ -83,6 +196,8 @@ function Book(props: BookProps) {
         }
     };
 
+    if (isLoading) return <Loading message="Chapter" />
+    if (error || !chapter) return <Error err={error || "Chapters not found!"}/>
     return <Card>
         <form onSubmit={handleSubmit} className="h-full flex gap-4 relative">
             <div>
@@ -123,23 +238,22 @@ function Book(props: BookProps) {
                         <Icon type="normal" use="submit" width={3} color="white" fill/>
                     </Button>
                 </> : <>
-                    <Button onClick={() => setShowModal(true)} type='warning' use='button' className='rounded-md w-12'>
-                        <Icon type="online" use="trash" width={3} color="white" fill/>
-                    </Button>
-                    <Button type='alternate' use='button' onClick={()=>{
-                        setMode(true);
-                    }} className='rounded-md w-12'>
-                        <Icon type="online" use="edit" width={1} color="var(--bg)"/>
-                    </Button>
-                    <Button type='normal' use='link' target={slug} className='rounded-md w-12'>
-                        <Icon type="normal" use="burger" width={6} color="var(--text)"/>
-                    </Button>
-                    <Button type='normal' use='url' target={props.link} className='rounded-md w-25'>
-                        Read!
-                    </Button>
+                    <div className="flex relative gap">
+                        <Button onClick={() => setShowMenu(prev => !prev)} type='normal' use='button' className='rounded-md w-12'>
+                            <Icon type="normal" use="burger" width={3} color="var(--text)"/>
+                        </Button>
+                        {showMenu && <div className="absolute top-0 -left-24 p-4 gap-4 shadow-md flex flex-col bg-(--bg) rounded overflow-hidden text-center">
+                            <Button type='custom' use='url' target={props.link} className='hover:brightness-110'>Read!</Button>
+                            <Button type='custom' use='link' target={slug} className='hover:brightness-110'>Chapters</Button>
+                            <Button type='custom' use='button' onClick={()=>setMode(true)} className='hover:brightness-110'>Edit</Button>
+                            <Button onClick={() => setShowExport(true)} type='custom' use='button' className='hover:brightness-110'>Export</Button>
+                            <Button onClick={() => setShowModal(true)} type='custom' use='button' className='hover:brightness-110 text-(--warning)'>Delete</Button>
+                        </div>}
+                    </div>
                 </>}
             </div>
         </form>
+        {showExport && <Export bookTitle={props.title} chapters={chapter.map(item => item)} onClose={() => setShowExport(false)}/>}
     </Card>
 }
 
@@ -298,7 +412,7 @@ export default function Library() {
     if (error || !data) return <Error err={error || "Books not found!"}/>
     return <section className="w-full h-full">
         <Routes>
-            <Route path="/" element={<div className="grid gap-4 lg:grid-cols-1 p-4">
+            <Route path="/" element={<div className="grid gap-4 lg:grid-cols-1 p-4 relative">
                 {data.map((item) => <Book key={item.book_id} {...item} />)}
                 <div className="h-full w-full bg-(--primary) shadow-2xl rounded-2xl overflow-hidden">
                     <form onClick={onCreate} className="h-full hover:bg-(--accent) center p-4 transition-colors transition-300">
