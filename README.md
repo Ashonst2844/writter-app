@@ -21,7 +21,7 @@ Projek Aplikasi Pribadi untuk **Penulis** yang ingin membangun sebuah Novel deng
   - **World Building**:
   Mendeskripsikan latar dunia *Universe Fiksi* penulis untuk mendeskripsikan masing cara kerja tentang dunia mereka, seperti *Peta Dunia*, *Benua* di dalamnya, dan *Tempat-tempat penting* untuk cerita.
   - **Character Development**:
-  Management Tokoh-tokoh yang akan hadir dalam cerita di *Universe Fiksi Novelist* seperti menambahkan atribut untuk mereka (*Nama*, *Umur*, *Gender*, *Pihak Baik/Netral/Jahat*, dan tentunya *Deskriptsi sifat* atau detail penting karakter lainnya berupa teks).
+  Management Tokoh-tokoh yang akan hadir dalam cerita di *Universe Fiksi Novelist* seperti menambahkan atribut untuk mereka (*Nama*, *Umur*, *Gender*, *Pihak Baik/Netral/Jahat*, Stats personal karakter, dan tentunya *Deskriptsi sifat* atau detail penting karakter lainnya berupa teks).
   - **Goals Management**:
   Mengatur *To-Do-List* atau tugas untuk *Novelist* itu sendiri sebagai pengingat tujuan mereka terhadap *Universe Fiksi* mereka.
   - **Events Management**:
@@ -125,3 +125,8 @@ Keterangan:
     - Integrasi TanStack agar load data menjadi lebih cepat
   - (12 Sept. 2026) **update-build v1.3.0**
     - Menambahkan fitur copy-to-clipboard
+    - Menambahkan fitur export untuk buku menjadi *customable .docx*
+  - (17 Sept. 2026) **upadtate-build v1.4.0**
+    - Menambahkan fitur *Short-Cut Keyboard*
+    - membuat alignment exported document menjadi justify
+    - Menambahkan fitur Stats Personalisasi Karakter

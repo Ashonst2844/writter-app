@@ -32,14 +32,13 @@ function parseContentToParagraphs(contentHtml: string, settings: DocxSettings): 
 
     if (elements.length === 0) {
         const lines = (doc.body.textContent || "").split("\n").filter((l) => l.trim() !== "");
-        return lines.map(
-        (line) =>
-            new Paragraph({
+        return lines.map(line => new Paragraph({
+            alignment: AlignmentType.JUSTIFIED,
             children: [
                 new TextRun({
-                text: line,
-                font: settings.fontFamily,
-                size: ptToHalfPt(settings.fontSizePt),
+                    text: line,
+                    font: settings.fontFamily,
+                    size: ptToHalfPt(settings.fontSizePt),
                 }),
             ],
             spacing: {
@@ -58,16 +57,17 @@ function parseContentToParagraphs(contentHtml: string, settings: DocxSettings): 
         let headingLevel: typeof HeadingLevel[keyof typeof HeadingLevel] | undefined;
 
         if (el.tagName === "H1") {
-        isHeading = true;
-        headingLevel = HeadingLevel.HEADING_1;
+            isHeading = true;
+            headingLevel = HeadingLevel.HEADING_1;
         } else if (el.tagName === "H2") {
-        isHeading = true;
-        headingLevel = HeadingLevel.HEADING_2;
+            isHeading = true;
+            headingLevel = HeadingLevel.HEADING_2;
         }
 
         paragraphs.push(
         new Paragraph({
             heading: headingLevel,
+            alignment: isHeading ? AlignmentType.CENTER : AlignmentType.JUSTIFIED,
             children: [
             new TextRun({
                 text: text,
@@ -103,12 +103,12 @@ export async function generateAndDownloadDocx(bookTitle: string, chapters: Chapt
             after: ptToTwip(24),
             },
             children: [
-            new TextRun({
-                text: chapter.name || `Chapter ${index + 1}`,
-                font: settings.fontFamily,
-                size: ptToHalfPt(settings.fontSizePt + 6),
-                bold: true,
-            }),
+                new TextRun({
+                    text: chapter.name || `Chapter ${index} : ${chapter.name}`,
+                    font: settings.fontFamily,
+                    size: ptToHalfPt(settings.fontSizePt + 6),
+                    bold: true,
+                }),
             ],
         })
     );

@@ -20,6 +20,7 @@ interface CharacterProps {
     desc: string;
     gender: "male"|"female";
     faction: "good"|"neutral"|"evil";
+    stats: number[]
 }
 
 const createSlug = (text: string) => text.toLowerCase().trim().replace(/\s+/g, "-")
@@ -41,7 +42,10 @@ function CharacterCard(props: CharacterProps) {
 
     return <Card>
         <div className="h-full flex flex-col justify-between relative">
-            <h2 className="text-4xl font-black">{props.name}</h2>
+            <div className="flex flex-col gap-2">
+                <h2 className="text-4xl font-black">{props.name}</h2>
+                <span className="opacity-75 text-sm">{props.desc.slice(0, 100)}{props.desc.length >= 100 ? "..." : ""}</span>
+            </div>
             <div className='flex w-full h-12 justify-end gap-2 relative'>
                 <Button onClick={() => setShowModal(true)} type='warning' use="button" target={slug} className='rounded-md w-12'>
                     <Icon type="online" use="trash" width={3} color="white" fill/>
@@ -63,7 +67,7 @@ function CharacterPage({props, error}: {props: CharacterProps[], error: Error | 
     const character = props.find((item) => createSlug(item.name) === slug)
 
     const [mode, setMode] = useState<boolean>(false)
-    const { onSubmit, loading, setValue, getValue } = useForm(['name','age','gender','faction','desc'], 'character', character?.character_id ?? "")
+    const { onSubmit, loading, setValue, getValue } = useForm(['name','age','gender','faction','desc','stats'], 'character', character?.character_id ?? "")
 
     useEffect(()=>{
         if (!character) return
@@ -72,6 +76,7 @@ function CharacterPage({props, error}: {props: CharacterProps[], error: Error | 
         setValue('gender', character.gender)
         setValue('faction', character.faction)
         setValue('desc', character.desc)
+        setValue('stats', character.stats)
     }, [character, setValue])
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -82,26 +87,58 @@ function CharacterPage({props, error}: {props: CharacterProps[], error: Error | 
 
     if (loading) return <Loading message="Characters"/>
     if (error || !character) return <Error err={error || "Character not found!"}/>
+    const statValues = (getValue('stats') as number[] | undefined) ?? character.stats
+
     return <form onSubmit={handleSubmit} className="w-full h-full p-4 flex flex-col gap-4">
+        <input type="hidden" name="stats" value={JSON.stringify(statValues)} />
         <div className="flex flex-col gap-4">
             <Editable type="input" name='name' text={(getValue('name') as string) ?? character.name} onChange={(v)=>setValue('name', v)} editMode={mode} className='text-4xl font-black'>
                 <h1 className="text-4xl font-black">{(getValue('name') as string) ?? character.name}</h1>
             </Editable>
-            <span>Age : 
-                <Editable type="input" name='age' text={(getValue('age') as number) ?? character.age} onChange={(v)=>setValue('age', v)} editMode={mode}>
-                    <strong> {(getValue('age') as number) ?? character.age}</strong>
-                </Editable>
-            </span>
-            <span>Gender : 
-                <Editable type="option" list={['male','female']} name='gender' text={(getValue('gender') as string) ?? character.gender} onChange={(v)=>setValue('gender', v)} editMode={mode}>
-                    <strong className="capitalize"> {(getValue('gender') as string) ?? character.gender}</strong>
-                </Editable>
-            </span>
-            <span>Faction :
-                <Editable type="option" list={['good','neutral','evil']} name='faction' text={(getValue('faction') as string) ?? character.faction} onChange={(v)=>setValue('faction', v)} editMode={mode}>
-                    <strong className="capitalize"> {(getValue('faction') as string) ?? character.faction}</strong>
-                </Editable>
-            </span>
+            <div className="flex gap-4 flex-col">
+                <span>Age : 
+                    <Editable type="input" name='age' text={(getValue('age') as number) ?? character.age} onChange={(v)=>setValue('age', v)} editMode={mode}>
+                        <strong> {(getValue('age') as number) ?? character.age}</strong>
+                    </Editable>
+                </span>
+                <span>Gender : 
+                    <Editable type="option" list={['male','female']} name='gender' text={(getValue('gender') as string) ?? character.gender} onChange={(v)=>setValue('gender', v)} editMode={mode}>
+                        <strong className="capitalize"> {(getValue('gender') as string) ?? character.gender}</strong>
+                    </Editable>
+                </span>
+                <span>Faction :
+                    <Editable type="option" list={['good','neutral','evil']} name='faction' text={(getValue('faction') as string) ?? character.faction} onChange={(v)=>setValue('faction', v)} editMode={mode}>
+                        <strong className="capitalize"> {(getValue('faction') as string) ?? character.faction}</strong>
+                    </Editable>
+                </span>
+                <div className="grid grid-cols-2 grid-rows-3 gap-2">
+                    {["Visual", "Morality", "Psychology", "Combat", "Social"].map((item, i) => <div key={i} className="flex gap-2 flex-col">
+                        {mode ? <input
+                            name={item.toLowerCase()}
+                            type="number"
+                            min={0}
+                            max={5}
+                            placeholder={item}
+                            value={Number(statValues[i] ?? 0)}
+                            onChange={(e) => {
+                                const nextStats = [...(statValues ?? character.stats)]
+                                nextStats[i] = Number(e.target.value)
+                                setValue('stats', nextStats)
+                            }}
+                        /> :
+                        <>
+                            <span className="opacity-75 text-sm">{item}</span>
+                            <div className="flex h-4 gap-2">
+                                {Array.from({length: 5}, (_, j) => {
+                                    const on = (j+1) <= statValues[i]
+                                    return <div key={j} className="w-12 h-full" style={{backgroundColor: on?"var(--accent)":"var(--primary)"}}/>
+                                })}
+                            </div>
+                        </>    
+                    }
+        </div>)} 
+                </div>
+            </div>
             <div className="mt-4">
                 <h2 className="text-2xl font-bold mb-2 opacity-50">Description</h2>
                 <Editable type="textarea" name="desc" text={(getValue('desc') as string) ?? character.desc} onChange={(v)=>setValue('desc', v)} editMode={mode} className="text-justify w-full">
@@ -138,7 +175,8 @@ export default function Character() {
         age: 0,
         desc: "Write Description",
         gender: "male",
-        faction: "neutral"
+        faction: "neutral",
+        stats: [0,0,0,0,0]
     })
 
     if (isLoading) return <Loading message="Characters"/>

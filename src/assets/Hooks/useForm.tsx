@@ -26,6 +26,21 @@ export function useForm(inputs: string[], enp: string, id: string, defaultValues
             return [String(value).trim()].filter(Boolean)
         }
 
+        if (fieldName === 'stats') {
+            if (Array.isArray(value)) return value.map((v) => Number(v))
+
+            if (typeof value === 'string') {
+                try {
+                    const parsed = JSON.parse(value)
+                    if (Array.isArray(parsed)) return parsed.map((v) => Number(v))
+                } catch (e) {console.error(e)}
+
+                return String(value).split(',').map((item) => Number(item.trim()))
+            }
+
+            if (value === null || value === undefined || value === '') return [0,0,0,0,0]
+            return [Number(value)]
+        }
         if (value === 'on') return true
         if (value === 'true') return true
         if (value === 'false') return false

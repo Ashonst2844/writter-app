@@ -12,6 +12,7 @@ import { useFetch } from "../../Hooks/useFetch";
 import { useForm } from "../../Hooks/useForm";
 import { useUpload } from "../../Hooks/useUpload";
 
+import Shortcut from "../../Utils/Shortcut";
 import { Sanitizer } from "../../Utils/Sanitizer";
 import { type DocxSettings, generateAndDownloadDocx } from "../../Utils/Save";
 
@@ -144,8 +145,13 @@ function Export({ bookTitle, chapters, onClose }: ExportModalProps) {
 }
 
 function Book(props: BookProps) {
-    const { data } = useFetch<ChapterProps>("chapters", 'book_id, word, status');
-    const chapters = data.filter(item => item.book_id === props.book_id)
+    const { data: chapters, isLoading, error } = useFetch<ChapterProps>("chapters", 'book_id, word, status, name, content', {
+        eq: {book_id: props.book_id},
+        ascend: {
+            col: "created_at",
+            order: true
+        }
+    });
 
     const [showModal, setShowModal] = useState<boolean>(false)
     const [showMenu, setShowMenu] = useState<boolean>(false)
@@ -179,14 +185,6 @@ function Book(props: BookProps) {
         }
     };
 
-    const { data: chapter, isLoading, error } = useFetch<ChapterProps>("chapters", 'content', {
-        eq: {book_id: props.book_id},
-        ascend: {
-            col: "created_at",
-            order: true
-        }
-    });
-
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const res = await onSubmit(e);
@@ -197,7 +195,7 @@ function Book(props: BookProps) {
     };
 
     if (isLoading) return <Loading message="Chapter" />
-    if (error || !chapter) return <Error err={error || "Chapters not found!"}/>
+    if (error || !chapters) return <Error err={error || "Chapters not found!"}/>
     return <Card>
         <form onSubmit={handleSubmit} className="h-full flex gap-4 relative">
             <div>
@@ -253,7 +251,7 @@ function Book(props: BookProps) {
                 </>}
             </div>
         </form>
-        {showExport && <Export bookTitle={props.title} chapters={chapter.map(item => item)} onClose={() => setShowExport(false)}/>}
+        {showExport && <Export bookTitle={props.title} chapters={chapters.filter(item => item.status === "finish")} onClose={() => setShowExport(false)}/>}
     </Card>
 }
 
@@ -311,6 +309,11 @@ function ChapterPage({props,error}: {props: ChapterProps[], error: Error | null}
         const res = await onSubmit(e);
         if (res?.ok) setMode(false);
     }
+
+    Shortcut({ctrl: true, key: "s"}, () => {
+        const form = document.querySelector('form');
+        if (form) form.requestSubmit();
+    })
 
     if (loading) return <Loading message="Chapter" />
     if (error || !chapter) return <Error err={error || "Chapters not found!"}/>
