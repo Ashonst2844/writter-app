@@ -119,18 +119,20 @@ export default function Relic() {
     if (isLoading) return <Loading message="Relics"/>
     if (error || !data) return <Error err={error || "Relics not found!"}/>
     return <section className="w-full h-full flex flex-col gap-4">
-        <div className="w-full h-12 flex">
-            <input autoComplete="off" autoCorrect="off" autoCapitalize="none" spellCheck="false" value={searchQ} onChange={(e: ChangeEvent<HTMLInputElement>) => 
-                setSearchQ(e.target.value)
-            } type="text" placeholder="Search relic..." className="w-full h-full bg-(--primary) p-4 m-4 rounded-xl"/>
-        </div>
         <Routes>
-            <Route path="/" element={<div className="flex gap-4 grid-cols-[repeat(auto-fit,minmax(200px,1fr))] lg:grid-cols-2 p-4">
-                {data.map((item) => item.title?.includes(searchQ) && <RelicAccordion key={item.relic_id} {...item}/>)}
-                <div className="h-full w-full bg-(--primary) shadow-2xl rounded-2xl overflow-hidden">
-                    <form onClick={onCreate} className="h-full w-full p-4 flex flex-col hover:bg-(--accent) center transition-colors transition-300">
-                        <span className="text-white text-2xl"><code>+</code> Create New Character</span>
-                    </form>
+            <Route path="/" element={<div className="flex flex-col gap-4">
+                <div className="w-full h-12 flex">
+                    <input autoComplete="off" autoCorrect="off" autoCapitalize="none" spellCheck="false" value={searchQ} onChange={(e: ChangeEvent<HTMLInputElement>) => 
+                        setSearchQ(e.target.value)
+                    } type="text" placeholder="Search relic..." className="w-full h-full bg-(--primary) p-4 m-4 rounded-xl"/>
+                </div>
+                <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(200px,1fr))] lg:grid-cols-2 p-4">
+                    {data.map((item) => item.title?.includes(searchQ) && <RelicAccordion key={item.relic_id} {...item}/>)}
+                    <div className="h-full w-full bg-(--primary) shadow-xl rounded-2xl overflow-hidden">
+                        <form onClick={onCreate} className="h-full w-full p-4 flex flex-col hover:bg-(--accent) center transition-colors transition-300">
+                            <span className="text-white text-2xl"><code>+</code> Create New Character</span>
+                        </form>
+                    </div>
                 </div>
             </div>}/>
             <Route path=":slug" element={<RelicPage props={data} error={error}/>}/>

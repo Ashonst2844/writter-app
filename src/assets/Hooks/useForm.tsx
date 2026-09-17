@@ -38,7 +38,7 @@ export function useForm(inputs: string[], enp: string, id: string, defaultValues
                 return String(value).split(',').map((item) => Number(item.trim()))
             }
 
-            if (value === null || value === undefined || value === '') return [0,0,0,0,0]
+            if (value === null || value === undefined || value === '') return [0,0,0,0,0,0]
             return [Number(value)]
         }
         if (value === 'on') return true

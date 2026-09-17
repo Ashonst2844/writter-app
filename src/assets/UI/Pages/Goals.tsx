@@ -75,7 +75,7 @@ function StickyNotes(props: StickyProps) {
             <h2 className="font-bold underline text-center text-xl">{(getValue('name') as string) ?? props.name}</h2>
         </Editable>
         <Editable type="date" name='due' text={(getValue('due') as string) ?? props.due} onChange={(v)=>setValue('due', v)} editMode={mode} className="font-bold">
-            <span>{(getValue('due') as string) ?? props.due} ( {computeWarn((getValue('due') as string) ?? props.due)} )</span>
+            <span>{(getValue('due') as string) ?? props.due} <b className="uppercase">( {props.status ? "completed" : computeWarn((getValue('due') as string) ?? props.due)} )</b></span>
         </Editable>
         <Editable type="checklist" text={(getValue('status') as boolean) ?? props.status} name="status" editMode={mode} onChange={(v)=>setValue('status', v)}></Editable>
         {showModal && <Modal message={`Delete ${props.name}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}

@@ -126,7 +126,11 @@ Keterangan:
   - (12 Sept. 2026) **update-build v1.3.0**
     - Menambahkan fitur copy-to-clipboard
     - Menambahkan fitur export untuk buku menjadi *customable .docx*
-  - (17 Sept. 2026) **upadtate-build v1.4.0**
+  - (17 Sept. 2026) **update-build v1.4.0**
     - Menambahkan fitur *Short-Cut Keyboard*
     - membuat alignment exported document menjadi justify
     - Menambahkan fitur Stats Personalisasi Karakter
+  - (17 Sept. 2026) **update-build v.5.0**
+    - Menambahkan icon
+    - Menambahkan tags untuk Traits Character sesuai dengan statistic yang diberikan
+    - Fix search position

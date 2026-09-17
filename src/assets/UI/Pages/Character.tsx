@@ -5,6 +5,7 @@ import Icon from "../Components/Icon";
 import Loading from "../Components/Loading";
 import Error from "../Components/Error";
 import Modal from "../Components/Modal";
+import Badge from "../Components/Badge";
 
 import { useState, useEffect, type ChangeEvent, type FormEvent } from "react";
 import { useFetch } from "../../Hooks/useFetch"
@@ -12,6 +13,7 @@ import { useForm } from "../../Hooks/useForm";
 import { Routes, Route, useParams } from "react-router-dom";
 
 import Pinning, {getPins} from "../../Utils/Pinning";
+import Trait from "../../Utils/Trait";
 
 interface CharacterProps {
     character_id: string;
@@ -33,12 +35,11 @@ function CharacterCard(props: CharacterProps) {
     const [pinned, setPinned] = useState<boolean>(() => getPins().some((item) => item.id === props.character_id && item.type === "Character"))
 
     const handlePin = () => {
-        const head = `${props?.name || ""} (${props.age || ""} yo. | ${props.faction || ""})`
+        const body = `${props?.age} Years Old ::> ${Trait(props?.stats).join(", ")} ::> ${props?.desc}|`
 
-        Pinning(head, props?.desc, "Character", props.character_id)
+        Pinning(props?.name , body, "Character", props.character_id)
         setPinned(prev => !prev)
     }
-
 
     return <Card>
         <div className="h-full flex flex-col justify-between relative">
@@ -67,17 +68,26 @@ function CharacterPage({props, error}: {props: CharacterProps[], error: Error | 
     const character = props.find((item) => createSlug(item.name) === slug)
 
     const [mode, setMode] = useState<boolean>(false)
-    const { onSubmit, loading, setValue, getValue } = useForm(['name','age','gender','faction','desc','stats'], 'character', character?.character_id ?? "")
+    const { onSubmit, loading, setValue, getValue } = useForm(['name','age','gender','desc','stats'], 'character', character?.character_id ?? "")
 
     useEffect(()=>{
         if (!character) return
         setValue('name', character.name)
         setValue('age', character.age)
         setValue('gender', character.gender)
-        setValue('faction', character.faction)
         setValue('desc', character.desc)
         setValue('stats', character.stats)
     }, [character, setValue])
+
+    const traits = Trait(character?.stats || []) 
+    const category = [
+        {name: "Appearencce", desc: "Informasi tentang penampilan karakter dan kharisma yang dia pancarkan (Menarik atau tidak)"},
+        {name: "Morality", desc: "Informasi tentang moral karakter, bagaimana sikap dia kepada orang lain dan sekitar (Baik atau Jahat)"},
+        {name: "Phsychology", desc: "Informasi tentang psikologi dan kewarasan karakter (Waras atau Gila)"},
+        {name: "Combat", desc: "Informasi tentang kemampuan bela diri karakter dan keberaniannya"},
+        {name: "Social", desc: "Informasi tentang bagaimana karakter bersosial dengan orang orang lain (Introvert atau Extrovert)"},
+        {name: "Intelligence", desc: "Infromasi tentang kapasitas otak karakter (Bodoh atau Pintar)"}
+    ]
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -94,6 +104,9 @@ function CharacterPage({props, error}: {props: CharacterProps[], error: Error | 
         <div className="flex flex-col gap-4">
             <Editable type="input" name='name' text={(getValue('name') as string) ?? character.name} onChange={(v)=>setValue('name', v)} editMode={mode} className='text-4xl font-black'>
                 <h1 className="text-4xl font-black">{(getValue('name') as string) ?? character.name}</h1>
+                <div className="flex gap-2">
+                    {traits.map((item, i) => <Badge key={i} content={item}/>)}
+                </div>
             </Editable>
             <div className="flex gap-4 flex-col">
                 <span>Age : 
@@ -106,32 +119,23 @@ function CharacterPage({props, error}: {props: CharacterProps[], error: Error | 
                         <strong className="capitalize"> {(getValue('gender') as string) ?? character.gender}</strong>
                     </Editable>
                 </span>
-                <span>Faction :
-                    <Editable type="option" list={['good','neutral','evil']} name='faction' text={(getValue('faction') as string) ?? character.faction} onChange={(v)=>setValue('faction', v)} editMode={mode}>
-                        <strong className="capitalize"> {(getValue('faction') as string) ?? character.faction}</strong>
-                    </Editable>
-                </span>
-                <div className="grid grid-cols-2 grid-rows-3 gap-2">
-                    {["Visual", "Morality", "Psychology", "Combat", "Social"].map((item, i) => <div key={i} className="flex gap-2 flex-col">
-                        {mode ? <input
-                            name={item.toLowerCase()}
-                            type="number"
-                            min={0}
-                            max={5}
-                            placeholder={item}
-                            value={Number(statValues[i] ?? 0)}
-                            onChange={(e) => {
+                <div className="grid grid-cols-2 grid-rows-3 gap-1">
+                    {category.map((item, i) => <div key={i} className="flex gap-2 flex-col">
+                        <div className="flex relative tooltip">
+                            <span className="opacity-75 text-sm">{item.name}</span>
+                            <p className="duration-150 transition-all tooltip-text w-48 absolute opacity-0 right-[50%] translate-x-[-50%] bg-(--primary) p-2 rounded-md shadow-md">{item.desc}</p>
+                        </div>
+                        {mode ? <input name={item.name.toLowerCase()} type="number" min={0} max={5} value={Number(statValues[i] ?? 0)} onChange={(e) => {
                                 const nextStats = [...(statValues ?? character.stats)]
                                 nextStats[i] = Number(e.target.value)
                                 setValue('stats', nextStats)
                             }}
                         /> :
                         <>
-                            <span className="opacity-75 text-sm">{item}</span>
-                            <div className="flex h-4 gap-2">
+                            <div className="flex h-2 gap-1">
                                 {Array.from({length: 5}, (_, j) => {
                                     const on = (j+1) <= statValues[i]
-                                    return <div key={j} className="w-12 h-full" style={{backgroundColor: on?"var(--accent)":"var(--primary)"}}/>
+                                    return <div key={j} className="w-12 h-full rounded-md" style={{backgroundColor: on?"var(--accent)":"var(--primary)"}}/>
                                 })}
                             </div>
                         </>    
@@ -182,18 +186,20 @@ export default function Character() {
     if (isLoading) return <Loading message="Characters"/>
     if (error || !data) return <Error err={error || "Characters not found!"}/>
     return <section className="w-full h-full flex flex-col gap-4">
-        <div className="w-full h-12 flex">
-            <input autoComplete="off" autoCorrect="off" autoCapitalize="none" spellCheck="false" value={searchQ} onChange={(e: ChangeEvent<HTMLInputElement>) => 
-                setSearchQ(e.target.value)
-            } type="text" placeholder="Search characters..." className="w-full h-full bg-(--primary) p-4 m-4 rounded-xl"/>
-        </div>
         <Routes>
-            <Route path="/" element={<div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(200px,1fr))] lg:grid-cols-3 p-4">
-                {data?.map((item) => item.name.includes(searchQ) && <CharacterCard key={item.character_id} {...item}/>)}
-                <div className="h-full w-full bg-(--primary) shadow-2xl rounded-2xl overflow-hidden">
-                    <form onClick={onCreate} className="h-full w-full p-4 flex flex-col hover:bg-(--accent) center transition-colors transition-300">
-                        <span className="text-white text-2xl"><code>+</code> Create New Character</span>
-                    </form>
+            <Route path="/" element={<div className="flex flex-col gap-4">
+                <div className="w-full h-12 flex">
+                    <input autoComplete="off" autoCorrect="off" autoCapitalize="none" spellCheck="false" value={searchQ} onChange={(e: ChangeEvent<HTMLInputElement>) => 
+                        setSearchQ(e.target.value)
+                    } type="text" placeholder="Search characters..." className="w-full h-full bg-(--primary) p-4 m-4 rounded-xl"/>
+                </div>
+                <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(200px,1fr))] lg:grid-cols-3 p-4">
+                    {data?.map((item) => item.name.includes(searchQ) && <CharacterCard key={item.character_id} {...item}/>)}
+                    <div className="h-full w-full bg-(--primary) shadow-2xl rounded-2xl overflow-hidden">
+                        <form onClick={onCreate} className="h-full w-full p-4 flex flex-col hover:bg-(--accent) center transition-colors transition-300">
+                            <span className="text-white text-2xl"><code>+</code> Create New Character</span>
+                        </form>
+                    </div>
                 </div>
             </div>}/>
             <Route path=":slug" element={<CharacterPage props={data} error={error}/>}/>

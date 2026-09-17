@@ -130,18 +130,20 @@ export default function Event() {
     if (isLoading) return <Loading message="Events"/>
     if (error || !data) return <Error err={error || "Event not found!"}/>
     return <section className="w-full h-full flex flex-col gap-4">
-        <div className="w-full h-12 flex">
-            <input autoComplete="off" autoCorrect="off" autoCapitalize="none" spellCheck="false" value={searchQ} onChange={(e: ChangeEvent<HTMLInputElement>) => 
-                setSearchQ(e.target.value)
-            } type="text" placeholder="Search event..." className="w-full h-full bg-(--primary) p-4 m-4 rounded-xl"/>
-        </div>
         <Routes>
-            <Route path="/" element={<div className="grid gap-4 lg:grid-cols-2 p-4">
-                {data.map((item) => item.title?.includes(searchQ) && <EventAccordion key={item.event_id} {...item}/>)}
-                <div className="h-full w-full bg-(--primary) shadow-2xl rounded-2xl overflow-hidden">
-                    <form onClick={onCreate} className="h-full hover:bg-(--accent) center p-4 transition-colors transition-300">
-                        <span className="text-white text-2xl"><code>+</code> Create New Event</span>
-                    </form>
+            <Route path="/" element={<div className="flex flex-col gap-4">
+                <div className="w-full h-12 flex">
+                    <input autoComplete="off" autoCorrect="off" autoCapitalize="none" spellCheck="false" value={searchQ} onChange={(e: ChangeEvent<HTMLInputElement>) => 
+                        setSearchQ(e.target.value)
+                    } type="text" placeholder="Search event..." className="w-full h-full bg-(--primary) p-4 m-4 rounded-xl"/>
+                </div>
+                <div className="grid gap-4 lg:grid-cols-2 p-4">
+                    {data.map((item) => item.title?.includes(searchQ) && <EventAccordion key={item.event_id} {...item}/>)}
+                    <div className="h-full w-full bg-(--primary) shadow-2xl rounded-2xl overflow-hidden">
+                        <form onClick={onCreate} className="h-full hover:bg-(--accent) center p-4 transition-colors transition-300">
+                            <span className="text-white text-2xl"><code>+</code> Create New Event</span>
+                        </form>
+                    </div>
                 </div>
             </div>}/>
             <Route path=":slug" element={<EventPage props={data} error={error}/>}/>
