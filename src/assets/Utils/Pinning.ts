@@ -1,5 +1,3 @@
-import { Sanitizer } from "./Sanitizer";
-
 export type PinEntry = {
     id?: string;
     type: string;
@@ -30,19 +28,12 @@ export default function Pinning(title: string, content: string, type: string, id
     const pins = getPins();
     const idx = pins.findIndex(p => p.type === type && (id ? p.id === id : p.title === title));
     if (idx > -1) {
-        // already pinned -> unpin
         pins.splice(idx, 1);
         savePins(pins);
         return false;
     }
 
-    const entry: PinEntry = {
-        id,
-        type,
-        title,
-        content: Sanitizer(content),
-        pinnedAt: new Date().toISOString()
-    };
+    const entry: PinEntry = {id, type, title, content};
 
     pins.unshift(entry);
 

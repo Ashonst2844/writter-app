@@ -29,14 +29,12 @@ const createSlug = (text: string | null | undefined) => {
 function NoteAccordion(props: NoteProps) {
     const slug = createSlug(props.title)
     const {onDelete} = useForm([], "note", props.note_id)
-    const [pinned, setPinned] = useState(() =>
-        getPins().some((item) => item.id === props.note_id && item.type === "Note")
-    )
+    const [pinned, setPinned] = useState<boolean>(() => getPins().some((item) => item.id === props.note_id && item.type === "Note"))
     const [showModal, setShowModal] = useState<boolean>(false)
 
     const handlePin = () => {
         Pinning(props?.title || "", props?.content || "", "Note", props?.note_id)
-        setPinned(true)
+        setPinned(prev => !prev)
     }
 
     return <Card>

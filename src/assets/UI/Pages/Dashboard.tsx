@@ -75,7 +75,7 @@ function Pin() {
     }
     const [showModal, setShowModal] = useState<boolean>(false)
 
-    return show ? <div className="absolute min-w-screen h-full top-0 right-0 bg-black/75 z-40 flex flex-col gap-2 overflow-auto p-4">
+    return show ? <div className="absolute w-screen h-screen top-0 right-0 bg-black/75 z-40 p-4 grid grid-cols-2 gap-4 overflow-y-auto">
         <div className="flex gap-2 fixed top-0 right-0 m-4 rounded-full z-50">
             {showModal && pin && <Modal message={`Clear All Pinned? (${pin.length}) Pinned Found`} type="alert" onConfirm={() => {clearPins(); window.location.reload()}} onClose={() => setShowModal(false)}/> }
             <Button type="warning" use="button" onClick={(() => setShowModal(true))} className="w-24 rounded-md">Clear</Button>
@@ -83,11 +83,20 @@ function Pin() {
                 <Icon type="normal" use="cancel" width={6} color="var(--text)" fill/>
             </Button>
         </div>
-        {pin?.map((item, i) => <div key={i} className="w-[50%] bg-(--primary) shadow-md rounded-2xl p-4 flex flex-col gap-4">
-            <h2 className="text-4xl font-black">{item?.title} </h2>
-            <span className="opacity-75 text-(--accent)">{item?.type.toUpperCase()}</span>
-            <p className="opacity-75">{item?.content}</p>
-        </div>)}
+        <div className="flex flex-col gap-2">
+            {pin?.filter((_, i) => i % 2 == 0).map((item, i) => <div key={i} className="bg-(--primary) overflow-hidden group shadow-md rounded-2xl p-4 flex flex-col gap-4 break-inside-avoid mb-4">
+                <h2 className="text-4xl font-black">{item?.title} </h2>
+                <span className="opacity-75 text-(--accent)">{item?.type.toUpperCase()}</span>
+                <div dangerouslySetInnerHTML={{ __html: item?.content}} className={`p-4 bg-(--primary) border transition-all whitespace-pre-wrap leading-relaxed`}></div>
+            </div>)}
+        </div>
+        <div className="flex flex-col gap-2">
+            {pin?.filter((_, i) => i % 2 == 1).map((item, i) => <div key={i} className="bg-(--primary) overflow-hidden group shadow-md rounded-2xl p-4 flex flex-col gap-4 break-inside-avoid mb-4">
+                <h2 className="text-4xl font-black">{item?.title} </h2>
+                <span className="opacity-75 text-(--accent)">{item?.type.toUpperCase()}</span>
+                <div dangerouslySetInnerHTML={{ __html: item?.content}} className={`p-4 bg-(--primary) border transition-all whitespace-pre-wrap leading-relaxed`}></div>
+            </div>)}
+        </div>
     </div> : <Button type="normal" use="button" onClick={handleOn} className="absolute top-0 right-0 m-4 w-16 h-15 rounded-full z-50 shadow-md">
         <Icon type="online" use="pin" color="var(--text)" fill/>
     </Button>
