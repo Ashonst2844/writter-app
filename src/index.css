@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Main";
+  src: url("/Fonts/Lavishly_Yours/Yesteryear-Regular.ttf");
+}
+
 :root {
   --bg: #161616;
   --text: rgb(216, 216, 216);
@@ -14,4 +19,5 @@
 }
 * {
   scrollbar-width: none;
+  scroll-behavior: smooth;
 }

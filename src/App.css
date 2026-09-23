@@ -8,3 +8,15 @@
   opacity: 100%;
   z-index: 50;
 }
+
+.header div {
+  transform: translateY(-100%);
+  transition: all 0.3s ease-in-out;
+}
+.header:hover div {
+  transform: translateY(0);
+}
+.countbox:hover .countup {
+  transform: translateX(10px);
+  text-shadow: 0 0 1rem var(--accent);
+}

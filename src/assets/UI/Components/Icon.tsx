@@ -40,6 +40,13 @@ export default function Icon(props: IconProps) {
                     <polyline points="30,30 60,30 60,70 30,70 30,30 60,30" strokeLinecap="round" strokeLinejoin="round"/>
                     <polyline points="65,40 70,40 70,80 35,80" strokeLinecap="round" strokeLinejoin="round"/>
                 </>
+                :props.use==="grid"?
+                <>
+                    <rect x={5} y={5} width={40} height={40} fill={props.color}/>
+                    <rect x={55} y={5} width={40} height={40} fill={props.color}/>
+                    <rect x={55} y={55} width={40} height={40} fill={props.color}/>
+                    <rect x={5} y={55} width={40} height={40} fill={props.color}/>
+                </>
                 :""
             }
         </svg>
@@ -91,6 +98,15 @@ export default function Icon(props: IconProps) {
         </svg>}
         if (props.use==="print") {return <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill={props.fill?props.color:"none"} style={{scale:props.scale}}>
             <path d="M16 8V5H8v3H6V3h12v5zM4 10h16zm14 2.5q.425 0 .713-.288T19 11.5t-.288-.712T18 10.5t-.712.288T17 11.5t.288.713t.712.287M16 19v-4H8v4zm2 2H6v-4H2v-6q0-1.275.875-2.137T5 8h14q1.275 0 2.138.863T22 11v6h-4zm2-6v-4q0-.425-.288-.712T19 10H5q-.425 0-.712.288T4 11v4h2v-2h12v2z"/>
+        </svg>}
+        if (props.use==="user") {return <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill={props.fill?props.color:"none"} style={{scale:props.scale}}>
+            <path d="M12 4a4 4 0 0 1 4 4a4 4 0 0 1-4 4a4 4 0 0 1-4-4a4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4"/>
+        </svg>}
+        if (props.use==="project") {return <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512" fill={props.fill?props.color:"none"} style={{scale:props.scale}}>
+            <path fillRule="evenodd" d="m256 34.347l192 110.851v221.703L256 477.752L64 366.901V145.198zM106.666 192.001v150.266l128 73.9V265.902zm298.667.001l-128 73.9v150.265l128-73.9zM256 83.614l-125.867 72.67L256 228.952l125.867-72.67z"/>
+        </svg>}
+        if (props.use==="features") {return <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill={props.fill?props.color:"none"} style={{scale:props.scale}}>
+            <path d="M3 6v8h5.635L12 19.908V27h8v-8h-6.217l-2.845-5H11v-3h10v3h8V6h-8v3H11V6zm2 2h4v4H5zm18 0h4v4h-4zm-8.582 13H18v4h-4v-3.762z"/>
         </svg>}
     }
 }

@@ -1,9 +1,9 @@
-# WRITTER APP
+# WRITER APP
 ----
 ## Descripttion:
 
 ### Using TechStack
-![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)  ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white) ![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white) ![Supabase](https://img.shields.io/badge/Supabase-%233ECF8E.svg?style=for-the-badge&logo=supabase&logoColor=white) ![React Query](https://img.shields.io/badge/React%20Query-%23FF4154.svg?style=for-the-badge&logo=react%20query&logoColor=white) ![React Router](https://img.shields.io/badge/React_Router-%23CA4245.svg?style=for-the-badge&logo=react-router&logoColor=white)
+![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)  ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white) ![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white) ![Supabase](https://img.shields.io/badge/Supabase-%233ECF8E.svg?style=for-the-badge&logo=supabase&logoColor=white) ![React Query](https://img.shields.io/badge/React%20Query-%23FF4154.svg?style=for-the-badge&logo=react%20query&logoColor=white) ![React Router](https://img.shields.io/badge/React_Router-%23CA4245.svg?style=for-the-badge&logo=react-router&logoColor=white) ![GSAP](https://img.shields.io/badge/gsap-%230AE448.svg?style=for-the-badge&logo=gsap&logoColor=white)
 **And Build By :**
 ![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white)
 ****
@@ -96,10 +96,9 @@ Projek Aplikasi Pribadi untuk **Penulis** yang ingin membangun sebuah Novel deng
 - NPM : *(202643500545)*
 
 ![Gmail](https://img.shields.io/badge/Gmail-%23D14836.svg?style=for-the-badge&logo=gmail&logoColor=white) : agusyantosugiyanto@gmail.com
-![Instagram](https://img.shields.io/badge/Instagram-%23E4405F.svg?style=for-the-badge&logo=Instagram&logoColor=white) : 
-![Facebook](https://img.shields.io/badge/Facebook-%231877F2.svg?style=for-the-badge&logo=Facebook&logoColor=white) :
+![Instagram](https://img.shields.io/badge/Instagram-%23E4405F.svg?style=for-the-badge&logo=Instagram&logoColor=white) : [Instagram Link](https://www.instagram.com/msgs_adra/)
+![Facebook](https://img.shields.io/badge/Facebook-%231877F2.svg?style=for-the-badge&logo=Facebook&logoColor=white) : [Facebook Link](https://www.facebook.com/profile.php?id=61589665117247)
 ![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white) : [Github Link](https://github.com/Ashonst2844)
-![TikTok](https://img.shields.io/badge/TikTok-%23000000.svg?style=for-the-badge&logo=TikTok&logoColor=white) : 
 
 ----
 
@@ -130,7 +129,13 @@ Keterangan:
     - Menambahkan fitur *Short-Cut Keyboard*
     - membuat alignment exported document menjadi justify
     - Menambahkan fitur Stats Personalisasi Karakter
-  - (17 Sept. 2026) **update-build v.5.0**
+  - (17 Sept. 2026) **update-build v1.5.0**
     - Menambahkan icon
     - Menambahkan tags untuk Traits Character sesuai dengan statistic yang diberikan
     - Fix search position
+  - (23 Sept. 2026) **update-build v1.6.0**
+    - Membuat Landing Page untuk umum dan mengintegrasikan dengan GSAP Animation
+    - Membuat Halam Register untuk Sistem Authentication Register 
+      - Sign-up
+      - Sign-in
+      - Sign-out

@@ -9,6 +9,7 @@ export default function Breadcrumb() {
         {pathname.map((item,i)=>{
             const to = `/${pathname.slice(0, i + 1).join("/")}`;
             const isLast = i === pathname.length - 1;
+            if(item==="projects") return
             if(item==="dashboard") return
             if(i === 1) return <Link key={i} to={to} className="hover:text-(--accent)">/ DASHBOARD</Link>
             

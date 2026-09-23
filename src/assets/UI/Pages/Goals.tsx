@@ -104,7 +104,7 @@ function StickyNotes(props: StickyProps) {
 }
 
 export default function Goals() {
-    const {data, isLoading, error, refetch} = useFetch<GoalsProps>("goals", '')
+    const {data, isLoading, error} = useFetch<GoalsProps>("goals", '')
 
     const { onCreate } = useForm([], 'goal', "", {
         name: "Your Goal",
@@ -115,7 +115,7 @@ export default function Goals() {
     if (error || !data) return <Error err={error || "Goals not found!"}/>
     return <section className="w-full h-full">
         <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(250px,1fr))] grid-rows-[250px] lg:grid-cols-4 p-4">
-            {data.map((item, i)=><StickyNotes key={i} goal_id={item.goal_id} name={item.name} created_at={item.created_at} due={item.due} status={item.status} refetch={refetch}/>)}
+            {data.map((item, i)=><StickyNotes key={i} goal_id={item.goal_id} name={item.name} created_at={item.created_at} due={item.due} status={item.status}/>)}
             <div className="h-full w-full bg-(--primary) shadow-xl rounded-md overflow-hidden">
                 <form onClick={onCreate} className="h-full w-full p-4 flex flex-col hover:bg-(--accent) center transition-colors transition-300">
                     <span className="text-white text-xl"><code>+</code> Create New Goals</span>

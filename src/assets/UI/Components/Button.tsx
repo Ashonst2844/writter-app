@@ -9,11 +9,12 @@ interface ButtonProps {
     children: ReactNode;
     className?: string;
     style?: CSSProperties;
+    disabled?: boolean
 }
 
 export default function Button(props: ButtonProps) {
-    const buttonStyle = `text-base p-2 center hover:outline hover:outline-white hover:brightness-150 ${props.type=="alternate"?
-        "bg-(--text) text-(--bg)":props.type=="warning"?"bg-(--warning) text-(--text)":"bg-(--accent) text-white"
+    const buttonStyle = `text-base p-2 center ${props.disabled?"opacity-50 brightness-50":"hover:outline hover:outline-white hover:brightness-150"} ${props.type=="alternate"?
+        "bg-white text-(--bg)":props.type=="warning"?"bg-(--warning) text-white":"bg-(--accent) text-white"
     } ${props.className?props.className:""}` 
 
     const handleClick: MouseEventHandler<HTMLElement> = (event) => {
@@ -29,7 +30,7 @@ export default function Button(props: ButtonProps) {
         return <Link to={props.target||"#"} style={props.style} className={props.type=="custom"?props.className:buttonStyle}>{props.children}</Link> 
     }
     if (props.use==="button") {
-        return <button type={'button'} onClick={handleClick} style={props.style} className={props.type=="custom"?props.className:buttonStyle}>
+        return <button disabled={props.disabled} type={'button'} onClick={handleClick} style={props.style} className={props.type=="custom"?props.className:buttonStyle}>
             {props.children}
         </button>
     }
@@ -39,7 +40,10 @@ export default function Button(props: ButtonProps) {
         </button>
     }
     if (props.use==="url") {
-        return <a href={props.target} style={props.style} className={props.type=="custom"?props.className:buttonStyle} target="_blank">
+        const href = props.target || undefined;
+        const isHashLink = !!props.target && props.target.startsWith("#");
+
+        return <a href={href} style={props.style} className={props.type=="custom"?props.className:buttonStyle} target={isHashLink ? undefined : "_blank"}>
             {props.children}
         </a>
     }

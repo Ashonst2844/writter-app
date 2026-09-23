@@ -26,6 +26,10 @@ function Navigation({name, click, state}:{name:string, click:()=>void, state:boo
     const {id} = useParams<{id:string}>();
     const currentPath = useLocation().pathname;
 
+    const authValue = window.localStorage.getItem("auth");
+    const user = authValue ? JSON.parse(authValue) : null;
+    const user_id = user?.user?.id ?? ""
+
     const nav =["timeline-building","world-building","character-development","goals","events","relics","book-library","note"]
     return <nav className="h-full bg-(--primary) flex flex-col gap-4 shadow-sm z-30 overflow-auto transition-all duration-150" style={{
         width: state?"20%":"auto",
@@ -46,7 +50,7 @@ function Navigation({name, click, state}:{name:string, click:()=>void, state:boo
             {nav.map((item, i)=>{
                 const targetPath = `/dashboard/${id}/${item}`;
                 const isActive = currentPath == targetPath;
-                return <Button key={i} type="custom" target={`/dashboard/${id}/${item}`} use="link">
+                return <Button key={i} type="custom" target={`/projects/${user_id}/dashboard/${id}/${item}`} use="link">
                     <p className={`text-xs bg-(--primary) w-full flex gap-2 items-center hover:outline hover:outline-white hover:brightness-150 ${state?"":"center"} ${isActive?"brightness-150 bg-linear-120 from-transparent via-transparent to-(--accent)/50 shadow-md":""}`} style={{
                         padding: state?"1rem":"0.5rem"
                     }}>
@@ -54,7 +58,7 @@ function Navigation({name, click, state}:{name:string, click:()=>void, state:boo
                     </p>
                 </Button>
             })}
-            <Button type="custom" target={`/`} use="link" className="rounded-md bg-(--primary) w-full p-4 inline-block hover:brightness-150 text-(--warning) uppercase">
+            <Button type="custom" target={`/projects/${user_id}`} use="link" className="rounded-md bg-(--primary) w-full p-4 inline-block hover:brightness-150 text-(--warning) uppercase">
                 {state?"Back":<Icon scale="0.75" type="online" use="exit" fill color="var(--warning)"/>}
             </Button>
         </div>
