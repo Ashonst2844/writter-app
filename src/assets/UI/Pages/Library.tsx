@@ -26,7 +26,6 @@ interface BookProps {
     genres: string[];
     link: string;
 }
-
 interface ChapterProps {
     index: number;
     chapter_id: string;
@@ -36,11 +35,15 @@ interface ChapterProps {
     status: "draft" | "finish";
     word: number;
 }
-
 interface ExportModalProps {
     bookTitle: string;
     chapters: ChapterProps[];
     onClose: () => void;
+}
+interface Profiles {
+    username: string;
+    email: string;
+    plan: "free"|"hobbies"|"professionals";
 }
 
 const createSlug = (text: string | null | undefined) => {
@@ -373,11 +376,15 @@ function BookPage({props}: {props: BookProps[]}) {
         count: "exact"
     });
 
-    const { onCreate } = useForm([], 'chapter', "", {
-        book_id: book?.book_id,
-        name: "New Chapter",
-        content: "Write Story"
-    });
+    const { onCreate } = useForm([], 'chapter', data.length > 0 ? data[0].chapter_id : '')
+    const handleCreate = async () => {
+        const res = await onCreate({
+            book_id: book?.book_id,
+            name: "New Chapter",
+            content: "Write Story"
+        })
+        if(res.ok) console.log("Created Succesed!")
+    } 
 
     const pageLength = Math.ceil((counted ?? 0) / 10);
 
@@ -393,23 +400,36 @@ function BookPage({props}: {props: BookProps[]}) {
             </div>
             {data?.map((item, i)=><Chapter key={i} name={item.name} index={(pageIndex - 1) * 10 + i} status={item.status} chapter_id={item.chapter_id}/>)}
             <div className="h-16 w-full bg-(--primary) shadow-2xl rounded-xl overflow-hidden">
-                <Button type="normal" use="button" onClick={onCreate} className="h-full w-full transition-colors transition-300">
+                <form onClick={handleCreate} className="h-full flex flex-col hover:bg-(--accent) center p-4 transition-colors transition-300">
                     <span className="text-white text-2xl"><code>+</code> Create New Chapter</span>
-                </Button>
+                </form>
             </div>
         </form>}/>
         <Route path=":slug" element={<ChapterPage props={data} error={error}/>}/>
     </Routes>
 }
 
-export default function Library() {
-    const { data, isLoading, error } = useFetch<BookProps>("books", '');
-
-    const { onCreate } = useForm([], 'book', "", {
-        title: "Book Title",
-        synopsys: "Write Synopsys",
-        link: "Insert Link"
+export default function Library({project_id, profiles}: {project_id: string, profiles: Profiles}) {
+    const { data, isLoading, error } = useFetch<BookProps>("books", '', {
+        eq: {
+            project_id: project_id
+        }
     });
+
+    const maxBook = profiles?.plan === "free" ? 2 : profiles?.plan === "hobbies" ? 5 : 15
+
+    const { onCreate } = useForm([], 'book', data.length > 0 ? data[0].book_id : '')
+    const handleCreate = async () => {
+        if (data.length < maxBook) {
+            const res = await onCreate({
+                project_id: project_id,
+                title: "Book Title",
+                synopsys: "Write Synopsys",
+                link: "Insert Link"
+            })
+            if(res.ok) console.log("Created Succesed!")
+        } else alert("Your Reach Maximum Book!")
+    } 
 
     if (isLoading) return <Loading message="Books" />
     if (error || !data) return <Error err={error || "Books not found!"}/>
@@ -418,7 +438,8 @@ export default function Library() {
             <Route path="/" element={<div className="grid gap-4 lg:grid-cols-1 p-4 relative">
                 {data.map((item) => <Book key={item.book_id} {...item} />)}
                 <div className="h-full w-full bg-(--primary) shadow-2xl rounded-2xl overflow-hidden">
-                    <form onClick={onCreate} className="h-full hover:bg-(--accent) center p-4 transition-colors transition-300">
+                    <form onClick={handleCreate} className="min-h-60 flex flex-col hover:bg-(--accent) center p-4 transition-colors transition-300">
+                        <span>{data.length} / {maxBook}</span>
                         <span className="text-white text-2xl"><code>+</code> Create New Book</span>
                     </form>
                 </div>

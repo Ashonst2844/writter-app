@@ -22,6 +22,12 @@ interface ProjectData {
     created_at: string;
 }
 
+interface Profiles {
+    username: string;
+    email: string;
+    plan: "free"|"hobbies"|"professionals";
+}
+
 function Navigation({name, click, state}:{name:string, click:()=>void, state:boolean}) {
     const {id} = useParams<{id:string}>();
     const currentPath = useLocation().pathname;
@@ -102,18 +108,16 @@ function Pin() {
     </Button>
 }
 
-export default function Dashboard({projects}:{projects:ProjectData[]}) {
+export default function Dashboard({projects, profiles}:{projects:ProjectData[], profiles: Profiles}) {
     const { id } = useParams<{id:string}>();
+    const projectName = id && projects.length > 0 ? projects.find(user => user.project_id === id)?.name : ""
+    const projectId = id && projects.length > 0 ? projects.find(user => user.project_id === id)?.project_id : ""
 
     const [mode, setMode] = useState<boolean>(false)
 
-    const projectName = id && projects.length > 0 
-        ? projects.find(p => p.project_id === id)?.name ?? ""
-        : "";
-
     return <section className="w-screen h-screen flex relative">
         <Pin/>
-        <Navigation name={projectName} click={() => setMode(prev => !prev)} state={mode}/>
+        <Navigation name={projectName ?? ""} click={() => setMode(prev => !prev)} state={mode}/>
         <div className="h-full" style={{
             width: mode?"80%":"95%"
         }}>
@@ -121,14 +125,14 @@ export default function Dashboard({projects}:{projects:ProjectData[]}) {
             <div className="h-[90%] w-full overflow-y-scroll">
                 <Routes>
                     <Route index element={<Navigate to="timeline-building" replace />} />
-                    <Route path={`timeline-building`} element={<Timeline/>}/>
-                    <Route path={`world-building/*`} element={<World/>}/>
-                    <Route path={`character-development/*`} element={<Character/>}/>
-                    <Route path={`goals`} element={<Goals/>}/>
-                    <Route path={`events/*`} element={<Event/>}/>
-                    <Route path={`relics/*`} element={<Relic/>}/>
-                    <Route path={`book-library/*`} element={<Library/>}/>
-                    <Route path={`note/*`} element={<Note/>}/>
+                    <Route path={`timeline-building`} element={<Timeline project_id={projectId ?? ""} profiles={profiles}/>}/>
+                    <Route path={`world-building/*`} element={<World project_id={projectId ?? ""} profiles={profiles}/>} />
+                    <Route path={`character-development/*`} element={<Character project_id={projectId ?? ""} profiles={profiles}/>}/>
+                    <Route path={`goals`} element={<Goals project_id={projectId ?? ""} profiles={profiles}/>}/>
+                    <Route path={`events/*`} element={<Event project_id={projectId ?? ""} profiles={profiles}/>}/>
+                    <Route path={`relics/*`} element={<Relic project_id={projectId ?? ""} profiles={profiles}/>}/>
+                    <Route path={`book-library/*`} element={<Library project_id={projectId ?? ""} profiles={profiles}/>}/>
+                    <Route path={`note/*`} element={<Note project_id={projectId ?? ""} profiles={profiles}/>}/>
                 </Routes>
             </div>
         </div>

@@ -20,6 +20,11 @@ interface GoalsProps {
 interface StickyProps extends GoalsProps {
     refetch?: () => Promise<QueryObserverResult<GoalsProps[], Error>>;
 }
+interface Profiles {
+    username: string;
+    email: string;
+    plan: "free"|"hobbies"|"professionals";
+}
 
 function StickyNotes(props: StickyProps) {
     const [mode, setMode] = useState<boolean>(false)
@@ -69,7 +74,7 @@ function StickyNotes(props: StickyProps) {
         return `${years} Year${years > 1 ? 's' : ''} Left`
     }
 
-    return <form onSubmit={handleSubmit} className="w-full h-full bg-(--primary) rounded-md shadow-xl p-4 flex flex-col items-center justify-between gap-2">
+    return <form onSubmit={handleSubmit} className="w-full h-full bg-(--primary) rounded-xl shadow-xl p-4 flex flex-col items-center justify-between gap-2">
         <div className="w-full h-2 rounded-md shadow-md" style={{backgroundColor:props.status?"var(--success)":"var(--warning)"}}/>
         <Editable type="input" name='name' text={(getValue('name') as string) ?? props.name} onChange={(v)=>setValue('name', v)} editMode={mode} className="font-bold underline text-xl text-center w-full">
             <h2 className="font-bold underline text-center text-xl">{(getValue('name') as string) ?? props.name}</h2>
@@ -103,21 +108,35 @@ function StickyNotes(props: StickyProps) {
     </form>
 }
 
-export default function Goals() {
-    const {data, isLoading, error} = useFetch<GoalsProps>("goals", '')
-
-    const { onCreate } = useForm([], 'goal', "", {
-        name: "Your Goal",
-        status: false
+export default function Goals({project_id, profiles}: {project_id: string, profiles: Profiles}) {
+    const {data, isLoading, error} = useFetch<GoalsProps>("goals", '', {
+        eq: {
+            project_id: project_id
+        }
     })
+
+    const maxGoals = profiles?.plan === "free" ? 20 : profiles?.plan === "hobbies" ? 40 : 60
+
+    const { onCreate } = useForm([], 'goal', data.length > 0 ? data[0].goal_id : '')
+    const handleCreate = async () => {
+        if ( data.length < maxGoals ) {
+            const res = await onCreate({
+                project_id: project_id,
+                name: "Your Goal",
+                status: false
+            })
+            if(res.ok) console.log("Created Succesed!")
+        } else alert("Your Reach Maximum Goals!")
+    } 
 
     if (isLoading) return <Loading message="Goals"/>
     if (error || !data) return <Error err={error || "Goals not found!"}/>
     return <section className="w-full h-full">
         <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(250px,1fr))] grid-rows-[250px] lg:grid-cols-4 p-4">
             {data.map((item, i)=><StickyNotes key={i} goal_id={item.goal_id} name={item.name} created_at={item.created_at} due={item.due} status={item.status}/>)}
-            <div className="h-full w-full bg-(--primary) shadow-xl rounded-md overflow-hidden">
-                <form onClick={onCreate} className="h-full w-full p-4 flex flex-col hover:bg-(--accent) center transition-colors transition-300">
+            <div className="h-full w-full bg-(--primary) shadow-xl rounded-xl overflow-hidden">
+                <form onClick={handleCreate} className="h-full w-full p-4 flex flex-col hover:bg-(--accent) center transition-colors transition-300">
+                    <span>{data.length} / {maxGoals}</span>
                     <span className="text-white text-xl"><code>+</code> Create New Goals</span>
                 </form>
             </div>

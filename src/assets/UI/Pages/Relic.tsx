@@ -18,6 +18,11 @@ interface RelicProps {
     title:string | null;
     content:string | null;
 }
+interface Profiles {
+    username: string;
+    email: string;
+    plan: "free"|"hobbies"|"professionals";
+}
 
 const createSlug = (text: string | null | undefined) => {
     if (!text) return "Untitled";
@@ -107,14 +112,27 @@ function RelicPage({props, error}: {props: RelicProps[]; error: Error | null}) {
     </form>
 }
 
-export default function Relic() {
-    const {data, isLoading, error} = useFetch<RelicProps>("relics", 'relic_id, title, content')
+export default function Relic({project_id, profiles}: {project_id: string, profiles: Profiles}) {
+    const {data, isLoading, error} = useFetch<RelicProps>("relics", 'relic_id, title, content', {
+        eq: {
+            project_id: project_id
+        }
+    })
     const [searchQ, setSearchQ] = useState<string>("")
 
-    const { onCreate } = useForm([], 'relic', "", {
-        title: "Relic Title",
-        content: "Write Description"
-    })
+    const maxRelic = profiles?.plan === "free" ? 20 : profiles?.plan === "hobbies" ? 40 : 60
+
+    const { onCreate } = useForm([], 'relic', data.length > 0 ? data[0].relic_id : '')
+    const handleCreate = async () => {
+        if (data.length < maxRelic) {
+            const res = await onCreate({
+                project_id: project_id,
+                title: "Relic Title",
+                content: "Write Description"
+            })
+            if(res.ok) console.log("Created Succesed!")
+        } else alert("Your Reach Maximum Relic!")
+    } 
 
     if (isLoading) return <Loading message="Relics"/>
     if (error || !data) return <Error err={error || "Relics not found!"}/>
@@ -128,9 +146,10 @@ export default function Relic() {
                 </div>
                 <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(200px,1fr))] lg:grid-cols-2 p-4">
                     {data.map((item) => item.title?.includes(searchQ) && <RelicAccordion key={item.relic_id} {...item}/>)}
-                    <div className="h-full w-full bg-(--primary) shadow-xl rounded-2xl overflow-hidden">
-                        <form onClick={onCreate} className="h-full w-full p-4 flex flex-col hover:bg-(--accent) center transition-colors transition-300">
-                            <span className="text-white text-2xl"><code>+</code> Create New Character</span>
+                    <div className="min-h-60 w-full bg-(--primary) shadow-xl rounded-2xl overflow-hidden">
+                        <form onClick={handleCreate} className="h-full w-full p-4 flex flex-col hover:bg-(--accent) center transition-colors transition-300">
+                            <span>{data.length} / {maxRelic}</span>
+                            <span className="text-white text-2xl"><code>+</code> Create New Relic</span>
                         </form>
                     </div>
                 </div>

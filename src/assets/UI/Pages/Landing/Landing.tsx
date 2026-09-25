@@ -16,11 +16,11 @@ gsap.registerPlugin(ScrollTrigger)
 interface Profiles {
     username: string;
     email: string;
-    plan: 'plan' | 'hobbies' | 'professionals'
+    plan: 'free' | 'hobbies' | 'professionals'
 }
 
 const nav = ["home", "about", "features", "planning", "contact"]
-function Header() {
+function Header({plan}: {plan: 'free' | 'hobbies' | 'professionals'}) {
     const [modal, showModal] = useState<boolean>(false)
 
     const [userData, setUserData] = useState(() => {
@@ -70,6 +70,7 @@ function Header() {
                     {userData && <div className="center flex-col gap-4">
                         <Icon type="online" use="user" fill color="white" />
                         <p className="opacity-75 text-sm">{username}</p>
+                        <p className="opacity-75 text-sm">Tier : {plan.toUpperCase()}</p>
                         <p className="opacity-75 text-sm">{email}</p>
                     </div>}
                     <Button type="custom" use={userData ? "button" : "link"} onClick={userData ? handleLogout : undefined} target={userData ? undefined : "register"} className={`hover:brightness-75 ${userData?"text-(--warning)":""}`}>
@@ -126,7 +127,6 @@ export default function Landing() {
         }
     })
 
-    console.log(profiles)
     const aboutDetailData = [
         {id: 1, count:10, title:'Places'},
         {id: 1, count:20, title:'Characters'},
@@ -145,30 +145,33 @@ export default function Landing() {
     const planData = [
         {id:1,title:"Free",benefits:[
             "max. 1 Universe",
-            "Timeline tanpa batas",
-            "Lokasi tanpa batas",
-            "max. 30 Karakter",
-            "max. 20 Goals, Event, Relics, Notes",
-            "max. 2 Novel di Libary",
-            "Jumlah Bab/Book tanpa batas",
+            "max. 10 Timeline, & 10 Continent/Timeline",
+            "max. 15 Place/Continent",
+            "max. 30 Character",
+            "max. 20 Goal, Event, Relic, Note",
+            "max. 2 Novel in Libary",
+            "Infinity Chapter/Book",
         ],price:0},
         {id:2,title:"Hobbies",benefits:[
             "max. 3 Universe",
-            "Timeline tanpa batas",
-            "Lokasi tanpa batas",
-            "max. 60 Karakter",
-            "max. 40 Goals, Event, Relics, Notes",
-            "max. 5 Novel di Libary",
-            "Jumlah Bab/Book tanpa batas",
+            "max. 15 Timeline, & 15 Continent/Timeline",
+            "max. 30 Place/Continent",
+            "max. 60 Character",
+            "max. 40 Goal, Event, Relic, Note",
+            "max. 5 Novel in Libary",
+            "Infinity Chapter/Book",
+            "Export to .docx Feature"
         ],price:29999},
         {id:3,title:"Professionals",benefits:[
-            "Universe tanpa batas",
-            "Timeline tanpa batas",
-            "Lokasi tanpa batas",
-            "Karakter tanpa batas",
-            "Goals, Event, Relics, Notes tanpa batas",
-            "Novel di Libary tanpa batas",
+            "max. 10 Universe",
+            "max. 25 Timeline, & 25 Continent/Timeline",
+            "max. 45 Place/Continent",
+            "max. 100 Character",
+            "max. 60 Goals, Event, Relics, Notes",
+            "max. 15 Novel di Libary",
             "Jumlah Bab/Book tanpa batas",
+            "Infinity Chapter/Book",
+            "Export to .docx Feature"
         ],price:59999}
     ]
 
@@ -178,8 +181,6 @@ export default function Landing() {
         {id:5,icon:"github",username:"Ashonst2844",url:"https://github.com/Ashonst2844"},
         {id:6,icon:"x",username:"@sasha28446419",url:"https://x.com/sasha28446419"},
     ]
-
-    console.log(userData)
 
     const home = useRef<HTMLElement>(null)
     const builder = useRef<HTMLElement>(null)
@@ -230,7 +231,7 @@ export default function Landing() {
 
     return <main className="w-screen relative">
         {isLoading && <Loading message="User"/>}
-        <Header/>
+        <Header plan={profiles[0]?.plan}/>
         {/* Home Section */}
         <section ref={home} id="home" className="w-full h-screen bg-[url(/bg.jpg)] bg-cover bg-center bg-no-repeat">
             <div className="w-full h-full bg-linear-to-r from-black to-transparent flex justify-center flex-col gap-8 p-8">
@@ -323,9 +324,8 @@ export default function Landing() {
             <div className="grid grid-cols-3 gap-8">
                 {planData.map(item => {
                     const active = item.title.toLowerCase() === profiles[0]?.plan
-                    return <div key={item.id} className="plan w-80 bg-(--bg) p-4 rounded-xl flex h-full flex-col gap-8 transition-all duration-150 hover:outline-2 outline-neutral-600 hover:shadow-xl">
-                        <h3 className="text-xl font-bold">{item.title} <code className="font-extralight">{active && "(Current Plan)"}</code></h3>
-                        <hr className="border border-neutral-700"/>
+                    return <div key={item.id} className="plan w-80 bg-(--bg) p-4 rounded-xl flex h-full flex-col justify-between gap-8 transition-all duration-150 hover:outline-2 outline-neutral-600 hover:shadow-xl">
+                        <h3 className="text-xl font-bold border-b-2 border-neutral-700">{item.title} <code className="font-extralight">{active && "(Current Plan)"}</code></h3>
                         <code className="pl-4 text-4xl font-light text-(--accent)">{new Intl.NumberFormat("id-ID", {style:"currency", currency:"IDR"}).format(item.price)}</code>
                         <div className="flex flex-col gap-4">
                             {item.benefits.map((item, i) => <p key={i} className="text-sm opacity-75">- {item}</p>)}

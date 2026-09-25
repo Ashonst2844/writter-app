@@ -9,6 +9,7 @@ export function useForm(inputs: string[], enp: string, id: string, defaultValues
     const queryClient = useQueryClient();
 
     const tableName = `${enp}s`;
+    const key = `${enp}_id`
 
     const normalizeValue = useCallback((value: unknown, fieldName?: string) => {
         if (fieldName === "tags") {
@@ -62,7 +63,7 @@ export function useForm(inputs: string[], enp: string, id: string, defaultValues
             const { error: updateError, data } = await supabase
                 .from(tableName)
                 .update(resultForm)
-                .eq(`${enp}_id`, id)
+                .eq(key, id)
                 .select();
 
             if (updateError) throw updateError;
@@ -71,20 +72,23 @@ export function useForm(inputs: string[], enp: string, id: string, defaultValues
 
             return { ok: true, data };
         } catch (err) {
-            console.error(`Gagal update ${enp}:`, err);
+            console.error(`Gagal update ${tableName}:`, err);
             setError((err as Error)?.message || "Gagal mengedit data");
             return { ok: false, error: err };
         } finally {
             setLoading(false);
         }
-    }, [inputs, enp, tableName, id, normalizeValue, queryClient]);
+    }, [inputs, key, tableName, id, normalizeValue, queryClient]);
 
-    const onCreate = useCallback(async () => {
+    const onCreate = useCallback(async (customPayload: Record<string, unknown>) => {
         setLoading(true);
         setError(null);
 
         try {
-            const payload = defaultValues ?? {};
+            const payload = {
+                ...(defaultValues ?? {}),
+                ...(customPayload ?? {})
+            };
             const { data, error: insertError } = await supabase
                 .from(tableName)
                 .insert([payload])
@@ -94,13 +98,13 @@ export function useForm(inputs: string[], enp: string, id: string, defaultValues
             await queryClient.invalidateQueries({ queryKey: [tableName] });
             return { ok: true, data };
         } catch (err) {
-            console.error(`Gagal create ${enp}:`, err);
-            setError((err as Error)?.message || `Gagal membuat ${enp}`);
+            console.error(`Gagal membuat ${tableName}:`, err);
+            setError((err as Error)?.message || `Gagal membuat ${tableName}`);
             return { ok: false, error: err };
         } finally {
             setLoading(false);
         }
-    }, [tableName, enp, defaultValues, queryClient]);
+    }, [tableName, defaultValues, queryClient]);
 
     const onDelete = useCallback(async () => {
         setLoading(true);
@@ -108,7 +112,7 @@ export function useForm(inputs: string[], enp: string, id: string, defaultValues
             const { error: deleteError } = await supabase
                 .from(tableName)
                 .delete()
-                .eq(`${enp}_id`, id);
+                .eq(key, id);
 
             if (deleteError) throw deleteError;
             await queryClient.invalidateQueries({ queryKey: [tableName] });
@@ -119,7 +123,7 @@ export function useForm(inputs: string[], enp: string, id: string, defaultValues
         } finally {
             setLoading(false);
         }
-    }, [tableName, enp, id, queryClient]);
+    }, [tableName, key, id, queryClient]);
 
     const setValue = useCallback((name: string, value: unknown) => {
         setValues((prev) => ({ ...prev, [name]: normalizeValue(value, name) }));
@@ -139,7 +143,7 @@ export function useForm(inputs: string[], enp: string, id: string, defaultValues
             const { error: updateError, data } = await supabase
                 .from(tableName)
                 .update(payload)
-                .eq(`${enp}_id`, id)
+                .eq(key, id)
                 .select();
 
             if (updateError) throw updateError;
@@ -152,7 +156,7 @@ export function useForm(inputs: string[], enp: string, id: string, defaultValues
         } finally {
             setLoading(false);
         }
-    }, [tableName, enp, id, normalizeValue, values, queryClient]);
+    }, [tableName, key, id, normalizeValue, values, queryClient]);
 
     return {onCreate,onDelete,onSubmit,loading,error,values,setValue,getValue,submitField,}
 }

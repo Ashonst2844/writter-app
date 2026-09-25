@@ -32,6 +32,11 @@ interface PlaceData {
     name: string;
     desc: string;
 }
+interface Profiles {
+    username: string;
+    email: string;
+    plan: "free"|"hobbies"|"professionals";
+}
 
 const createSlug = (text: string | null | undefined) => {
     if (!text) return "Untitled";
@@ -119,7 +124,7 @@ function PlaceAccordion({props}: {props: PlaceData}) {
     </form>
 }
 
-function ContinentPage({props}: {props: ContinentData}) {
+function ContinentPage({props, profiles}: {props: ContinentData, profiles: Profiles}) {
     const slug = createSlug(props.name)
 
     const { data, isLoading, error } = useFetch<PlaceData>("places", '', {
@@ -130,11 +135,19 @@ function ContinentPage({props}: {props: ContinentData}) {
         }
     });
 
-    const { onCreate } = useForm([], 'place', "", {
-        name: "New Place",
-        continent_id: props.continent_id ?? "",
-        desc: "Write Description"
-    })
+    const maxPlace = profiles?.plan === "free" ? 15 : profiles?.plan === "hobbies" ? 30 : 45
+
+    const { onCreate } = useForm([], 'place', data.length > 0 ? data[0].place_id : '')
+    const handleCreate = async () => {
+        if ( data.length < maxPlace ) {
+            const res = await onCreate({
+                name: "New Place",
+                continent_id: props.continent_id ?? "",
+                desc: "Write Description"
+            })
+            if(res.ok) console.log("Created Succesed!")
+        } else alert("Your Reach Maximum Place!")
+    }
 
     const [showModal, setShowModal] = useState<boolean>(false)
 
@@ -215,14 +228,14 @@ function ContinentPage({props}: {props: ContinentData}) {
             </div>
         </form>
         <div className="flex gap-4">
-            <h2 className="text-4xl font-black">Places :</h2>
-            <Button type="normal" use="button" onClick={onCreate} className="rounded-full w-12">+</Button>
+            <h2 className="text-4xl font-black">Places ({data.length} / {maxPlace}) :</h2>
+            <Button type="normal" use="button" onClick={handleCreate} className="rounded-full w-12">+</Button>
         </div>
         {data.map((item, i) => <PlaceAccordion key={i} props={item}/>)}
     </div>
 }
 
-function Continent({props}: {props: TimelineData[]}) {
+function Continent({props, profiles}: {props: TimelineData[], profiles: Profiles}) {
     const { slug } = useParams<{ slug: string }>()
     const world = props.find((item) => createSlug(`Dunia ${item.name}`) === slug)
 
@@ -237,24 +250,30 @@ function Continent({props}: {props: TimelineData[]}) {
         }
     });
 
-    const { onCreate } = useForm([], 'continent', "", {
-        name: "New Continent",
-        timeline_id: world?.timeline_id ?? "",
-        desc: "Write Description"
-    })
+    const maxContinent = profiles?.plan === "free" ? 10 : profiles?.plan === "hobbies" ? 15 : 25
+
+    const { onCreate } = useForm([], 'continent', data.length > 0 ? data[0].continent_id : '')
+    const handleCreate = async () => {
+        if ( data.length < maxContinent ) {
+            const res = await onCreate({
+                timeline_id: world?.timeline_id ?? "",
+                name: "New Continent",
+                desc: "Write Description"
+            })
+            if(res.ok) console.log("Created Succesed!")
+        } else alert("Your Reach Maximum Continent!")
+    } 
 
     if (isLoading) return <Loading message="Continents"/>
     if (error || !data) return <Error err={error || "Continents not found!"}/>
     return <div className="flex flex-col w-full h-full overflow-hidden">
         <Routes>
-            <Route path="/" element={<>
-                <div className="w-full p-4 flex">
+            <Route path="/" element={<div className="w-full h-full flex flex-col overflow-hidden">
+                <div className="w-full p-4 flex shrink-0">
                     <Button onClick={() => setOpen("map")} use="button" type="custom" className="w-[50%] h-12 center hover:bg-(--accent) hover:text-(--primary) transition-all ">Map Overview</Button>
                     <Button onClick={() => setOpen("continent")} use="button" type="custom" className="w-[50%] h-12 center hover:bg-(--accent) hover:text-(--primary) transition-all ">World Contintents</Button>
                 </div>
-                <div>
-                </div>
-                <div className="flex w-full h-[calc(100%-48px)] transition-all duration-300" style={{transform: `translateX(-${isOpen === "map" ? 0 : 100}%)`}}>
+                <div className="flex w-full min-h-0 transition-all duration-300" style={{transform: `translateX(-${isOpen === "map" ? 0 : 100}%)`}}>
                     <div className="min-w-full h-full flex flex-col p-4">
                         <div className="w-full h-full overflow-auto">
                             <img src={world?.map || ""} alt={world?.name ?? ""} onClick={() => setZoomLevel(prev => Math.min(3, prev + 0.5))} onContextMenu={(e) => {
@@ -264,8 +283,8 @@ function Continent({props}: {props: TimelineData[]}) {
                             style={{width:`calc(100% * ${zoomLevel})`}} className="cursor-zoom-in transition-all transition-300 top-0 inline-block vertical-align-center max-w-none"/>
                         </div>
                     </div>
-                    <div className="min-w-full h-full p-4 flex flex-col gap-4 overflow-auto">
-                        {data.map((item, i)=><div key={i} className="w-full h-32 bg-(--primary) rounded-xl shadow-md p-4 flex justify-between items-center">
+                    <div className="min-w-full p-4 flex flex-col gap-4 overflow-y-scroll">
+                        {data.map((item, i)=><div key={i} className="w-full min-h-32 bg-(--primary) rounded-xl shadow-md p-4 flex justify-between items-center">
                             <div className="flex flex-col gap-2">
                                 <h2 className="text-2xl font-bold">{item.name}</h2>
                                 <p className="text-sm opacity-50">{item.desc}</p>
@@ -274,21 +293,25 @@ function Continent({props}: {props: TimelineData[]}) {
                                 <Icon type="online" use="eye" color="white" fill/>
                             </Button>
                         </div>)}
-                        <div className="w-full h-32 rounded-xl shadow-md overflow-hidden bg-(--primary)">
-                            <form onClick={onCreate} className="h-full hover:bg-(--accent) center p-4 transition-colors transition-300">
+                        <div className="w-full min-h-32 rounded-xl shadow-md overflow-hidden bg-(--primary)">
+                            <form onClick={handleCreate} className="h-full hover:bg-(--accent) center p-4 transition-colors transition-300 center flex-col">
+                                <span>{data.length} / {maxContinent}</span>
                                 <span className="text-white text-2xl"><code>+</code> Create New Continent</span>
                             </form>
                         </div>
                     </div>
                 </div>
-            </>}/>
-            {data.map((item, i) => <Route path={createSlug(item.name)} element={<ContinentPage key={i} props={item}/>}/>)}
+            </div>}/>
+            {data.map((item, i) => <Route path={createSlug(item.name)} element={<ContinentPage key={i} props={item} profiles={profiles}/>}/>)}
         </Routes>
     </div>
 }
 
-export default function World() {
+export default function World({project_id, profiles}: {project_id: string, profiles: Profiles}) {
     const {data, isLoading, error} = useFetch<TimelineData>("timelines", 'index, name, timeline, timeline_id, map', {
+        eq: {
+            project_id: project_id
+        },
         ascend: {
             col: "index",
             order: true
@@ -301,13 +324,12 @@ export default function World() {
         <Routes>
             <Route path="/" element={<Carrousel length={(data.length+1)}>
                 {data.map((item, i)=><Content key={i} timeline={item.timeline} name={item.name} map={item.map}/>)}
-                <div className="min-h-full min-w-full p-4">
-                    <form className="h-full w-full p-4 flex flex-col hover:bg-(--accent) center transition-colors transition-300 rounded-2xl">
-                        <span className="text-white text-2xl"><code>+</code> Create New Timeline</span>
-                    </form>
-                </div>
+                <section className="w-full h-full center flex-col gap-4">
+                    <span className="text-xl">There Is No Continent Anymore!</span>
+                    <span className="opacity-75">Create Another on Timline Section</span>
+                </section>
             </Carrousel>}/>
-            <Route path=":slug/*" element={<Continent props={data}/>}/>
+            <Route path=":slug/*" element={<Continent props={data} profiles={profiles}/>}/>
         </Routes>
     </section>
 }

@@ -4,13 +4,20 @@ import Icon from '../Components/Icon'
 import Editable from '../Components/Editable'
 import Loading from '../Components/Loading'
 import Modal from '../Components/Modal'
+import Error from '../Components/Error'
 
 import Dashboard from './Dashboard'
 
-import { Route, Routes, useParams } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import { useFetch } from '../../Hooks/useFetch'
 import { useForm } from '../../Hooks/useForm'
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
+
+interface Profiles {
+  username: string;
+  email: string;
+  plan: 'free' | 'hobbies' | 'professionals'
+}
 
 interface ProjectData {
   user_id?: string;
@@ -72,31 +79,41 @@ function Project(props: ProjectData) {
 }
 
 export default function Projects() {
-  const user = useMemo(() => {
-    try {
-      const authData = window.localStorage.getItem("auth");
-      return authData ? JSON.parse(authData) : null;
-    } catch {
-      return null;
+  const authValue = window.localStorage.getItem("auth");
+  const userData = authValue ? JSON.parse(authValue) : null;
+  const id = userData?.user?.id ?? ""
+  const { data, isLoading: userLoading } = useFetch<Profiles>('user_data', '', {
+    eq: {
+      user_id: id || undefined
     }
-  }, []);
+  })
 
-  const params = useParams();
-  const routeUserId = params.user_id as string | undefined;
+  const profiles = data[0]
+  console.log(profiles)
 
-  const userId = user?.user?.id || routeUserId;
-  const author = user?.user?.user_metadata?.username as string | undefined;
+  const maxProject = profiles?.plan==="free"?1:profiles?.plan==="hobbies"?3:10
+  const author = profiles?.username;
 
-  const fetchConfig = userId ? { eq: { user_id: userId } } : undefined;
-
-  const { data, isLoading } = useFetch<ProjectData>("projects", "", fetchConfig);
-  const { onCreate } = useForm([], "project", "", {
-    name: "New Universe",
-    author: author,
-    user_id: userId,
+  const { data: project, isLoading: projectLoading, error } = useFetch<ProjectData>("projects", "", {
+    eq: {
+      user_id: id || undefined
+    }
   });
 
-  if (isLoading) return <Loading message="Projects"/>
+  const { onCreate } = useForm([], "project", id);
+  const handleCreate = async () => {
+    if (data.length < maxProject) {
+      const res = await onCreate({
+        name: "New Universe",
+        author: author,
+        user_id: id,
+      })
+      if(res.ok) console.log("Created Succesed!")
+    } else alert("Your Reach Maximum Project!")
+  } 
+
+  if (projectLoading || userLoading) return <Loading message="Projects"/>
+  if (error) return <Error err={error || "Character not found!"}/>
   return (
     <main>
         <Routes>
@@ -109,17 +126,20 @@ export default function Projects() {
                   <Icon type='online' use='exit' fill width={6} color='var(--warning)'/>
                 </Button>
               </div>
+              <div className='w-full center p-4'>
+                <code className='text-xl'>{data.length} / {maxProject} Projects</code>
+              </div>
               <div className='grid gap-2 grid-cols-[repeat(auto-fit,minmax(200px,1fr))] lg:grid-cols-3'>
-                {data.map(item => <Project key={item.project_id} author={item.author} user_id={item.user_id} name={item.name} created_at={item.created_at.slice(0,10)} project_id={item.project_id}/>) }
+                {project.map(item => <Project key={item.project_id} author={item.author} user_id={item.user_id} name={item.name} created_at={item.created_at.slice(0,10)} project_id={item.project_id}/>) }
                 <div className="h-full w-full bg-(--primary) shadow-xl rounded-xl overflow-hidden">
-                  <form onClick={onCreate} className="h-full w-full p-4 flex flex-col hover:bg-(--accent) center transition-colors transition-300">
+                  <form onClick={handleCreate} className="h-full w-full p-4 flex flex-col hover:bg-(--accent) center transition-colors transition-300">
                     <span className="text-white text-xl"><code>+</code> Create New Universe</span>
                   </form>
                 </div>
               </div>
             </section>
           }/>
-          <Route path='/dashboard/:id/*' element={<Dashboard projects={data}/>}/>
+          <Route path='/dashboard/:id/*' element={<Dashboard projects={project} profiles={profiles}/>}/>
         </Routes>
     </main>
   )

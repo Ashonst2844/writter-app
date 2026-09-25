@@ -20,6 +20,11 @@ interface NoteProps {
     content:string | null;
     tags:string[] | null;
 }
+interface Profiles {
+    username: string;
+    email: string;
+    plan: "free"|"hobbies"|"professionals";
+}
 
 const createSlug = (text: string | null | undefined) => {
     if (!text) return "Untitled";
@@ -117,14 +122,27 @@ function NotePage({props, error}: {props: NoteProps[], error: Error | null}) {
     </form>
 }
 
-export default function Note() {
-    const {data, isLoading, error} = useFetch<NoteProps>("notes", '')
+export default function Note({project_id, profiles}: {project_id: string, profiles: Profiles}) {
+    const {data, isLoading, error} = useFetch<NoteProps>("notes", '', {
+        eq: {
+            project_id: project_id
+        }
+    })
     const [searchQ, setSearchQ] = useState<string>("")
 
-    const { onCreate } = useForm([], 'note', "", {
-        title: "Note Title",
-        content: "Write Description"
-    })
+    const maxNote = profiles?.plan === "free" ? 20 : profiles?.plan === "hobbies" ? 40 : 60
+
+    const { onCreate } = useForm([], 'note', data.length > 0 ? data[0].note_id : '')
+    const handleCreate = async () => {
+        if (data.length < maxNote) {
+            const res = await onCreate({
+                project_id: project_id,
+                title: "Note Title",
+                content: "Write Description"
+            })
+            if(res.ok) console.log("Created Succesed!")
+        } else alert("Your Reach Maximum Note!")
+    } 
 
     if (isLoading) return <Loading message="Notes"/>
     if (error || !data) return <Error err={error || "Notes not found!"}/>
@@ -139,7 +157,8 @@ export default function Note() {
                 <div className="grid gap-4 lg:grid-cols-2 p-4">
                     {data.map((item)=><NoteAccordion key={item.note_id} {...item}/>)}
                     <div className="h-full w-full bg-(--primary) shadow-2xl rounded-2xl overflow-hidden">
-                        <form onClick={onCreate} className="h-full w-full p-4 flex flex-col hover:bg-(--accent) center transition-colors transition-300">
+                        <form onClick={handleCreate} className="h-full w-full p-4 flex flex-col hover:bg-(--accent) center transition-colors transition-300">
+                            <span>{data.length} / {maxNote}</span>
                             <span className="text-white text-2xl"><code>+</code> Create New Character</span>
                         </form>
                     </div>

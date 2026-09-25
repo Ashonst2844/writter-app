@@ -141,3 +141,6 @@ Keterangan:
       - Sign-out
   - (23 Sept. 2026) **update-build v1.6.1**
     - Memperbaiki Formatting pada Pinning
+  - (25 Sept. 2026) **update-build v.7.0**
+    - Membuat halaman teknis (Privacy Policy, Terms Of Services, dan Changelog)
+    - Memberikan batasan pengguna sesuai dengan Plan/Tier

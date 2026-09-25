@@ -19,6 +19,11 @@ interface EventProps {
     content:string | null;
     tags:string[] | null;
 }
+interface Profiles {
+    username: string;
+    email: string;
+    plan: "free"|"hobbies"|"professionals";
+}
 
 const createSlug = (text: string | null | undefined) => {
     if (!text) return "Untitled";
@@ -118,14 +123,27 @@ function EventPage({props, error}: {props: EventProps[]; error: Error | null}) {
     </form>
 }
 
-export default function Event() {
-    const {data, isLoading, error} = useFetch<EventProps>("events", 'event_id, title, content, tags')
+export default function Event({project_id, profiles}: {project_id: string, profiles: Profiles}) {
+    const {data, isLoading, error} = useFetch<EventProps>("events", 'event_id, title, content, tags', {
+        eq: {
+            project_id: project_id
+        }
+    })
     const [searchQ, setSearchQ] = useState<string>("")
 
-    const { onCreate } = useForm([], 'event', "", {
-        title: "Event Title",
-        content: "Write Description"
-    })
+    const maxEvent = profiles?.plan === "free" ? 20 : profiles?.plan === "hobbies" ? 40 : 60
+
+    const { onCreate } = useForm([], 'event', data.length > 0 ? data[0].event_id : '')
+    const handleCreate = async () => {
+        if ( data.length < maxEvent ) {
+            const res = await onCreate({
+                project_id: project_id,
+                title: "Event Title",
+                content: "Write Description"
+            })
+            if(res.ok) console.log("Created Succesed!")
+        } else alert("Your Reach Maximum Event!")
+    } 
 
     if (isLoading) return <Loading message="Events"/>
     if (error || !data) return <Error err={error || "Event not found!"}/>
@@ -139,8 +157,9 @@ export default function Event() {
                 </div>
                 <div className="grid gap-4 lg:grid-cols-2 p-4">
                     {data.map((item) => item.title?.includes(searchQ) && <EventAccordion key={item.event_id} {...item}/>)}
-                    <div className="h-full w-full bg-(--primary) shadow-2xl rounded-2xl overflow-hidden">
-                        <form onClick={onCreate} className="h-full hover:bg-(--accent) center p-4 transition-colors transition-300">
+                    <div className="min-h-60 w-full bg-(--primary) shadow-2xl rounded-2xl overflow-hidden">
+                        <form onClick={handleCreate} className="h-full flex flex-col hover:bg-(--accent) center p-4 transition-colors transition-300">
+                            <span>{data.length} / {maxEvent}</span>
                             <span className="text-white text-2xl"><code>+</code> Create New Event</span>
                         </form>
                     </div>

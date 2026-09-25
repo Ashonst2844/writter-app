@@ -21,8 +21,12 @@ interface CharacterProps {
     age: number;
     desc: string;
     gender: "male"|"female";
-    faction: "good"|"neutral"|"evil";
     stats: number[]
+}
+interface Profiles {
+    username: string;
+    email: string;
+    plan: "free"|"hobbies"|"professionals";
 }
 
 const createSlug = (text: string) => text.toLowerCase().trim().replace(/\s+/g, "-")
@@ -35,9 +39,13 @@ function CharacterCard(props: CharacterProps) {
     const [pinned, setPinned] = useState<boolean>(() => getPins().some((item) => item.id === props.character_id && item.type === "Character"))
 
     const handlePin = () => {
-        const body = `${props?.age} Years Old ::> ${Trait(props?.stats).join(", ")} ::> ${props?.desc}|`
+        const head = `${props?.name} | ${props?.age}`
+        const body = `<div className="flex flex-col justify-center">
+            <p>${Trait(props?.stats || [])}</p>
+            <p>${props?.desc}</p>
+        </div>`
 
-        Pinning(props?.name , body, "Character", props.character_id)
+        Pinning(head , body, "Character", props.character_id)
         setPinned(prev => !prev)
     }
 
@@ -94,11 +102,10 @@ function CharacterPage({props, error}: {props: CharacterProps[], error: Error | 
         const res = await onSubmit(e)
         if (res?.ok) setMode(false)
     }
+    const statValues = (getValue('stats') as number[] | undefined) ?? character?.stats ?? [0,0,0,0,0,0]
 
     if (loading) return <Loading message="Characters"/>
     if (error || !character) return <Error err={error || "Character not found!"}/>
-    const statValues = (getValue('stats') as number[] | undefined) ?? character.stats
-
     return <form onSubmit={handleSubmit} className="w-full h-full p-4 flex flex-col gap-4">
         <input type="hidden" name="stats" value={JSON.stringify(statValues)} />
         <div className="flex flex-col gap-4">
@@ -156,7 +163,6 @@ function CharacterPage({props, error}: {props: CharacterProps[], error: Error | 
                         setValue('name', character.name)
                         setValue('age', character.age)
                         setValue('gender', character.gender)
-                        setValue('faction', character.faction)
                         setValue('desc', character.desc)
                     }} className='rounded-md w-12'>
                         <Icon type="normal" use="cancel" color="white" width={3}/>
@@ -170,18 +176,30 @@ function CharacterPage({props, error}: {props: CharacterProps[], error: Error | 
     </form>
 }
 
-export default function Character() {
-    const {data, isLoading, error} = useFetch<CharacterProps>("characters", '')
+export default function Character({project_id, profiles}: {project_id: string, profiles: Profiles}) {
+    const {data, isLoading, error} = useFetch<CharacterProps>("characters", '', {
+        eq: {
+            project_id: project_id
+        }
+    })
     const [searchQ, setSearchQ] = useState<string>("")
 
-    const { onCreate } = useForm([], 'character', "", {
-        name: "Name",
-        age: 0,
-        desc: "Write Description",
-        gender: "male",
-        faction: "neutral",
-        stats: [0,0,0,0,0]
-    })
+    const maxCharacter = profiles?.plan === "free" ? 10 : profiles?.plan === "hobbies" ? 15 : 25
+
+    const { onCreate } = useForm([], 'character', data.length > 0 ? data[0].character_id : '')
+    const handleCreate = async () => {
+        if (data.length < maxCharacter) {
+            const res = await onCreate({
+                project_id: project_id,
+                name: "Name",
+                age: 0,
+                desc: "Write Description",
+                gender: "male",
+                stats: [0,0,0,0,0]
+            })
+            if(res.ok) console.log("Created Succesed!")
+        } else alert("Your Reach Maximum Character!")
+    } 
 
     if (isLoading) return <Loading message="Characters"/>
     if (error || !data) return <Error err={error || "Characters not found!"}/>
@@ -196,7 +214,8 @@ export default function Character() {
                 <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(200px,1fr))] lg:grid-cols-3 p-4">
                     {data?.map((item) => item.name.includes(searchQ) && <CharacterCard key={item.character_id} {...item}/>)}
                     <div className="h-full w-full bg-(--primary) shadow-2xl rounded-2xl overflow-hidden">
-                        <form onClick={onCreate} className="h-full w-full p-4 flex flex-col hover:bg-(--accent) center transition-colors transition-300">
+                        <form onClick={handleCreate} className="min-h-60 w-full p-4 flex flex-col hover:bg-(--accent) center transition-colors transition-300">
+                            <span>{data.length} / {maxCharacter}</span>
                             <span className="text-white text-2xl"><code>+</code> Create New Character</span>
                         </form>
                     </div>

@@ -15,6 +15,7 @@ import { useForm } from "../../Hooks/useForm";
 interface TimelineData {
     index: number;
     timeline_id:string;
+    project_id: string;
     name:string;
     timeline:string;
     desc:string;
@@ -23,6 +24,12 @@ interface TimelineData {
 interface DeleteTarget {
     name: string;
     onConfirm: () => Promise<void> | void;
+}
+
+interface Profiles {
+    username: string;
+    email: string;
+    plan: "free"|"hobbies"|"professionals";
 }
 
 function Content({props, onRequestDelete}: {props: TimelineData, onRequestDelete: (target: DeleteTarget) => void}) {
@@ -93,21 +100,33 @@ function Content({props, onRequestDelete}: {props: TimelineData, onRequestDelete
     </form>
 }
 
-export default function Timeline() {
+export default function Timeline({project_id, profiles}: {project_id: string, profiles: Profiles}) {
     const {data, isLoading, error} = useFetch<TimelineData>("timelines", '', {
+        eq: {
+            project_id: project_id
+        },
         ascend: {
             col: "index",
             order: true
         }
     })
-
+    
     const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null)
+    
+    const maxTimeline = profiles?.plan === "free" ? 10 : profiles?.plan === "hobbies" ? 15 : 25
 
-    const { onCreate } = useForm([], 'timeline', "", {
-        name: "Name Of Era",
-        timeline: "... - ...",
-        desc: "Write Description"
-    })
+    const { onCreate } = useForm([], 'timeline', data.length > 0 ? data[0].timeline_id : '')
+    const handleCreate = async () => {
+        if (data.length < maxTimeline) {
+            const res = await onCreate({
+                project_id: project_id,
+                name: "Name Of Era",
+                timeline: "... - ...",
+                desc: "Write Description"
+            })
+            if(res.ok) console.log("Created Succesed!")
+        } else alert("Your Reach Maximum Timeline!")
+    } 
 
     if (isLoading) return <Loading message="Timelines"/>
     if (error || !data) return <Error err={error || "Timelines not found!"}/>
@@ -116,7 +135,8 @@ export default function Timeline() {
         <Carrousel length={(data.length+1)}>
             {data.map((item, i)=><Content key={i} props={item} onRequestDelete={setDeleteTarget}/>) }
             <div className="h-full min-w-full p-4">
-                <form onClick={onCreate} className="h-full w-full p-4 flex flex-col hover:bg-(--accent) center transition-colors transition-300 rounded-2xl">
+                <form onClick={handleCreate} className="h-full w-full p-4 flex flex-col hover:bg-(--accent) center transition-colors transition-300 rounded-2xl">
+                    <span>{data.length} / {maxTimeline}</span>
                     <span className="text-white text-2xl"><code>+</code> Create New Timeline</span>
                 </form>
             </div>
