@@ -144,3 +144,5 @@ Keterangan:
   - (25 Sept. 2026) **update-build v.7.0**
     - Membuat halaman teknis (Privacy Policy, Terms Of Services, dan Changelog)
     - Memberikan batasan pengguna sesuai dengan Plan/Tier
+  - (27 Sept. 2026) **update-build v.7.1**
+    - Fix Error

@@ -28,8 +28,8 @@ function Header({plan}: {plan: 'free' | 'hobbies' | 'professionals'}) {
         return authValue ? JSON.parse(authValue) : null
     })
 
-    const username = userData?.user?.user_metadata?.username
-    const email = userData?.user?.email
+    const username = userData?.user?.user_metadata?.username ?? "User"
+    const email = userData?.user?.email ?? "user@example.com"
 
     useEffect(() => {
         const syncAuth = () => {
@@ -70,7 +70,7 @@ function Header({plan}: {plan: 'free' | 'hobbies' | 'professionals'}) {
                     {userData && <div className="center flex-col gap-4">
                         <Icon type="online" use="user" fill color="white" />
                         <p className="opacity-75 text-sm">{username}</p>
-                        <p className="opacity-75 text-sm">Tier : {plan.toUpperCase()}</p>
+                        <p className="opacity-75 text-sm">Tier : {(plan ?? "free").toUpperCase()}</p>
                         <p className="opacity-75 text-sm">{email}</p>
                     </div>}
                     <Button type="custom" use={userData ? "button" : "link"} onClick={userData ? handleLogout : undefined} target={userData ? undefined : "register"} className={`hover:brightness-75 ${userData?"text-(--warning)":""}`}>
@@ -161,7 +161,7 @@ export default function Landing() {
             "max. 5 Novel in Libary",
             "Infinity Chapter/Book",
             "Export to .docx Feature"
-        ],price:29999},
+        ],price:45000},
         {id:3,title:"Professionals",benefits:[
             "max. 10 Universe",
             "max. 25 Timeline, & 25 Continent/Timeline",
@@ -172,7 +172,7 @@ export default function Landing() {
             "Jumlah Bab/Book tanpa batas",
             "Infinity Chapter/Book",
             "Export to .docx Feature"
-        ],price:59999}
+        ],price:90000}
     ]
 
     const socialMedia = [
@@ -229,6 +229,19 @@ export default function Landing() {
         }})
     })
 
+    const handleLogout = async () => {
+        try {
+            const { error } = await supabase.auth.signOut()
+            if (error) {throw new Error(error.message)}
+
+            window.localStorage.removeItem('auth')
+            location.reload()
+        } catch (error) {
+            console.error('Logout failed:', error)
+            alert('Logout gagal, silakan coba lagi.')
+        }
+    }
+
     return <main className="w-screen relative">
         {isLoading && <Loading message="User"/>}
         <Header plan={profiles[0]?.plan}/>
@@ -241,9 +254,14 @@ export default function Landing() {
                 <div className="home flex gap-4 w-[40%] h-16">
                     <Button type="normal" use="url" target="#about" className="w-[50%] rounded-md h-full shadow-md">Jelajahi</Button>
                     {userData?
-                        <Button type="normal" use="link" target={`/projects/${id}`} className="rounded-md h-full shadow-md">
-                            <Icon type="normal" use="grid" color="white" scale="0.75"/>
-                        </Button>:
+                        <>
+                            <Button type="normal" use="link" target={`/projects/${id}`} className="rounded-md h-full shadow-md">
+                                <Icon type="normal" use="grid" color="white" scale="0.75"/>
+                            </Button>
+                            <Button type="warning" use="button" onClick={handleLogout} className="rounded-md h-full shadow-md">
+                                Logout
+                            </Button>
+                        </>:
                         <Button type="alternate" use="link" target="register" className="w-[50%] rounded-md h-full shadow-md">
                             Daftar
                         </Button>

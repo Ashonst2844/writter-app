@@ -60,7 +60,7 @@ function Navigation({name, click, state}:{name:string, click:()=>void, state:boo
                     <p className={`text-xs bg-(--primary) w-full flex gap-2 items-center hover:outline hover:outline-white hover:brightness-150 ${state?"":"center"} ${isActive?"brightness-150 bg-linear-120 from-transparent via-transparent to-(--accent)/50 shadow-md":""}`} style={{
                         padding: state?"1rem":"0.5rem"
                     }}>
-                        {state?item.replace("-"," ").toUpperCase():<Icon scale="0.75" type="online" use={item} fill color="var(--text)"/>}
+                        {state? (item.replace("-"," ") ?? "").toUpperCase():<Icon scale="0.75" type="online" use={item} fill color="var(--text)"/>}
                     </p>
                 </Button>
             })}
@@ -92,14 +92,14 @@ function Pin() {
         <div className="flex flex-col gap-2">
             {pin?.filter((_, i) => i % 2 == 0).map((item, i) => <div key={i} className="bg-(--primary) overflow-hidden group shadow-md rounded-2xl p-4 flex flex-col gap-4 break-inside-avoid mb-4">
                 <h2 className="text-4xl font-black">{item?.title} </h2>
-                <span className="opacity-75 text-(--accent)">{item?.type.toUpperCase()}</span>
+                <span className="opacity-75 text-(--accent)">{(item?.type ?? "").toUpperCase()}</span>
                 <div dangerouslySetInnerHTML={{ __html: item?.content}} className={`p-4 bg-(--primary) border transition-all whitespace-pre-wrap leading-relaxed`}></div>
             </div>)}
         </div>
         <div className="flex flex-col gap-2">
             {pin?.filter((_, i) => i % 2 == 1).map((item, i) => <div key={i} className="bg-(--primary) overflow-hidden group shadow-md rounded-2xl p-4 flex flex-col gap-4 break-inside-avoid mb-4">
                 <h2 className="text-4xl font-black">{item?.title} </h2>
-                <span className="opacity-75 text-(--accent)">{item?.type.toUpperCase()}</span>
+                <span className="opacity-75 text-(--accent)">{(item?.type ?? "").toUpperCase()}</span>
                 <div dangerouslySetInnerHTML={{ __html: item?.content}} className={`p-4 bg-(--primary) border transition-all whitespace-pre-wrap leading-relaxed`}></div>
             </div>)}
         </div>

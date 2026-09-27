@@ -42,6 +42,9 @@ const changelog = [
         {id:9,version:"7.0",date:"25 Sept. 2026",desc:[
             "Membuat halaman teknis (Privacy Policy, Terms Of Services, dan Changelog)",
             "Memberikan batasan pengguna sesuai dengan Plan/Tier"
+        ]},
+        {id:10,version:"7.1",date:"27 Sept. 2026",desc:[
+            "Fix Error",
         ]}
     ]}
 ]
