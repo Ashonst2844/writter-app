@@ -97,7 +97,7 @@ export default function Editable(props:EditableProps) {
         return <input type="file" name={props.name} accept="image/*" onChange={(e) => props.onChange?.(e)} disabled={props.uploading} className="file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-neutral-800 file:text-white hover:file:bg-neutral-700 cursor-pointer"/>
     }
     if (props.type == "richedit") {
-        return <RichText value={props.text?.toString() ?? ""} onChange={props.onChange ?? (() => {})} editMode={props.editMode} onClickView={props.onClick ?? (() => {})} className="w-full text-base font-sans min-h-30 p-4 bg-(--primary) rounded-xl focus:outline-none focus:ring-2 focus:ring-white resize-y overflow-auto" />
+        return <RichText value={props.text?.toString() ?? ""} onChange={props.onChange ?? (() => {})} editMode={props.editMode} onClickView={props.onClick ?? (() => {})} className="w-full text-justify text-base font-sans min-h-30 p-4 bg-(--primary) rounded-xl focus:outline-none focus:ring-2 focus:ring-white resize-y overflow-auto" />
     }
 
     return null

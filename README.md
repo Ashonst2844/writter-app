@@ -149,3 +149,5 @@ Keterangan:
   - (27 Sept. 2026) **update-build v.8.0**
     - Memperbarui planning-benefits
     - Optimalisasi source-code
+  - (28 Sept. 2026) **update-build v.8.1**
+    - Minority Change

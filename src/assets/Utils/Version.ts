@@ -59,6 +59,9 @@ export const changelog = [
         {id:11,version:"8.0",date:"27 Sept. 2026",desc:[
             "Memperbarui planning-benefits",
             "Optimalisasi source-code"
+        ]},
+        {id:12,version:"8.1",date:"28 Sept. 2026",desc:[
+            "Minority Change"
         ]}
     ]}
 ]
