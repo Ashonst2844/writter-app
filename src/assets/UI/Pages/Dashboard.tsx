@@ -22,7 +22,7 @@ interface ProjectData {
     created_at: string;
 }
 
-interface Profiles {
+export type Profiles = {
     username: string;
     email: string;
     plan: "free"|"hobbies"|"professionals";

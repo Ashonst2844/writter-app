@@ -18,13 +18,7 @@ interface EditableProps {
     uploading?: boolean;
 }
 
-export function RichText({ value, onChange, editMode, onClickView, className }: {
-    value: string,
-    onChange: (e: string) => void,
-    editMode: boolean,
-    onClickView: () => void,
-    className: string
-}) {
+export function RichText({ value, onChange, editMode, onClickView, className }: {value: string, onChange: (e: string) => void, editMode: boolean, onClickView: () => void, className: string}) {
     const editorRef = useRef<HTMLDivElement>(null)    
     const { executeCommand, handleKeyDown, clearFormat } = useFormat([editorRef])
 

@@ -12,17 +12,13 @@ import { Routes, Route, useParams } from "react-router-dom"
 import { useFetch } from "../../Hooks/useFetch"
 import { useForm } from "../../Hooks/useForm";
 import Pinning, {getPins} from "../../Utils/Pinning";
+import { type Profiles } from "./Dashboard";
 
 interface EventProps {
     event_id:string;
     title:string | null;
     content:string | null;
     tags:string[] | null;
-}
-interface Profiles {
-    username: string;
-    email: string;
-    plan: "free"|"hobbies"|"professionals";
 }
 
 const createSlug = (text: string | null | undefined) => {
@@ -131,7 +127,7 @@ export default function Event({project_id, profiles}: {project_id: string, profi
     })
     const [searchQ, setSearchQ] = useState<string>("")
 
-    const maxEvent = profiles?.plan === "free" ? 20 : profiles?.plan === "hobbies" ? 40 : 60
+    const maxEvent = profiles?.plan === "free" ? 20 : 40
 
     const { onCreate } = useForm([], 'event', data.length > 0 ? data[0].event_id : '')
     const handleCreate = async () => {

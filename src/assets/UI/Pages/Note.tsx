@@ -11,6 +11,7 @@ import { useState, useEffect, type FormEvent, type ChangeEvent } from "react";
 import { Routes, Route, useParams } from "react-router-dom"
 import { useFetch } from "../../Hooks/useFetch"
 import { useForm } from "../../Hooks/useForm";
+import { type Profiles } from "./Dashboard";
 
 import Pinning, { getPins } from "../../Utils/Pinning";
 
@@ -19,11 +20,6 @@ interface NoteProps {
     title:string | null;
     content:string | null;
     tags:string[] | null;
-}
-interface Profiles {
-    username: string;
-    email: string;
-    plan: "free"|"hobbies"|"professionals";
 }
 
 const createSlug = (text: string | null | undefined) => {
@@ -130,7 +126,7 @@ export default function Note({project_id, profiles}: {project_id: string, profil
     })
     const [searchQ, setSearchQ] = useState<string>("")
 
-    const maxNote = profiles?.plan === "free" ? 20 : profiles?.plan === "hobbies" ? 40 : 60
+    const maxNote = profiles?.plan === "free" ? 20 : 40
 
     const { onCreate } = useForm([], 'note', data.length > 0 ? data[0].note_id : '')
     const handleCreate = async () => {

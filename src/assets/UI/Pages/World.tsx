@@ -11,6 +11,7 @@ import { Routes, Route, useParams } from "react-router-dom"
 import { useFetch } from "../../Hooks/useFetch"
 import { useForm } from "../../Hooks/useForm"
 import { useUpload } from "../../Hooks/useUpload"
+import { type Profiles } from "./Dashboard";
 
 interface TimelineData {
     index: number;
@@ -31,11 +32,6 @@ interface PlaceData {
     continent_id: string;
     name: string;
     desc: string;
-}
-interface Profiles {
-    username: string;
-    email: string;
-    plan: "free"|"hobbies"|"professionals";
 }
 
 const createSlug = (text: string | null | undefined) => {
@@ -135,7 +131,7 @@ function ContinentPage({props, profiles}: {props: ContinentData, profiles: Profi
         }
     });
 
-    const maxPlace = profiles?.plan === "free" ? 15 : profiles?.plan === "hobbies" ? 30 : 45
+    const maxPlace = profiles?.plan === "free" ? 20 : profiles?.plan === "hobbies" ? 25 : 30
 
     const { onCreate } = useForm([], 'place', data.length > 0 ? data[0].place_id : '')
     const handleCreate = async () => {
@@ -250,7 +246,7 @@ function Continent({props, profiles}: {props: TimelineData[], profiles: Profiles
         }
     });
 
-    const maxContinent = profiles?.plan === "free" ? 10 : profiles?.plan === "hobbies" ? 15 : 25
+    const maxContinent = profiles?.plan === "free" ? 10 : profiles?.plan === "hobbies" ? 15 : 20
 
     const { onCreate } = useForm([], 'continent', data.length > 0 ? data[0].continent_id : '')
     const handleCreate = async () => {

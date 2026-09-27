@@ -10,6 +10,7 @@ import { useState, useEffect, type FormEvent, type ChangeEvent } from "react";
 import { Routes, Route, useParams } from "react-router-dom"
 import { useFetch } from "../../Hooks/useFetch"
 import { useForm } from "../../Hooks/useForm";
+import { type Profiles } from "./Dashboard";
 
 import Pinning, {getPins} from "../../Utils/Pinning";
 
@@ -17,11 +18,6 @@ interface RelicProps {
     relic_id:string;
     title:string | null;
     content:string | null;
-}
-interface Profiles {
-    username: string;
-    email: string;
-    plan: "free"|"hobbies"|"professionals";
 }
 
 const createSlug = (text: string | null | undefined) => {
@@ -120,7 +116,7 @@ export default function Relic({project_id, profiles}: {project_id: string, profi
     })
     const [searchQ, setSearchQ] = useState<string>("")
 
-    const maxRelic = profiles?.plan === "free" ? 20 : profiles?.plan === "hobbies" ? 40 : 60
+    const maxRelic = profiles?.plan === "free" ? 20 : 40
 
     const { onCreate } = useForm([], 'relic', data.length > 0 ? data[0].relic_id : '')
     const handleCreate = async () => {

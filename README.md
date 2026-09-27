@@ -146,3 +146,6 @@ Keterangan:
     - Memberikan batasan pengguna sesuai dengan Plan/Tier
   - (27 Sept. 2026) **update-build v.7.1**
     - Fix Error
+  - (27 Sept. 2026) **update-build v.8.0**
+    - Memperbarui planning-benefits
+    - Optimalisasi source-code

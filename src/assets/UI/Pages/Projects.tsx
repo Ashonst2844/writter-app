@@ -12,12 +12,7 @@ import { Route, Routes } from 'react-router-dom'
 import { useFetch } from '../../Hooks/useFetch'
 import { useForm } from '../../Hooks/useForm'
 import { useState, useEffect } from 'react'
-
-interface Profiles {
-  username: string;
-  email: string;
-  plan: 'free' | 'hobbies' | 'professionals'
-}
+import { type Profiles } from "./Dashboard";
 
 interface ProjectData {
   user_id?: string;
@@ -91,7 +86,7 @@ export default function Projects() {
   const profiles = data[0]
   console.log(profiles)
 
-  const maxProject = profiles?.plan==="free"?1:profiles?.plan==="hobbies"?3:10
+  const maxProject = profiles?.plan==="free"?1:profiles?.plan==="hobbies"?3:5
   const author = profiles?.username;
 
   const { data: project, isLoading: projectLoading, error } = useFetch<ProjectData>("projects", "", {

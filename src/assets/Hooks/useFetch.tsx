@@ -12,7 +12,7 @@ export interface SupabaseConfig {
 export type UseFetchOptions<T> = Omit<UseQueryOptions<{ data: T[]; count: number }, Error>,"queryKey" | "queryFn">;
 
 export function useFetch<T = unknown>(key: string, take: string, q?: SupabaseConfig, option?: UseFetchOptions<T>) {
-    const { data: queryResult, error, isLoading, refetch } = useQuery({
+    const { data: queryResult, error, isLoading } = useQuery({
         queryKey: [key, take || "*", q],
         queryFn: async () => {
             let query = supabase.from(key).select(take || "*", { count: q?.count });
@@ -41,5 +41,5 @@ export function useFetch<T = unknown>(key: string, take: string, q?: SupabaseCon
         ...option,
     });
 
-    return {data: queryResult?.data ?? [], counted: queryResult?.count ?? 0, error, isLoading, refetch,};
+    return {data: queryResult?.data ?? [], counted: queryResult?.count ?? 0, error, isLoading};
 }

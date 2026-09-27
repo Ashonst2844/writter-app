@@ -5,6 +5,7 @@ import Carrousel from "../Components/Carrousel";
 import Loading from "../Components/Loading";
 import Error from "../Components/Error";
 import Modal from "../Components/Modal";
+import { type Profiles } from "./Dashboard";
 
 import Pinning,{ getPins } from "../../Utils/Pinning";
 
@@ -24,12 +25,6 @@ interface TimelineData {
 interface DeleteTarget {
     name: string;
     onConfirm: () => Promise<void> | void;
-}
-
-interface Profiles {
-    username: string;
-    email: string;
-    plan: "free"|"hobbies"|"professionals";
 }
 
 function Content({props, onRequestDelete}: {props: TimelineData, onRequestDelete: (target: DeleteTarget) => void}) {
@@ -113,7 +108,7 @@ export default function Timeline({project_id, profiles}: {project_id: string, pr
     
     const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null)
     
-    const maxTimeline = profiles?.plan === "free" ? 10 : profiles?.plan === "hobbies" ? 15 : 25
+    const maxTimeline = profiles?.plan === "free" ? 10 : profiles?.plan === "hobbies" ? 15 : 20
 
     const { onCreate } = useForm([], 'timeline', data.length > 0 ? data[0].timeline_id : '')
     const handleCreate = async () => {

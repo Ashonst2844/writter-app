@@ -131,32 +131,5 @@ export function useForm(inputs: string[], enp: string, id: string, defaultValues
 
     const getValue = useCallback((name: string) => values[name], [values]);
 
-    const submitField = useCallback(async (name: string, value?: unknown) => {
-        setLoading(true);
-        setError(null);
-        let v = value !== undefined ? value : values[name];
-        v = normalizeValue(v, name);
-        const payload = { [name]: v };
-
-        try {
-            setValues((prev) => ({ ...prev, ...payload }));
-            const { error: updateError, data } = await supabase
-                .from(tableName)
-                .update(payload)
-                .eq(key, id)
-                .select();
-
-            if (updateError) throw updateError;
-            await queryClient.invalidateQueries({ queryKey: [tableName] });
-            return { ok: true, data };
-        } catch (err) {
-            console.error(`Gagal update field ${name}:`, err);
-            setError((err as Error)?.message || `Gagal mengedit field ${name}`);
-            return { ok: false, error: err };
-        } finally {
-            setLoading(false);
-        }
-    }, [tableName, key, id, normalizeValue, values, queryClient]);
-
-    return {onCreate,onDelete,onSubmit,loading,error,values,setValue,getValue,submitField,}
+    return {onCreate,onDelete,onSubmit,loading,error,values,setValue,getValue}
 }

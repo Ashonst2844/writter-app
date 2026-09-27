@@ -9,6 +9,7 @@ import { useState, useEffect, type FormEvent } from "react";
 import { useFetch } from "../../Hooks/useFetch";
 import { useForm } from "../../Hooks/useForm";
 import { type QueryObserverResult } from "@tanstack/react-query";
+import { type Profiles } from "./Dashboard";
 
 interface GoalsProps {
     goal_id: string;
@@ -19,11 +20,6 @@ interface GoalsProps {
 }
 interface StickyProps extends GoalsProps {
     refetch?: () => Promise<QueryObserverResult<GoalsProps[], Error>>;
-}
-interface Profiles {
-    username: string;
-    email: string;
-    plan: "free"|"hobbies"|"professionals";
 }
 
 function StickyNotes(props: StickyProps) {
@@ -115,7 +111,7 @@ export default function Goals({project_id, profiles}: {project_id: string, profi
         }
     })
 
-    const maxGoals = profiles?.plan === "free" ? 20 : profiles?.plan === "hobbies" ? 40 : 60
+    const maxGoals = profiles?.plan === "free" ? 20 : 40
 
     const { onCreate } = useForm([], 'goal', data.length > 0 ? data[0].goal_id : '')
     const handleCreate = async () => {

@@ -11,6 +11,7 @@ import { useState, useEffect, useMemo, type ChangeEvent, type FormEvent } from "
 import { useFetch } from "../../Hooks/useFetch";
 import { useForm } from "../../Hooks/useForm";
 import { useUpload } from "../../Hooks/useUpload";
+import { type Profiles } from "./Dashboard";
 
 import Shortcut from "../../Utils/Shortcut";
 import { Sanitizer } from "../../Utils/Sanitizer";
@@ -39,11 +40,6 @@ interface ExportModalProps {
     bookTitle: string;
     chapters: ChapterProps[];
     onClose: () => void;
-}
-interface Profiles {
-    username: string;
-    email: string;
-    plan: "free"|"hobbies"|"professionals";
 }
 
 const createSlug = (text: string | null | undefined) => {
@@ -353,7 +349,7 @@ function ChapterPage({props,error}: {props: ChapterProps[], error: Error | null}
     </form>
 }
 
-function BookPage({props}: {props: BookProps[]}) {
+function BookPage({props, profiles}: {props: BookProps[], profiles: Profiles}) {
     const { slug } = useParams<{ slug: string }>()
     const book = props.find((item) => createSlug(item.title) === slug)
     
@@ -363,7 +359,10 @@ function BookPage({props}: {props: BookProps[]}) {
     const from = (pageIndex - 1) * pageSize;
     const to = from + pageSize - 1;
 
-    const { data, isLoading, error, counted } = useFetch<ChapterProps>("chapters", '', {
+    const { data: chapter, isLoading, error } = useFetch<ChapterProps>("chapters", 'chapter_id', {
+        eq: {book_id: book?.book_id},
+    });
+    const { data, counted } = useFetch<ChapterProps>("chapters", '', {
         eq: {book_id: book?.book_id},
         ascend: {
             col: "created_at",
@@ -376,14 +375,18 @@ function BookPage({props}: {props: BookProps[]}) {
         count: "exact"
     });
 
+    const maxChapter = profiles?.plan === "free" ? 100 : profiles?.plan === "hobbies" ? 120 : 140
+
     const { onCreate } = useForm([], 'chapter', data.length > 0 ? data[0].chapter_id : '')
     const handleCreate = async () => {
-        const res = await onCreate({
-            book_id: book?.book_id,
-            name: "New Chapter",
-            content: "Write Story"
-        })
-        if(res.ok) console.log("Created Succesed!")
+        if (chapter.length < maxChapter) {
+            const res = await onCreate({
+                book_id: book?.book_id,
+                name: "New Chapter",
+                content: "Write Story"
+            })
+            if(res.ok) console.log("Created Succesed!")
+        } else alert("Your Reach Maximum Chapter!")
     } 
 
     const pageLength = Math.ceil((counted ?? 0) / 10);
@@ -391,12 +394,12 @@ function BookPage({props}: {props: BookProps[]}) {
     if (isLoading) return <Loading message="Chapters" />
     if (error || !book) return <Error err={error || "Book not found!"}/>
     return <Routes>
-        <Route path="/" element={<form className="w-full p-4 flex flex-col gap-2">
+        <Route path="/" element={<div className="w-full p-4 flex flex-col gap-2">
             <div className="flex gap-2 flex-col items-center sticky top-0 left-[50%] translate-x-[-50%] z-10 w-fit">
                 <div className="flex gap-2 bg-(--primary) p-2 rounded-xl">
                     {Array.from({length:pageLength}, (_,i) => <Button type="custom" key={i} use="button" onClick={()=>setPageIndex(i+1)} className="w-12 h-12 border border-(--accent) rounded-full font-bold hover:bg-(--accent)">{i+1}</Button>)}
                 </div>
-                <span className="text-xl">{pageIndex}/{pageLength}</span>
+                <span className="text-xl">{pageIndex}/{pageLength} | max. Page {chapter?.length ?? 0} / {maxChapter}</span>
             </div>
             {data?.map((item, i)=><Chapter key={i} name={item.name} index={(pageIndex - 1) * 10 + i} status={item.status} chapter_id={item.chapter_id}/>)}
             <div className="h-16 w-full bg-(--primary) shadow-2xl rounded-xl overflow-hidden">
@@ -404,7 +407,7 @@ function BookPage({props}: {props: BookProps[]}) {
                     <span className="text-white text-2xl"><code>+</code> Create New Chapter</span>
                 </form>
             </div>
-        </form>}/>
+        </div>}/>
         <Route path=":slug" element={<ChapterPage props={data} error={error}/>}/>
     </Routes>
 }
@@ -416,7 +419,7 @@ export default function Library({project_id, profiles}: {project_id: string, pro
         }
     });
 
-    const maxBook = profiles?.plan === "free" ? 2 : profiles?.plan === "hobbies" ? 5 : 15
+    const maxBook = profiles?.plan === "free" ? 2 : profiles?.plan === "hobbies" ? 5 : 10
 
     const { onCreate } = useForm([], 'book', data.length > 0 ? data[0].book_id : '')
     const handleCreate = async () => {
@@ -444,7 +447,7 @@ export default function Library({project_id, profiles}: {project_id: string, pro
                     </form>
                 </div>
             </div>} />
-            <Route path=":slug/*" element={<BookPage props={data}/>}/>
+            <Route path=":slug/*" element={<BookPage props={data} profiles={profiles}/>}/>
         </Routes>
     </section>
 }

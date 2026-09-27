@@ -11,6 +11,7 @@ import { useState, useEffect, type ChangeEvent, type FormEvent } from "react";
 import { useFetch } from "../../Hooks/useFetch"
 import { useForm } from "../../Hooks/useForm";
 import { Routes, Route, useParams } from "react-router-dom";
+import { type Profiles } from "./Dashboard";
 
 import Pinning, {getPins} from "../../Utils/Pinning";
 import Trait from "../../Utils/Trait";
@@ -22,11 +23,6 @@ interface CharacterProps {
     desc: string;
     gender: "male"|"female";
     stats: number[]
-}
-interface Profiles {
-    username: string;
-    email: string;
-    plan: "free"|"hobbies"|"professionals";
 }
 
 const createSlug = (text: string) => text.toLowerCase().trim().replace(/\s+/g, "-")
@@ -184,7 +180,7 @@ export default function Character({project_id, profiles}: {project_id: string, p
     })
     const [searchQ, setSearchQ] = useState<string>("")
 
-    const maxCharacter = profiles?.plan === "free" ? 10 : profiles?.plan === "hobbies" ? 15 : 25
+    const maxCharacter = profiles?.plan === "free" ? 30 : profiles?.plan === "hobbies" ? 60 : 100
 
     const { onCreate } = useForm([], 'character', data.length > 0 ? data[0].character_id : '')
     const handleCreate = async () => {
