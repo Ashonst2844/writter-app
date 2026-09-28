@@ -62,6 +62,9 @@ export const changelog = [
         ]},
         {id:12,version:"8.1",date:"28 Sept. 2026",desc:[
             "Minority Change"
+        ]},
+        {id:13,version:"8.2",date:"28 Sept. 2026",desc:[
+            "Security Update"
         ]}
     ]}
 ]
