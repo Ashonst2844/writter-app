@@ -383,15 +383,15 @@ function Footer() {
                 <p className="opacity-75">Reach Developer :</p>
                 <div className="flex flex-col gap-4">
                     <div className="flex gap-2 items-center">
-                        <img src="/public/Icons/google.svg" alt="google" width={25}/>
+                        <img src="/Icons/google.svg" alt="google" width={25}/>
                         <p className="hover:underline hover:brightness-75">agusyantosugiyanto@gmail.com</p>
                     </div>
                     <div className="flex gap-2 items-center">
-                        <img src="/public/Icons/phone.svg" alt="phone" width={25}/>
+                        <img src="/Icons/phone.svg" alt="phone" width={25}/>
                         <p className="hover:underline hover:brightness-75">(+62) 858-9129-9147</p>
                     </div>
                     {socialMedia.map(item => <div key={item.id} className="flex gap-2 items-center">
-                        <img src={`/public/Icons/${item.icon}.svg`} alt={item.icon} width={25}/>
+                        <img src={`/Icons/${item.icon}.svg`} alt={item.icon} width={25}/>
                         <a target="_blank" href={item.url} className="hover:underline hover:brightness-75">{item.username}</a>
                     </div>)}
                 </div>
