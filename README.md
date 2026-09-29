@@ -145,17 +145,22 @@ Keterangan:
       - Sign-out
   - (23 Sept. 2026) **update-build v1.6.1**
     - Memperbaiki Formatting pada Pinning
-  - (25 Sept. 2026) **update-build v.7.0**
+  - (25 Sept. 2026) **update-build v1.7.0**
     - Membuat halaman teknis (Privacy Policy, Terms Of Services, dan Changelog)
     - Memberikan batasan pengguna sesuai dengan Plan/Tier
-  - (27 Sept. 2026) **update-build v.7.1**
+  - (27 Sept. 2026) **update-build v1.7.1**
     - Fix Error
-  - (27 Sept. 2026) **update-build v.8.0**
+  - (27 Sept. 2026) **update-build v1.8.0**
     - Memperbarui planning-benefits
     - Optimalisasi source-code
-  - (28 Sept. 2026) **update-build v.8.1**
+  - (28 Sept. 2026) **update-build v1.8.1**
     - Minority Change
-  - (29 Sept. 2026) **update-build v.8.2**
+  - (28 Sept. 2026) **update-build v1.8.2**
+    - Security Update
+  - (29 Sept. 2026) **update-build v1.9.0**
     - Minority Fix
     - AI Companion Integration
     - Chapter Reading Tools
+  - (29 Sept. 2026) **update-build v1.10.0**
+    - Optimalisasi source-code
+    - Perbarui sedikit UI/UX Landing Page

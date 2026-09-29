@@ -66,10 +66,14 @@ export const changelog = [
         {id:13,version:"8.2",date:"28 Sept. 2026",desc:[
             "Security Update"
         ]},
-        {id:14,version:"8.3",date:"28 Sept. 2026",desc:[
+        {id:14,version:"9.0",date:"29 Sept. 2026",desc:[
             "Minority Fix",
             "AI Companion Integration",
             "Chapter Reading Tools",
-        ]}
+        ]},
+        {id:15,version:"10.0",date:"29 Sept. 2026",desc:[
+            "Optimalisasi source-code",
+            "Perbarui sedikit UI/UX Landing Page",
+        ]},
     ]}
 ]

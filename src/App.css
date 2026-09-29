@@ -20,3 +20,6 @@
   transform: translateX(10px);
   text-shadow: 0 0 1rem var(--accent);
 }
+.features:hover p {
+  opacity: 100;
+}

@@ -118,7 +118,7 @@ export default function Projects() {
                 <h1 className='text-4xl font-bold uppercase'>Universes</h1>
                 <span className='opacity-50'>{author || "User"}</span>
                 <Button use='link' type='custom' target='/' className='absolute top-0 left-0 hover:brightness-125'>
-                  <Icon type='online' use='exit' fill width={6} color='var(--warning)'/>
+                  <Icon type='online' use='exit' fill color='var(--warning)'/>
                 </Button>
               </div>
               <div className='w-full center p-4'>

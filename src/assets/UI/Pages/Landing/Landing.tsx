@@ -111,7 +111,7 @@ function CountUp({num}: {num: number}) {
         });
     })
 
-    return <span className="countup transition-all duration-150 font-black text-6xl text-(--accent)" ref={numberRef}>{formatCompact(0)}</span>;
+    return <span className="countup transition-all duration-150 font-black text-8xl text-(--accent)" ref={numberRef}>{formatCompact(0)}</span>;
 }
 //* Home Section
 function Home() {
@@ -164,12 +164,14 @@ function Builder() {
         }})
     })
 
-    return <section ref={builder} className="w-full h-48 bg-(--primary) center gap-24">
-        <span className="builder uppercase font-bold text-white/75">Build By</span>
-        {["vite","react","vercel"].map((item, i) => <div key={i} className="builder center gap-2 text-2xl font-extralight hover:gap-4 hover:font-bold transition-all duration-150">
-            <img src={`/${item}.svg`} alt={item.toUpperCase()} width={50} height={50} />
-            <span>{item.toUpperCase()}</span>
-        </div>)}
+    return <section ref={builder} className="w-full h-64 bg-(--primary) grid grid-cols-4 gap-24">
+        <span className="builder uppercase font-bold text-white/75 center">Development & Build By :</span>
+        <div className="grid grid-cols-3 col-span-3">
+            {["vite","react","vercel","supabase","tailwind-css","gsap"].map((item, i) => <div key={i} className="builder flex items-center gap-2 text-xl font-extralight hover:gap-4 hover:font-bold transition-all duration-150">
+                <img src={`/${item}.svg`} alt={item.toUpperCase()} width={50} height={50} />
+                <span>{item.replaceAll("-", " ").toUpperCase()}</span>
+            </div>)}
+        </div>
     </section>
 }
 //* About Section
@@ -193,10 +195,8 @@ function About() {
     })
     
     return <section ref={about} id="about" className="w-full min-h-screen p-8 flex flex-col gap-8">
-        <div className="w-full p-8 grid h-64" style={{
-            gridTemplateColumns: `repeat(${aboutDetailData.length}, 1fr)`
-        }}>
-            {aboutDetailData.map(item => <div key={item.id} className="countbox uppercase flex border-l-2 border-neutral-700 justify-around p-4 flex-col text-sm font-bold">
+        <div className="w-full p-8 gap-8 justify-center flex flex-wrap">
+            {aboutDetailData.map(item => <div key={item.id} className="countbox uppercase flex border-l-2 border-neutral-700 justify-around p-4 gap-4 flex-col text-lg font-bold w-[calc(33.333%-2rem)]">
                 <code>{item.context}</code>
                 <CountUp num={item.count}/>
                 <code>+ {item.title}</code>
@@ -238,19 +238,34 @@ function About() {
 }
 //* Feature Section
 function Feature() {
+    const detailsData = [
+        {id:1,icon:"project",name:"Project Management",desc:"(Projects) Kelola lebih dari satu universe atau proyek fiksi secara terpisah dalam satu akun tanpa membuat lore saling bentrok."},
+        {id:2,icon:"world-building",name:"Comprehensive Timelining & Worldbuilding",desc:"(Timeline Building) Urutkan garis waktu dan alur kronologis universe milikmu secara runtut; (World Building) Deskripsikan peta dunia, benua, hingga tempat-tempat penting dan sistem aturan duniamu; Catat peristiwa bersejarah serta benda pusaka / item penting yang memengaruhi alur cerita."},
+        {id:3,icon:"character-development",name:"Advanced Character Development",desc:"(Character Development) Kelola nama, umur, gender, faksi (Baik / Netral / Jahat), serta deskripsi latar belakang; Berikan statistik personal dan tags kepribadian otomatis untuk visualisasi perkembangan karakter."},
+        {id:4,icon:"note",name:"Brainstorming Tools",desc:"(Goals) Atur penjadwalan dan tujuan dengan waktu yang anda tentukan sendiri; (Events) Catat kejadian penting yang terjadi di dalam cerita anda; (Relics) Catat Pusaka penting yang muncul dalam dunia anda; (Notes) Catat segala ide untuk mengembangkan dunia anda"},
+        {id:5,icon:"book-library",name:"Seamless Writing Workspace (Book Library)",desc:"(Book Library) Tulis draf novel atau cerpen secara langsung per bab dalam antarmuka yang bersih; Buat catatan garis besar sebelum dituangkan ke dalam Chapter."}
+    ]
     const featuresData = [
-        {id:1,icon:"project",name:"Multi-Universe & Project Management",desc:["Kelola lebih dari satu universe atau proyek fiksi secara terpisah dalam satu akun tanpa membuat lore saling bentrok."]},
-        {id:2,icon:"world-building",name:"Comprehensive Worldbuilding",desc:["Urutkan garis waktu dan alur kronologis universe milikmu secara runtut.", "Deskripsikan peta dunia, benua, hingga tempat-tempat penting dan sistem aturan duniamu.", "Catat peristiwa bersejarah serta benda pusaka / item penting yang memengaruhi alur cerita."]},
-        {id:3,icon:"character-development",name:"Advanced Character Development",desc:["Kelola nama, umur, gender, faksi (Baik / Netral / Jahat), serta deskripsi latar belakang.", "Berikan statistik personal dan tags kepribadian otomatis untuk visualisasi perkembangan karakter."]},
-        {id:4,icon:"book-library",name:"Seamless Writing Workspace (Book Library)",desc:["Tulis draf novel atau cerpen secara langsung per bab dalam antarmuka yang bersih.", "Buat catatan garis besar sebelum dituangkan ke dalam Chapter."]},
-        {id:5,icon:"features",name:"Smart Writing Utilities (Fitur Penunjang Produktivitas)",desc:["Pin catatan (Notes) atau peristiwa penting (Events) ke bilah samping agar kamu tidak perlu berpindah halaman saat sedang mengetik bab cerita.", "Pantau statistik dan estimasi rata-rata jumlah kata per bab secara otomatis.", "Akses fitur-fitur krusial secara cepat dengan kombinasi tombol navigasi.", "Ekspor karya tulismu ke format .docx dengan opsi pemformatan teks (justify, tata letak draf naskah) yang siap kirim.", "Tetapkan target penulisan agar alur kerja proyekmu tetap konsisten."]}
+        {id:1,name:"All-in-one Workflow",icon:"tools",desc:"Alat perencanaan dan menulis yang lengkap untuk membangun dunia."},
+        {id:2,name:"Multi-Pin Note",icon:"pin",desc:"Pin berbagai catatan penting agar rancangan anda lebih konsisten dan sesuai."},
+        {id:3,name:"Export To Document",icon:"docx",desc:"Ekspor karya tulismu ke format .docx dengan opsi pemformatan teks yang lengkap."},
+        {id:4,name:"AI Companion",icon:"ai",desc:"Gunakan AI Companion sebagai teman dikusi anda dalam membangun dunia fiksi."},
+        {id:5,name:"Chapter Reader",icon:"voice",desc:"Gunakan Chapter Reader untuk mendengar kembali cerita yang sudah anda buat."},
     ]
 
     const features = useRef<HTMLElement>(null)
+    const tools = useRef<HTMLDivElement>(null)
     useGSAP(() => {
-        if (!features) return
-        const featureCards = gsap.utils.toArray<HTMLElement>('.feature')
-        featureCards.forEach((card) => {
+        if (!features || !tools) return
+
+        gsap.fromTo('.features', {opacity:0,scale:0}, {opacity:1,scale:1,duration:0.5,stagger:0.2,ease:'power3.inOut',scrollTrigger:{
+            trigger: tools.current,
+            start: 'top 80%',
+            toggleActions: 'play none none reverse',
+        }})
+
+        const featureCards = gsap.utils.toArray<HTMLElement>('.details')
+        featureCards.forEach(card => {
             gsap.fromTo(card, {opacity: 0, x: -20, scale: 0.25}, {opacity: 1, x: 0, scale:1, duration: 0.8, ease: 'power3.out', scrollTrigger: {
                 trigger: card,
                 start: 'top 80%',
@@ -259,18 +274,21 @@ function Feature() {
         })
     })
 
-    return <section ref={features} id="features" className="w-full min-h-screen p-8 center flex-col gap-16">
+    return <section ref={features} id="features" className="w-full min-h-screen p-8 center flex-col gap-24">
         <h2 className="text-2xl uppercase text-(--accent)">| App Features |</h2>
-        {featuresData.map(item => <div key={item.id} className="feature w-full border-b border-neutral-700 p-16 flex flex-col gap-4">
-            <div className="flex flex-col gap-8 pl-4">
+        <div className="w-full flex flex-wrap justify-center gap-8 p-8 shadow-inner rounded-xl bg-center bg-[url(/public/illustrations/illus-3.jpg)]" ref={tools}>
+            {featuresData.map(item => <div key={item.id} className="features center transition-all duration-150 hover:border-(--accent) hover:bg-(--primary) border-b-2 border-neutral-600 flex-col min-h-48 gap-8 p-4 rounded-lg bg-(--primary)/75 w-[calc(33.333%-2rem)]">
+                <h3 className="uppercase font-bold">{item.name}</h3>
                 <Icon type="online" use={item.icon} fill color="var(--accent)" scale="2"/>
-                <h3 className="font-bold text-2xl">{item.id + ". " + item.name}</h3>
+                <p className="text-center opacity-75">{item.desc}</p>
+            </div>)}
+        </div>
+        {detailsData.map(item => <div key={item.id} className="details w-full border-b border-neutral-700 p-16 flex flex-col gap-8">
+            <div className="flex gap-8">
+                <Icon type="online" use={item.icon} fill color="var(--accent)" scale="2"/>
+                <h3 className="font-bold text-2xl">{item.name}</h3>
             </div>
-            <div className='grid gap-8' style={{
-                gridTemplateColumns: `repeat(${item.desc.length}, 1fr)`
-            }}>
-                {item.desc.map((item, i) => <code key={i} className="opacity-75 border-l-2 p-2 border-neutral-700">{item}</code>)}
-            </div>
+            <p className="opacity-75 w-[85%]">{item.desc}</p>
         </div>)}
     </section>
 }
