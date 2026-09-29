@@ -75,5 +75,8 @@ export const changelog = [
             "Optimalisasi source-code",
             "Perbarui sedikit UI/UX Landing Page",
         ]},
+        {id:16,version:"10.1",date:"29 Sept. 2026",desc:[
+            "Fix UI/UX",
+        ]},
     ]}
 ]

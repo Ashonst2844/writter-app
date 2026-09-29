@@ -276,8 +276,9 @@ function Feature() {
 
     return <section ref={features} id="features" className="w-full min-h-screen p-8 center flex-col gap-24">
         <h2 className="text-2xl uppercase text-(--accent)">| App Features |</h2>
-        <div className="w-full flex flex-wrap justify-center gap-8 p-8 shadow-inner rounded-xl bg-center bg-[url(/public/illustrations/illus-3.jpg)]" ref={tools}>
-            {featuresData.map(item => <div key={item.id} className="features center transition-all duration-150 hover:border-(--accent) hover:bg-(--primary) border-b-2 border-neutral-600 flex-col min-h-48 gap-8 p-4 rounded-lg bg-(--primary)/75 w-[calc(33.333%-2rem)]">
+        <div className="relative w-full flex flex-wrap justify-center gap-8 p-8 shadow-inner rounded-xl overflow-hidden" ref={tools}>
+            <img loading="eager" src="/Illustrations/illus-3.jpg" alt="Mediaval Illustration" className="absolute top-0"/>
+            {featuresData.map(item => <div key={item.id} className="features z-10 center transition-all duration-150 hover:border-(--accent) hover:bg-(--primary) border-b-2 border-neutral-600 flex-col min-h-48 gap-8 p-4 rounded-lg bg-(--primary)/75 w-[calc(33.333%-2rem)]">
                 <h3 className="uppercase font-bold">{item.name}</h3>
                 <Icon type="online" use={item.icon} fill color="var(--accent)" scale="2"/>
                 <p className="text-center opacity-75">{item.desc}</p>

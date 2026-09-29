@@ -164,3 +164,5 @@ Keterangan:
   - (29 Sept. 2026) **update-build v1.10.0**
     - Optimalisasi source-code
     - Perbarui sedikit UI/UX Landing Page
+  - (29 Sept. 2026) **update-build v1.10.1**
+    - Fix UI/UX
