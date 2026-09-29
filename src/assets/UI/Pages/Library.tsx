@@ -5,6 +5,7 @@ import Icon from "../Components/Icon";
 import Editable from "../Components/Editable";
 import Error from "../Components/Error";
 import Modal from "../Components/Modal";
+import TextToSpeach from "../Components/TextToSpeach";
 
 import { Route, Routes, useParams } from "react-router-dom";
 import { useState, useEffect, useMemo, type ChangeEvent, type FormEvent } from "react";
@@ -143,7 +144,7 @@ function Export({ bookTitle, chapters, onClose }: ExportModalProps) {
     </section>
 }
 
-function Book(props: BookProps) {
+function Book({props, profiles}: {props: BookProps, profiles: Profiles}) {
     const { data: chapters, isLoading, error } = useFetch<ChapterProps>("chapters", 'book_id, word, status, name, content', {
         eq: {book_id: props.book_id},
         ascend: {
@@ -239,11 +240,11 @@ function Book(props: BookProps) {
                         <Button onClick={() => setShowMenu(prev => !prev)} type='normal' use='button' className='rounded-md w-12'>
                             <Icon type="normal" use="burger" width={3} color="var(--text)"/>
                         </Button>
-                        {showMenu && <div className="absolute top-0 -left-24 p-4 gap-4 shadow-md flex flex-col bg-(--bg) rounded overflow-hidden text-center">
+                        {showMenu && <div className="absolute z-50 top-0 -left-24 p-4 gap-4 shadow-md flex flex-col bg-(--bg) rounded overflow-hidden text-center">
                             <Button type='custom' use='url' target={props.link} className='hover:brightness-110'>Read!</Button>
                             <Button type='custom' use='link' target={slug} className='hover:brightness-110'>Chapters</Button>
                             <Button type='custom' use='button' onClick={()=>setMode(true)} className='hover:brightness-110'>Edit</Button>
-                            <Button onClick={() => setShowExport(true)} type='custom' use='button' className='hover:brightness-110'>Export</Button>
+                            <Button onClick={() => setShowExport(true)} disabled={profiles?.plan === "free"} type='custom' use='button' className={profiles?.plan === "free"?"opacity-75":"hover:brightness-125"}>Export</Button>
                             <Button onClick={() => setShowModal(true)} type='custom' use='button' className='hover:brightness-110 text-(--warning)'>Delete</Button>
                         </div>}
                     </div>
@@ -277,11 +278,11 @@ function Chapter({name, index, status, chapter_id}: {name: string, index: number
     </div>
 }
 
-function ChapterPage({props,error}: {props: ChapterProps[], error: Error | null}) {
+function ChapterPage({props,error,loading}: {props: ChapterProps[], error: Error | null, loading: boolean}) {
     const { slug } = useParams<{ slug: string }>()
     const chapter = props.find((item) => createSlug(item.name) === slug)
     
-    const { onSubmit, loading, setValue, getValue } = useForm(['name','content','status','word'], 'chapter', chapter?.chapter_id ?? "")
+    const { onSubmit, loading: isLoading, setValue, getValue } = useForm(['name','content','status','word'], 'chapter', chapter?.chapter_id ?? "")
 
     const [mode, setMode] = useState<boolean>(false)
 
@@ -314,7 +315,7 @@ function ChapterPage({props,error}: {props: ChapterProps[], error: Error | null}
         if (form) form.requestSubmit();
     })
 
-    if (loading) return <Loading message="Chapter" />
+    if (loading && isLoading) return <Loading message="Chapter" />
     if (error || !chapter) return <Error err={error || "Chapters not found!"}/>
     if (!chapter) return <Error err="Chapter not found" />
     return <form onSubmit={handleSubmit} className="w-full h-full p-4 flex flex-col gap-4">
@@ -323,7 +324,7 @@ function ChapterPage({props,error}: {props: ChapterProps[], error: Error | null}
         <Editable type="input" name="name" editMode={mode} text={(getValue('name') as string) ?? chapter.name} onChange={(v)=>setValue('name', v)} className="text-4xl font=bold">
             <h2 className="text-4xl font=bold">{(getValue('name') as string) ?? chapter.name} - {chapter.word}</h2>
         </Editable>
-
+        {!mode && <TextToSpeach text={Sanitizer(chapter?.content)} isLoadingText={loading}/>}
         <Editable type="richedit" text={htmlContent} onChange={(html) => setValue("content", html)} editMode={mode} onClick={() => setMode(true)}/>
         {mode? <>
             <span className="text-xs text-neutral-500 mt-2 block">Pilih status</span>
@@ -408,7 +409,7 @@ function BookPage({props, profiles}: {props: BookProps[], profiles: Profiles}) {
                 </form>
             </div>
         </div>}/>
-        <Route path=":slug" element={<ChapterPage props={data} error={error}/>}/>
+        <Route path=":slug" element={<ChapterPage props={data} error={error} loading={isLoading}/>}/>
     </Routes>
 }
 
@@ -439,7 +440,7 @@ export default function Library({project_id, profiles}: {project_id: string, pro
     return <section className="w-full h-full">
         <Routes>
             <Route path="/" element={<div className="grid gap-4 lg:grid-cols-1 p-4 relative">
-                {data.map((item) => <Book key={item.book_id} {...item} />)}
+                {data.map((item) => <Book key={item.book_id} props={item} profiles={profiles}/>)}
                 <div className="h-full w-full bg-(--primary) shadow-2xl rounded-2xl overflow-hidden">
                     <form onClick={handleCreate} className="min-h-60 flex flex-col hover:bg-(--accent) center p-4 transition-colors transition-300">
                         <span>{data.length} / {maxBook}</span>

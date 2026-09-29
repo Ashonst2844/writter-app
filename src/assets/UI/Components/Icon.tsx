@@ -111,5 +111,8 @@ export default function Icon(props: IconProps) {
         if (props.use==="power") {return <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill={props.fill?props.color:"none"} style={{scale:props.scale}}>
             <path d="m16.56 5.44l-1.45 1.45A5.97 5.97 0 0 1 18 12a6 6 0 0 1-6 6a6 6 0 0 1-6-6c0-2.17 1.16-4.06 2.88-5.12L7.44 5.44A7.96 7.96 0 0 0 4 12a8 8 0 0 0 8 8a8 8 0 0 0 8-8c0-2.72-1.36-5.12-3.44-6.56M13 3h-2v10h2"/>
         </svg>}
+        if (props.use==="assistant") {return <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill={props.fill?props.color:"none"} style={{scale:props.scale}}>
+            <path d="M13.034 13.5c2.105 0 3.93 1.35 4.544 3.36l.782 2.556A2 2 0 0 1 16.447 22h-11.9a2 2 0 0 1-1.914-2.584l.78-2.556a4.73 4.73 0 0 1 4.545-3.36zM20.25 8c0 1.52 1.23 2.75 2.75 2.75v1.5c-1.52 0-2.75 1.23-2.75 2.75h-1.5c0-1.52-1.229-2.75-2.75-2.75v-1.5c1.521 0 2.75-1.23 2.75-2.75zM10.5 2a5 5 0 1 1 0 10a5 5 0 0 1 0-10"/>
+        </svg>}
     }
 }

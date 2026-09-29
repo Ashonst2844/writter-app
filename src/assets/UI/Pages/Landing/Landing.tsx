@@ -175,7 +175,7 @@ function Builder() {
 //* About Section
 function About() {
     const aboutDetailData = [
-        {id: 1, context:'use', count:12, title:'Features'},
+        {id: 1, context:'use', count:14, title:'Features'},
         {id: 2, context:'create', count:5, title:'Universes'},
         {id: 3, context:'create', count:600, title:'Places'},
         {id: 4, context:'create', count:100, title:'Characters'},
@@ -304,7 +304,8 @@ function Planning() {
             "+20 Goal, Event, Relic, Note",
             "+3 Novel in Libary",
             "+20 Chapter per Book",
-            "Export to .docx Feature"
+            "Export to .docx Feature",
+            "Usable AI Companion"
         ],price:49999},
         {id:3,title:"Professionals",benefits:[
             "All Feature on Hobbies Plan /w:",

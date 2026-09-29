@@ -39,6 +39,10 @@ Projek Aplikasi Pribadi untuk **Penulis** yang ingin membangun sebuah Novel deng
   Menghitung seluruh jumlah kata per Chapter lalu melakukan penghitungan untuk rata-rata.
   - **Export To Document** 
   Dapat melakukan export ke file document (.docx) sebagai *draft script* serta melakukan kostumisasi pemformatan export.
+  - **AI Integration**
+  Ai Writer Companion akan membantu pengguna untuk brainstorming dan teman diskusi dalam membangun *Universe Fiksi*
+  - **Chapter Reader Tools**
+  Klik Tombol Chapter Reader di Halaman Chapter untuk meminta ssistem membacakan hasil tulisan anda*
 
 ----
 ## How To Use:
@@ -151,5 +155,7 @@ Keterangan:
     - Optimalisasi source-code
   - (28 Sept. 2026) **update-build v.8.1**
     - Minority Change
-  - (28 Sept. 2026) **update-build v.8.2**
-    - Security Update
+  - (29 Sept. 2026) **update-build v.8.2**
+    - Minority Fix
+    - AI Companion Integration
+    - Chapter Reading Tools

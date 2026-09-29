@@ -65,6 +65,11 @@ export const changelog = [
         ]},
         {id:13,version:"8.2",date:"28 Sept. 2026",desc:[
             "Security Update"
+        ]},
+        {id:14,version:"8.3",date:"28 Sept. 2026",desc:[
+            "Minority Fix",
+            "AI Companion Integration",
+            "Chapter Reading Tools",
         ]}
     ]}
 ]
