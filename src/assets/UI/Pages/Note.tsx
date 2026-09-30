@@ -14,6 +14,7 @@ import { useForm } from "../../Hooks/useForm";
 import { type Profiles } from "./Dashboard";
 
 import Pinning, { getPins } from "../../Utils/Pinning";
+import { Slug } from "../../Utils/Sanitizer";
 
 interface NoteProps {
     note_id:string;
@@ -22,14 +23,8 @@ interface NoteProps {
     tags:string[] | null;
 }
 
-const createSlug = (text: string | null | undefined) => {
-    if (!text) return "Untitled";
-    return text.toLowerCase().trim().replaceAll(" ","-");
-};
-
 function NoteAccordion(props: NoteProps) {
-    const slug = createSlug(props.title)
-    const {onDelete} = useForm([], "note", props.note_id)
+    const {onDelete} = useForm({inputs:[], enp:"note", id:props?.note_id})
     const [pinned, setPinned] = useState<boolean>(() => getPins().some((item) => item.id === props.note_id && item.type === "Note"))
     const [showModal, setShowModal] = useState<boolean>(false)
 
@@ -46,13 +41,13 @@ function NoteAccordion(props: NoteProps) {
             </div>
             {showModal && <Modal message={`Delete ${props.title}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
             <div className='flex w-full h-12 justify-end gap-2'>
-                <Button onClick={() => setShowModal(true)} type='warning' use="button" target={slug} className='rounded-md w-12'>
+                <Button onClick={() => setShowModal(true)} type='warning' use="button" target={Slug(props.title)} className='rounded-md w-12'>
                     <Icon type="online" use="trash" width={3} color="white" fill/>
                 </Button>
                 <Button type={pinned ? "normal" : "alternate"} use='button' className='rounded-md w-12' onClick={handlePin}>
                     <Icon type="online" use="pin" color={pinned ? "var(--text)" : "var(--primary)"} fill/>
                 </Button>
-                <Button type='normal' use='link' target={slug} className='rounded-md w-12'>
+                <Button type='normal' use='link' target={Slug(props.title)} className='rounded-md w-12'>
                     <Icon type="online" use="eye" fill color="var(--text)"/>
                 </Button>
             </div>
@@ -60,11 +55,11 @@ function NoteAccordion(props: NoteProps) {
     </Card>
 }
 
-function NotePage({props, error}: {props: NoteProps[], error: Error | null}) {
+function NotePage({props}: {props: NoteProps[]}) {
     const { slug } = useParams<{ slug: string }>()
-    const note = props.find((item) => createSlug(item.title) === slug)
+    const note = props.find((item) => Slug(item.title) === slug)
     
-    const { onSubmit, loading, setValue, getValue } = useForm(['title','content','tags'], 'note', note?.note_id ?? "")
+    const { result, onSubmit, setValue, getValue } = useForm({inputs:['title','content','tags'], enp:'note', id:note?.note_id||""})
     
     const [mode, setMode] = useState<boolean>(false)
 
@@ -83,9 +78,8 @@ function NotePage({props, error}: {props: NoteProps[], error: Error | null}) {
         if (res?.ok) setMode(false);
     }
 
-    if (loading) return <Loading message="Note"/>
-    if (error || !note) return <Error err={error || "Note not found!"}/>
-
+    if (result.loading) return <Loading message="Note"/>
+    if (result.error || !note) return <Error err={result.error || "Note not found!"}/>
     return <form onSubmit={handleSubmit} className="w-full h-full p-4 flex flex-col gap-4">
         <input type="hidden" name="content" value={htmlContent}/>
         <Editable type="input" name="title" editMode={mode} text={(getValue('title') as string) ?? note.title} onChange={(v)=>setValue('title', v)} className="text-4xl font-bold">
@@ -120,15 +114,13 @@ function NotePage({props, error}: {props: NoteProps[], error: Error | null}) {
 
 export default function Note({project_id, profiles}: {project_id: string, profiles: Profiles}) {
     const {data, isLoading, error} = useFetch<NoteProps>("notes", '', {
-        eq: {
-            project_id: project_id
-        }
+        eq: {project_id: project_id}
     })
     const [searchQ, setSearchQ] = useState<string>("")
 
     const maxNote = profiles?.plan === "free" ? 20 : 40
 
-    const { onCreate } = useForm([], 'note', data.length > 0 ? data[0].note_id : '')
+    const { onCreate } = useForm({inputs:[], enp:"note", id:data.length > 0 ? data[0]?.note_id : ''})
     const handleCreate = async () => {
         if (data.length < maxNote) {
             const res = await onCreate({
@@ -160,7 +152,7 @@ export default function Note({project_id, profiles}: {project_id: string, profil
                     </div>
                 </div>
             </div>}/>
-            <Route path=":slug" element={<NotePage props={data} error={error}/>}/>
+            <Route path=":slug" element={<NotePage props={data}/>}/>
         </Routes>
     </section>
 }

@@ -2,17 +2,57 @@ import Button from "../../Components/Button"
 import Icon from "../../Components/Icon"
 import Loading from "../../Components/Loading"
 
-import { useState, type FormEvent } from "react"
+import { useEffect, useState, type ChangeEvent, type FormEvent } from "react"
 import { supabase } from "../../../Utils/supabase"
 
-function Password({name, placeholder} :{name: string, placeholder: string}) {
+interface PasswordProps {
+    name: string;
+    placeholder: string;
+    isNormal?: boolean;
+    onScoreChange?: (score: number) => void;
+}
+interface PassChangeProps {
+    email: string;
+    loading: boolean;
+    message: {type: "success"|"error", text: string} | null
+}
+
+export function Password(props :PasswordProps) {
     const [state, setState] = useState<boolean>(false)
-    return <div className="w-full h-12 flex gap-2">
-        <input type={state?"text":"password"} name={name} placeholder={placeholder} className="w-[80%] h-full shadow-inner bg-(--bg) p-2" required/>
-        <Button type={state?"normal":"alternate"} use="button" className="w-[20%] h-full rounded-md" onClick={() => setState(e => !e)}>
-            <Icon type="online" use="eye" color={state?"white":"var(--bg)"} fill/>
-        </Button>
-    </div> 
+    
+    const [input, setInput] = useState<string>('')
+    const requirements = [
+        { text: "minimal 8 karakter", cond: input.length >= 8 },
+        { text: "terdiri dari 1 huruf kecil", cond: /[a-z]/.test(input) },
+        { text: "terdiri dari 1 huruf besar", cond: /[A-Z]/.test(input) },
+        { text: "terdiri dari 1 angka", cond: /\d/.test(input) },
+        { text: "terdiri dari 1 simbol", cond: /[^a-zA-Z0-9]/.test(input) },
+    ];
+
+    const score = requirements.filter(req => req.cond == true).length * (100 / requirements.length)
+    useEffect(() => {
+        props.onScoreChange?.(score)
+    }, [score, props.onScoreChange])
+    const stage = () => {
+        if(score <= 40) return "Bad"
+        if(score >= 40 && score <= 60) return "Good"
+        else return "Best"
+    }
+
+    return <>
+        <div className="w-full h-12 flex gap-2">
+            <input type={state?"text":"password"} onChange={(e: ChangeEvent<HTMLInputElement>) => setInput(e.target.value)} name={props.name} placeholder={props.placeholder} className="w-[80%] h-full shadow-inner bg-(--bg) p-2" required/>
+            <Button type={state?"normal":"alternate"} use="button" className="w-[20%] h-full rounded-md" onClick={() => setState(e => !e)}>
+                <Icon type="online" use="eye" color={state?"white":"var(--bg)"} fill/>
+            </Button>
+        </div> 
+        {!props.isNormal && <div className="w-full flex flex-col gap-2">
+            <p className="text-center">{score}% ({stage()})</p>
+            <div className="w-full grid gap-2" style={{gridTemplateColumns: `repeat(${requirements.length}, 1fr)`}}>
+                {requirements.map((item, i) => <div key={i} className="w-full h-2 rounded-md" style={{backgroundColor: item.cond?"var(--accent)":"var(--bg)"}}/>)}
+            </div>
+        </div>}
+    </>
 }
 
 const toErrorMessage = (err: unknown) => {
@@ -26,25 +66,61 @@ export default function Register() {
     const inputStyle = "w-full h-12 shadow-inner p-2 bg-(--bg)"
 
     const [loading, setLoading] = useState<boolean>(false)
+    const [passwordScore, setPasswordScore] = useState(0)
+
+    const [forgetPass, isForgetPass] = useState<boolean>(false)
+    const [passChange, setPassChange] = useState<PassChangeProps>({
+        email: '',
+        loading: false,
+        message: null
+    })
+
+    const handleChangePassword = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        if(!passChange.email) return
+        setPassChange(prev => ({...prev, loading: true}))
+        setPassChange(prev => ({...prev, message: null}))
+
+        const redirectUrl = `${window.location.origin}/reset-password`;
+
+        const { error } = await supabase.auth.resetPasswordForEmail(passChange.email.toLowerCase().trim(), {
+            redirectTo: redirectUrl,
+        });
+
+        if (error) {
+            setPassChange(prev => ({...prev, message: {type: "error", text: error.message}}))
+        } else {
+            setPassChange(prev => ({...prev, message: {type: "success", text: "Link Reset has been Send to your Inbox!"}}))
+            setPassChange(prev => ({...prev, email:""}))
+        }
+
+        setPassChange(prev => ({...prev, loading: false}))
+    }
 
     const handleSignUP = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         setLoading(false)
 
         const formData = new FormData(e.currentTarget)
-        const email = formData.get("email") as string
-        const password = formData.get("password") as string
-        const c_password = formData.get("c_password") as string
-        const username = formData.get("username") as string
+        const form = {
+            email: formData.get("email") as string,
+            password: formData.get("password") as string,
+            c_password: formData.get("c_password") as string,
+            username: formData.get("username") as string,
+        }
 
-        if (password !== c_password) {
+        if (form.password !== form.c_password) {
             alert("Password Doesn't Match")
+            return
+        }
+        if (passwordScore <= 60) {
+            alert("Password Doesn't Strong Enough!")
             return
         }
 
         const {data, error: authErr} = await supabase.auth.signUp({
-            email, 
-            password,
+            email: form.email, 
+            password: form.password,
         })
         if (authErr) throw new Error(authErr.message)
 
@@ -56,11 +132,18 @@ export default function Register() {
             const { error: profileError } = await supabase.from('user_data').insert([
                 {
                     user_id: user.id,
-                    username: username,
+                    username: form.username,
+                    email: form.email.toLowerCase().trim(),
                 },
             ]);
 
-            if (profileError) throw new Error(profileError.message);
+            if (profileError) {
+                if (profileError.code === "23505") {
+                    alert("Email has been registered! Use another Email")
+                    return
+                }
+            }
+            alert("Registered Succes!")
         } catch (err) {
             setLoading(false)
             alert("Sign-Up Failed!")
@@ -101,33 +184,41 @@ export default function Register() {
     }
 
     if (loading) return <Loading message="Register"/>
-    return <main className="w-screen h-screen flex relative">
+    return <main className="w-screen h-screen flex relative overflow-hidden">
         <section className="w-[50%] h-full center flex-col gap-4">
             <form onSubmit={handleSignUP} className="w-[60%] bg-(--primary) shadow-xl p-8 flex flex-col gap-8">
                 <input type="text" name="username" placeholder="Username" className={inputStyle} required/>
                 <input type="email" name="email" placeholder="Email" className={inputStyle} required/>
-                <Password name="password" placeholder="Password"/>
-                <Password name="c_password" placeholder="Confirm Password"/>
+                <Password name="password" placeholder="Password" onScoreChange={setPasswordScore}/>
+                <Password name="c_password" placeholder="Confirm Password" isNormal/>
                 <Button type="normal" use="submit" className="h-12 w-full rounded-md">Sign-Up</Button>
             </form>
         </section>
         <section className="w-[50%] h-full center flex-col gap-4">
             <form onSubmit={handleSignIn} className="w-[60%] bg-(--primary) shadow-xl p-8 flex flex-col gap-8">
                 <input type="email" name="email" placeholder="Email" className={inputStyle} required/>
-                <Password name="password" placeholder="Password"/>
+                <Password name="password" placeholder="Password" isNormal/>
                 <Button type="normal" use="submit" className="h-12 w-full rounded-md">Sign-In</Button>
+                <Button type="custom" use="button" onClick={() => isForgetPass(true)} className="text-center underline hover:opacity-75">Forgot Password</Button>
             </form>
         </section>
-        <section className="center w-[50%] text-white h-full absolute top-0 left-0 transition-all duration-300 flex-col gap-8" style={{
-            transform: `translateX(${mode?"0":"100%"})`,
-            background:`linear-gradient(${mode?"90":"-90"}deg, var(--accent), var(--bg))`
-        }}>
+        <section className="center w-[50%] text-white h-full bg-(--accent) absolute top-0 left-0 transition-all duration-300 flex-col gap-8" style={{transform: `translateX(${mode?"0":"100%"})`}}>
             <h1 className="font-black text-4xl">{mode?"Sign-In":"Sign-Up"}</h1>
             <p className="w-[50%] opacity-75 text-center">{mode?"Create Your Account, If You Have One, Click Sign-In Button!":"Please Sign-In Your Account, If You Don't Have One, Click Sign-Up Button!"}</p>
             <div className="flex gap-2 w-[50%]">
                 <Button type="alternate" use="button" onClick={() => setMode(e => !e)} className="w-[50%] h-12 rounded-md">{mode?"Sign-Up":"Sign-In"}</Button>
                 <Button type="warning" use="link" target="/" className="w-[50%] h-12 rounded-md">Back</Button>
             </div>
+        </section>
+        <section className="w-screen h-screen absolute top-0 left-0 bg-(--bg) z-50 center transition-transform duration-150" style={{transform: `translateY(${forgetPass?"0":"100%"})`}}>
+            <form onSubmit={handleChangePassword} className="w-[40%] bg-(--primary) p-4 rounded-lg flex flex-col gap-4">
+                <input type="email" name="email" placeholder="Email (email@example.com)" className={inputStyle} value={passChange.email} onChange={e => setPassChange(prev => ({...prev, email:e.target.value}))} required/>
+                <Button type="normal" use="submit" className="h-12 rounded-md">Kirim Link!</Button>
+                {passChange.message && <div className="w-full center text-sm">
+                    <p style={{color:passChange.message.type==="success"?"var(--success)":"var(--warning)"}}>({passChange.message.type}) {passChange.message.text}</p>
+                </div>}
+                <Button type="custom" use="button" onClick={() => isForgetPass(false)} className="text-center underline hover:opacity-75">Cancel</Button>
+            </form>
         </section>
     </main>
 }

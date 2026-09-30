@@ -11,6 +11,7 @@ import { Routes, Route, useParams } from "react-router-dom"
 import { useFetch } from "../../Hooks/useFetch"
 import { useForm } from "../../Hooks/useForm"
 import { useUpload } from "../../Hooks/useUpload"
+import { Slug } from "../../Utils/Sanitizer"
 import { type Profiles } from "./Dashboard";
 
 interface TimelineData {
@@ -34,14 +35,7 @@ interface PlaceData {
     desc: string;
 }
 
-const createSlug = (text: string | null | undefined) => {
-    if (!text) return "Untitled";
-    return text.toLowerCase().trim().replaceAll(" ","-");
-};
-
 function Content({timeline, name, map}: {timeline: string, name: string, map: string | null}) {
-    const slug = createSlug(`Dunia ${name}`)
-
     return <div className="h-full min-w-full p-8">
         <div className="w-full h-full rounded-2xl shadow-inner overflow-hidden relative">
             {map ? <div className="w-full h-full relative">
@@ -54,7 +48,7 @@ function Content({timeline, name, map}: {timeline: string, name: string, map: st
                 <i>File Not Found</i>
             </div>}
             <div className="z-20 absolute top-0 bg-black/25 left-0 w-full h-full opacity-0 hover:opacity-100 transition-all duration-150 cursor-pointer flex justify-end items-end p-4">
-                <Button type="normal" use="link" target={slug} className="p-4 rounded-md w-16 h-12">
+                <Button type="normal" use="link" target={Slug(`Dunia ${name}`)} className="p-4 rounded-md w-16 h-12">
                     <Icon type="normal" use="submit" color="white" scale="2" width={4} fill/>
                 </Button>
             </div>
@@ -66,7 +60,7 @@ function PlaceAccordion({props}: {props: PlaceData}) {
     const [open, setOpen] = useState<boolean>(false)
     const [mode, setMode] = useState<boolean>(false)
 
-    const { onSubmit, onDelete, setValue, getValue } = useForm(['name', 'desc'], 'place', props.place_id);
+    const { result, onSubmit, onDelete, setValue, getValue } = useForm({inputs:['name', 'desc'], enp:"place", id:props?.place_id});
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -77,6 +71,8 @@ function PlaceAccordion({props}: {props: PlaceData}) {
     };
     const [showModal, setShowModal] = useState<boolean>(false)
 
+    if (result.loading) return <Loading message="Place"/>
+    if (result.error || !props) return <Error err={result.error || "Place not found!"}/>
     return <form onSubmit={handleSubmit} className="w-full p-4 flex flex-col">
         <div className="flex gap-4 items-center">
             <Editable type="input" name='name' text={(getValue('name') as string) ?? props.name} onChange={(v)=>setValue('name', v)} editMode={mode} className='text-2xl'>
@@ -121,8 +117,6 @@ function PlaceAccordion({props}: {props: PlaceData}) {
 }
 
 function ContinentPage({props, profiles}: {props: ContinentData, profiles: Profiles}) {
-    const slug = createSlug(props.name)
-
     const { data, isLoading, error } = useFetch<PlaceData>("places", '', {
         eq: {continent_id: props?.continent_id},
         ascend: {
@@ -132,8 +126,7 @@ function ContinentPage({props, profiles}: {props: ContinentData, profiles: Profi
     });
 
     const maxPlace = profiles?.plan === "free" ? 20 : profiles?.plan === "hobbies" ? 25 : 30
-
-    const { onCreate } = useForm([], 'place', data.length > 0 ? data[0].place_id : '')
+    const { onCreate } = useForm({inputs:[], enp:"place", id:data.length > 0 ? data[0]?.place_id : ''})
     const handleCreate = async () => {
         if ( data.length < maxPlace ) {
             const res = await onCreate({
@@ -148,7 +141,7 @@ function ContinentPage({props, profiles}: {props: ContinentData, profiles: Profi
     const [showModal, setShowModal] = useState<boolean>(false)
 
     const [mode, setMode] = useState<boolean>(false);
-    const { onSubmit, onDelete, setValue, getValue, loading } = useForm(['image', 'name', 'desc'], 'continent', props.continent_id);
+    const { result, onSubmit, onDelete, setValue, getValue } = useForm({inputs:['image', 'name', 'desc'], enp:"continent", id:props?.continent_id});
     const { upload, uploading } = useUpload("book-cover/continents");
 
     const [uploadedCover, setUploadedCover] = useState<string | null>(null);
@@ -175,8 +168,8 @@ function ContinentPage({props, profiles}: {props: ContinentData, profiles: Profi
         }
     };
 
-    if (loading && isLoading) return <Loading message="Continent"/>
-    if (error || !data) return <Error err={error || "Continent not found!"}/>
+    if (result.loading && isLoading) return <Loading message="Continent"/>
+    if (result.error || error || !data) return <Error err={result.error || "Continent not found!"}/>
     return <div className="w-full h-full p-4 flex flex-col gap-4 overflow-auto">
         <form onSubmit={handleSubmit} className="w-full h-48 bg-(--primary) rounded-xl flex justify-between items-end p-4 shadow-md">
             <div className="center gap-4 h-full">
@@ -212,7 +205,7 @@ function ContinentPage({props, profiles}: {props: ContinentData, profiles: Profi
                         <Icon type="normal" use="submit" width={3} color="white" fill/>
                     </Button>
                 </> : <>
-                    <Button onClick={() => setShowModal(true)} type='warning' use='button' target={slug} className='rounded-md w-12'>
+                    <Button onClick={() => setShowModal(true)} type='warning' use='button' target={Slug(props.name)} className='rounded-md w-12'>
                         <Icon type="online" use="trash" width={3} color="white" fill/>
                     </Button>
                     <Button type='alternate' use='button' onClick={()=>{
@@ -233,7 +226,7 @@ function ContinentPage({props, profiles}: {props: ContinentData, profiles: Profi
 
 function Continent({props, profiles}: {props: TimelineData[], profiles: Profiles}) {
     const { slug } = useParams<{ slug: string }>()
-    const world = props.find((item) => createSlug(`Dunia ${item.name}`) === slug)
+    const world = props.find((item) => Slug(`Dunia ${item.name}`) === slug)
 
     const [isOpen, setOpen] = useState<"map" | "continent">("map")
     const [zoomLevel, setZoomLevel] = useState<number>(1) 
@@ -247,8 +240,7 @@ function Continent({props, profiles}: {props: TimelineData[], profiles: Profiles
     });
 
     const maxContinent = profiles?.plan === "free" ? 10 : profiles?.plan === "hobbies" ? 15 : 20
-
-    const { onCreate } = useForm([], 'continent', data.length > 0 ? data[0].continent_id : '')
+    const { onCreate } = useForm({inputs:[], enp:"continent", id:data.length > 0 ? data[0]?.continent_id : ''})
     const handleCreate = async () => {
         if ( data.length < maxContinent ) {
             const res = await onCreate({
@@ -285,7 +277,7 @@ function Continent({props, profiles}: {props: TimelineData[], profiles: Profiles
                                 <h2 className="text-2xl font-bold">{item.name}</h2>
                                 <p className="text-sm opacity-50">{item.desc}</p>
                             </div>
-                            <Button type="normal" use="link" target={createSlug(item.name)} className="rounded-xl">
+                            <Button type="normal" use="link" target={Slug(item.name)} className="rounded-xl">
                                 <Icon type="online" use="eye" color="white" fill/>
                             </Button>
                         </div>)}
@@ -298,16 +290,14 @@ function Continent({props, profiles}: {props: TimelineData[], profiles: Profiles
                     </div>
                 </div>
             </div>}/>
-            {data.map((item, i) => <Route path={createSlug(item.name)} element={<ContinentPage key={i} props={item} profiles={profiles}/>}/>)}
+            {data.map((item, i) => <Route path={Slug(item.name)} element={<ContinentPage key={i} props={item} profiles={profiles}/>}/>)}
         </Routes>
     </div>
 }
 
 export default function World({project_id, profiles}: {project_id: string, profiles: Profiles}) {
     const {data, isLoading, error} = useFetch<TimelineData>("timelines", 'index, name, timeline, timeline_id, map', {
-        eq: {
-            project_id: project_id
-        },
+        eq: {project_id: project_id},
         ascend: {
             col: "index",
             order: true

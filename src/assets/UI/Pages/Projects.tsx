@@ -24,7 +24,7 @@ interface ProjectData {
 
 function Project(props: ProjectData) {
   const [mode, setMode] = useState<boolean>(false)
-  const { onSubmit, onDelete, loading, setValue, getValue } = useForm(['name'], 'project', props.project_id)
+  const { result, onSubmit, onDelete, setValue, getValue } = useForm({inputs:['name'], enp:"project", id:props?.project_id})
   const [showModal, setShowModal] = useState<boolean>(false)
 
   useEffect(()=>{
@@ -37,7 +37,8 @@ function Project(props: ProjectData) {
     if (res?.ok) setMode(false)
   }
 
-  if(loading) return <Loading message='Project'/>
+  if (result.loading) return <Loading message="Project"/>
+  if (result.error || !props) return <Error err={result.error || "Project not found!"}/>
   return <Card>
     <form className='flex flex-col justify-between h-full' onSubmit={handleSubmit}>
       <div className='flex flex-col gap-4'>
@@ -78,26 +79,20 @@ export default function Projects() {
   const userData = authValue ? JSON.parse(authValue) : null;
   const id = userData?.user?.id ?? ""
   const { data, isLoading: userLoading } = useFetch<Profiles>('user_data', '', {
-    eq: {
-      user_id: id || undefined
-    }
+    eq: {user_id: id || undefined}
   })
 
   const profiles = data[0]
-  console.log(profiles)
-
-  const maxProject = profiles?.plan==="free"?1:profiles?.plan==="hobbies"?3:5
   const author = profiles?.username;
-
+  
   const { data: project, isLoading: projectLoading, error } = useFetch<ProjectData>("projects", "", {
-    eq: {
-      user_id: id || undefined
-    }
+    eq: {user_id: id || undefined}
   });
-
-  const { onCreate } = useForm([], "project", id);
+  
+  const maxProject = profiles?.plan==="free"?1:profiles?.plan==="hobbies"?3:5
+  const { onCreate } = useForm({inputs:[], enp:"project", id:id ?? ""});
   const handleCreate = async () => {
-    if (data.length < maxProject) {
+    if (project.length < maxProject) {
       const res = await onCreate({
         name: "New Universe",
         author: author,
@@ -122,11 +117,11 @@ export default function Projects() {
                 </Button>
               </div>
               <div className='w-full center p-4'>
-                <code className='text-xl'>{data.length} / {maxProject} Projects</code>
+                <code className='text-xl'>{project.length} / {maxProject} Projects</code>
               </div>
               <div className='grid gap-2 grid-cols-[repeat(auto-fit,minmax(200px,1fr))] lg:grid-cols-3'>
                 {project.map(item => <Project key={item.project_id} author={item.author} user_id={item.user_id} name={item.name} created_at={item.created_at.slice(0,10)} project_id={item.project_id}/>) }
-                <div className="h-full w-full bg-(--primary) shadow-xl rounded-xl overflow-hidden">
+                <div className="min-h-60 w-full bg-(--primary) shadow-xl rounded-xl overflow-hidden">
                   <form onClick={handleCreate} className="h-full w-full p-4 flex flex-col hover:bg-(--accent) center transition-colors transition-300">
                     <span className="text-white text-xl"><code>+</code> Create New Universe</span>
                   </form>

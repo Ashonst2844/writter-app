@@ -29,7 +29,7 @@ interface DeleteTarget {
 
 function Content({props, onRequestDelete}: {props: TimelineData, onRequestDelete: (target: DeleteTarget) => void}) {
     const [mode, setMode] = useState<boolean>(false)
-    const { onSubmit, onDelete, loading, setValue, getValue } = useForm(['name','timeline','desc'], 'timeline', props.timeline_id)
+    const { result, onSubmit, onDelete, setValue, getValue } = useForm({inputs:['name','timeline','desc'], enp:"timeline", id:props?.timeline_id})
 
     const [pinned, setPinned] = useState<boolean>(() => getPins().some(item => item.id == props.timeline_id && item.type == "Timeline"))
 
@@ -51,6 +51,8 @@ function Content({props, onRequestDelete}: {props: TimelineData, onRequestDelete
         if (res?.ok) setMode(false)
     }
 
+    if (result.loading) return <Loading message="Timeline"/>
+    if (result.error || !props) return <Error err={result.error || "Timeline not found!"}/>
     return <form onSubmit={handleSubmit} className="h-full min-w-full p-4 flex flex-col gap-8 relative">
         <div className="w-full p-8 bg-(--primary) center flex-col gap-8 rounded-xl shadow-inner">
             <Editable type="input" name='timeline' text={(getValue('timeline') as string) ?? props.timeline} onChange={(v)=>setValue('timeline', v)} editMode={mode} className='text-4xl font-black text-center'>
@@ -76,7 +78,7 @@ function Content({props, onRequestDelete}: {props: TimelineData, onRequestDelete
                 }} className='rounded-md w-12'>
                     <Icon type="normal" use="cancel" color="white" width={3}/>
                 </Button>
-                <Button type='normal' use='submit' className='rounded-md w-12'><p>{loading ? '...' : <Icon type="normal" use="submit" color="white" fill width={1}/>}</p></Button>
+                <Button type='normal' use='submit' className='rounded-md w-12'><p>{result.loading ? '...' : <Icon type="normal" use="submit" color="white" fill width={1}/>}</p></Button>
             </>:<>
                 <Button onClick={() => onRequestDelete({
                     name: props.name,
@@ -97,9 +99,7 @@ function Content({props, onRequestDelete}: {props: TimelineData, onRequestDelete
 
 export default function Timeline({project_id, profiles}: {project_id: string, profiles: Profiles}) {
     const {data, isLoading, error} = useFetch<TimelineData>("timelines", '', {
-        eq: {
-            project_id: project_id
-        },
+        eq: {project_id: project_id},
         ascend: {
             col: "index",
             order: true
@@ -110,7 +110,7 @@ export default function Timeline({project_id, profiles}: {project_id: string, pr
     
     const maxTimeline = profiles?.plan === "free" ? 10 : profiles?.plan === "hobbies" ? 15 : 20
 
-    const { onCreate } = useForm([], 'timeline', data.length > 0 ? data[0].timeline_id : '')
+    const { onCreate } = useForm({inputs:[], enp:"timeline", id:data.length > 0 ? data[0]?.timeline_id : ''})
     const handleCreate = async () => {
         if (data.length < maxTimeline) {
             const res = await onCreate({

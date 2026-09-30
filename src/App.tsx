@@ -8,6 +8,7 @@ import Privacy from './assets/UI/Pages/Landing/Privacy'
 import Changelog from './assets/UI/Pages/Landing/Changelog'
 import Landing from "./assets/UI/Pages/Landing/Landing"
 import Protected from './assets/UI/Pages/ProtectedRoute'
+import ResetPassword from './assets/UI/Pages/Landing/ResetPassword'
 
 export default function App() {
   return <main className='relative'>
@@ -18,6 +19,7 @@ export default function App() {
       <Route path='/privacy-policy' element={<Privacy/>}/>
       <Route path='/changelog' element={<Changelog/>}/>
       <Route path='/register' element={<Register/>}/>
+      <Route path='/reset-password' element={<ResetPassword/>}/>
       
       {/* Fallback Routes */}
       <Route path='*' element={<Navigate to="/register" replace/>}/>

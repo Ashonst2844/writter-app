@@ -12,6 +12,7 @@ import { useFetch } from "../../Hooks/useFetch"
 import { useForm } from "../../Hooks/useForm";
 import { Routes, Route, useParams } from "react-router-dom";
 import { type Profiles } from "./Dashboard";
+import { Slug } from "../../Utils/Sanitizer";
 
 import Pinning, {getPins} from "../../Utils/Pinning";
 import Trait from "../../Utils/Trait";
@@ -25,11 +26,8 @@ interface CharacterProps {
     stats: number[]
 }
 
-const createSlug = (text: string) => text.toLowerCase().trim().replace(/\s+/g, "-")
-
 function CharacterCard(props: CharacterProps) {
-    const slug = createSlug(props.name)
-    const {onDelete} = useForm([], "character", props.character_id)
+    const {onDelete} = useForm({inputs: [], enp:"character", id:props.character_id})
     const [showModal, setShowModal] = useState(false)
 
     const [pinned, setPinned] = useState<boolean>(() => getPins().some((item) => item.id === props.character_id && item.type === "Character"))
@@ -52,14 +50,14 @@ function CharacterCard(props: CharacterProps) {
                 <span className="opacity-75 text-sm">{props.desc.slice(0, 100)}{props.desc.length >= 100 ? "..." : ""}</span>
             </div>
             <div className='flex w-full h-12 justify-end gap-2 relative'>
-                <Button onClick={() => setShowModal(true)} type='warning' use="button" target={slug} className='rounded-md w-12'>
+                <Button onClick={() => setShowModal(true)} type='warning' use="button" target={Slug(props.name)} className='rounded-md w-12'>
                     <Icon type="online" use="trash" width={3} color="white" fill/>
                 </Button>
                 {showModal && <Modal message={`Delete ${props.name}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
                 <Button type={pinned ? "normal" : "alternate"} use='button' className='rounded-md w-12' onClick={handlePin}>
                     <Icon type="online" use="pin" color={pinned ? "var(--text)" : "var(--primary)"} fill/>
                 </Button>
-                <Button type='normal' use='link' target={slug} className='rounded-md w-12'>
+                <Button type='normal' use='link' target={Slug(props.name)} className='rounded-md w-12'>
                     <Icon type="normal" use="burger" width={3} color="white"/>
                 </Button>
             </div>
@@ -67,12 +65,12 @@ function CharacterCard(props: CharacterProps) {
     </Card>
 }
 
-function CharacterPage({props, error}: {props: CharacterProps[], error: Error | null}) {
+function CharacterPage({props}: {props: CharacterProps[]}) {
     const { slug } = useParams<{ slug: string }>()
-    const character = props.find((item) => createSlug(item.name) === slug)
+    const character = props.find((item) => Slug(item.name) === slug)
 
     const [mode, setMode] = useState<boolean>(false)
-    const { onSubmit, loading, setValue, getValue } = useForm(['name','age','gender','desc','stats'], 'character', character?.character_id ?? "")
+    const { onSubmit, result, setValue, getValue } = useForm({inputs:['name','age','gender','desc','stats'], enp:'character', id:character?.character_id ?? ""})
 
     useEffect(()=>{
         if (!character) return
@@ -100,8 +98,8 @@ function CharacterPage({props, error}: {props: CharacterProps[], error: Error | 
     }
     const statValues = (getValue('stats') as number[] | undefined) ?? character?.stats ?? [0,0,0,0,0,0]
 
-    if (loading) return <Loading message="Characters"/>
-    if (error || !character) return <Error err={error || "Character not found!"}/>
+    if (result.loading) return <Loading message="Characters"/>
+    if (result.error || !character) return <Error err={result.error || "Character not found!"}/>
     return <form onSubmit={handleSubmit} className="w-full h-full p-4 flex flex-col gap-4">
         <input type="hidden" name="stats" value={JSON.stringify(statValues)} />
         <div className="flex flex-col gap-4">
@@ -129,21 +127,15 @@ function CharacterPage({props, error}: {props: CharacterProps[], error: Error | 
                             <p className="duration-150 transition-all tooltip-text w-48 absolute opacity-0 right-[50%] translate-x-[-50%] bg-(--primary) p-2 rounded-md shadow-md">{item.desc}</p>
                         </div>
                         {mode ? <input name={item.name.toLowerCase()} type="number" min={0} max={5} value={Number(statValues[i] ?? 0)} onChange={(e) => {
-                                const nextStats = [...(statValues ?? character.stats)]
-                                nextStats[i] = Number(e.target.value)
-                                setValue('stats', nextStats)
-                            }}
-                        /> :
-                        <>
-                            <div className="flex h-2 gap-1">
-                                {Array.from({length: 5}, (_, j) => {
-                                    const on = (j+1) <= statValues[i]
-                                    return <div key={j} className="w-12 h-full rounded-md" style={{backgroundColor: on?"var(--accent)":"var(--primary)"}}/>
-                                })}
-                            </div>
-                        </>    
-                    }
-        </div>)} 
+                            const nextStats = [...(statValues ?? character.stats)] 
+                            nextStats[i] = Number(e.target.value) 
+                            setValue('stats', nextStats)}}
+                        />:<div className="flex h-2 gap-1">
+                            {Array.from({length: 5}, (_, j) => { const on = (j+1) <= statValues[i]
+                                return <div key={j} className="w-12 h-full rounded-md" style={{backgroundColor: on?"var(--accent)":"var(--primary)"}}/>
+                            })}
+                        </div>}
+                    </div>)} 
                 </div>
             </div>
             <div className="mt-4">
@@ -163,7 +155,7 @@ function CharacterPage({props, error}: {props: CharacterProps[], error: Error | 
                     }} className='rounded-md w-12'>
                         <Icon type="normal" use="cancel" color="white" width={3}/>
                     </Button>
-                    <Button type='normal' use='submit' className='rounded-md w-12'><p>{loading ? '...' : <Icon type="normal" use="submit" color="white" fill width={1}/>}</p></Button>
+                    <Button type='normal' use='submit' className='rounded-md w-12'><p>{result.loading ? '...' : <Icon type="normal" use="submit" color="white" fill width={1}/>}</p></Button>
                 </>:<Button type='alternate' use='button' onClick={()=>setMode(prev=>!prev)} className='rounded-md w-12 h-12'>
                     <Icon type="online" use="edit" width={1} color="var(--bg)"/>
                 </Button>}
@@ -174,15 +166,13 @@ function CharacterPage({props, error}: {props: CharacterProps[], error: Error | 
 
 export default function Character({project_id, profiles}: {project_id: string, profiles: Profiles}) {
     const {data, isLoading, error} = useFetch<CharacterProps>("characters", '', {
-        eq: {
-            project_id: project_id
-        }
+        eq: {project_id: project_id}
     })
     const [searchQ, setSearchQ] = useState<string>("")
 
     const maxCharacter = profiles?.plan === "free" ? 30 : profiles?.plan === "hobbies" ? 60 : 100
 
-    const { onCreate } = useForm([], 'character', data.length > 0 ? data[0].character_id : '')
+    const { onCreate } = useForm({inputs:[], enp:'character', id:data.length > 0 ? data[0].character_id : ''})
     const handleCreate = async () => {
         if (data.length < maxCharacter) {
             const res = await onCreate({
@@ -217,7 +207,7 @@ export default function Character({project_id, profiles}: {project_id: string, p
                     </div>
                 </div>
             </div>}/>
-            <Route path=":slug" element={<CharacterPage props={data} error={error}/>}/>
+            <Route path=":slug" element={<CharacterPage props={data}/>}/>
         </Routes>
     </section>
 }

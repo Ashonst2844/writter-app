@@ -15,7 +15,7 @@ import { useUpload } from "../../Hooks/useUpload";
 import { type Profiles } from "./Dashboard";
 
 import Shortcut from "../../Utils/Shortcut";
-import { Sanitizer } from "../../Utils/Sanitizer";
+import { Sanitizer, Slug } from "../../Utils/Sanitizer";
 import { type DocxSettings, generateAndDownloadDocx } from "../../Utils/Save";
 
 interface BookProps {
@@ -42,11 +42,6 @@ interface ExportModalProps {
     chapters: ChapterProps[];
     onClose: () => void;
 }
-
-const createSlug = (text: string | null | undefined) => {
-    if (!text) return "Untitled";
-    return text.toLowerCase().trim().replaceAll(" ", "-");
-};
 
 function Export({ bookTitle, chapters, onClose }: ExportModalProps) {
     const [exporting, setExporting] = useState<boolean>(false)
@@ -164,9 +159,8 @@ function Book({props, profiles}: {props: BookProps, profiles: Profiles}) {
 
     const bookStatus = `${chapters.length || "..."} Total Chapters | ${chapters.filter(item => item.status==="finish").length || "..."} Finished | ${chapters.filter(item => item.status==="draft").length || "..."} On Draft | ${wordAverage()} Word Avrg(Est.)`
 
-    const slug = createSlug(props.title);
     const [mode, setMode] = useState<boolean>(false);
-    const { onSubmit, onDelete, setValue, getValue } = useForm(['title', 'synopsys', 'link', 'cover'], 'book', props.book_id);
+    const { onSubmit, onDelete, setValue, getValue } = useForm({inputs:['title', 'synopsys', 'link', 'cover'], enp:'book', id:props?.book_id});
     const { upload, uploading } = useUpload("book-cover");
 
     const [uploadedCover, setUploadedCover] = useState<string | null>(null);
@@ -242,7 +236,7 @@ function Book({props, profiles}: {props: BookProps, profiles: Profiles}) {
                         </Button>
                         {showMenu && <div className="absolute z-50 top-0 -left-24 p-4 gap-4 shadow-md flex flex-col bg-(--bg) rounded overflow-hidden text-center">
                             <Button type='custom' use='url' target={props.link} className='hover:brightness-110'>Read!</Button>
-                            <Button type='custom' use='link' target={slug} className='hover:brightness-110'>Chapters</Button>
+                            <Button type='custom' use='link' target={Slug(props.title)} className='hover:brightness-110'>Chapters</Button>
                             <Button type='custom' use='button' onClick={()=>setMode(true)} className='hover:brightness-110'>Edit</Button>
                             <Button onClick={() => setShowExport(true)} disabled={profiles?.plan === "free"} type='custom' use='button' className={profiles?.plan === "free"?"opacity-75":"hover:brightness-125"}>Export</Button>
                             <Button onClick={() => setShowModal(true)} type='custom' use='button' className='hover:brightness-110 text-(--warning)'>Delete</Button>
@@ -256,13 +250,12 @@ function Book({props, profiles}: {props: BookProps, profiles: Profiles}) {
 }
 
 function Chapter({name, index, status, chapter_id}: {name: string, index: number, status: string, chapter_id: string}) {
-    const slug = createSlug(name);
     const state = status === "finish" ? true : false 
-    const {onDelete} = useForm([], "chapter", chapter_id)
+    const {onDelete} = useForm({inputs:[], enp:"chapter", id:chapter_id})
     const [showModal, setShowModal] = useState<boolean>(false)
 
     return <div className="flex items-center w-full h-16 bg-(--primary) rounded-xl overflow-hidden">
-        <Button type="normal" use="link" target={slug} className="w-[10%] h-full bg-(--accent) center text-4xl font-black">
+        <Button type="normal" use="link" target={Slug(name)} className="w-[10%] h-full bg-(--accent) center text-4xl font-black">
             <p className="text-4xl">{index}</p>
         </Button>
         <div className="flex justify-between items-center w-[90%] h-full px-2">
@@ -270,7 +263,7 @@ function Chapter({name, index, status, chapter_id}: {name: string, index: number
             {showModal && <Modal message={`Delete ${name}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
             <div className="flex h-12 gap-2">
                 <span className={`w-24 h-full inline-block center border-2 rounded-2xl transition-all duration-150 hover:brightness-125 ${state?"bg-(--success)/50 border-(--success)":"bg-(--warning)/50 border-(--warning)"}`}>{status.toUpperCase()}</span>
-                <Button onClick={() => setShowModal(true)} type='warning' use="button" target={slug} className='rounded-xl w-12'>
+                <Button onClick={() => setShowModal(true)} type='warning' use="button" target={Slug(name)} className='rounded-xl w-12'>
                     <Icon type="online" use="trash" width={3} color="white" fill/>
                 </Button>
             </div>
@@ -278,11 +271,11 @@ function Chapter({name, index, status, chapter_id}: {name: string, index: number
     </div>
 }
 
-function ChapterPage({props,error,loading}: {props: ChapterProps[], error: Error | null, loading: boolean}) {
+function ChapterPage({props,loading}: {props: ChapterProps[], loading: boolean}) {
     const { slug } = useParams<{ slug: string }>()
-    const chapter = props.find((item) => createSlug(item.name) === slug)
+    const chapter = props.find((item) => Slug(item.name) === slug)
     
-    const { onSubmit, loading: isLoading, setValue, getValue } = useForm(['name','content','status','word'], 'chapter', chapter?.chapter_id ?? "")
+    const { result, onSubmit, setValue, getValue } = useForm({inputs:['name','content','status','word'], enp:"chapter", id:chapter?.chapter_id||""})
 
     const [mode, setMode] = useState<boolean>(false)
 
@@ -315,9 +308,8 @@ function ChapterPage({props,error,loading}: {props: ChapterProps[], error: Error
         if (form) form.requestSubmit();
     })
 
-    if (loading && isLoading) return <Loading message="Chapter" />
-    if (error || !chapter) return <Error err={error || "Chapters not found!"}/>
-    if (!chapter) return <Error err="Chapter not found" />
+    if (loading && result.loading) return <Loading message="Chapter" />
+    if (result.error || !chapter) return <Error err={result.error || "Chapters not found!"}/>
     return <form onSubmit={handleSubmit} className="w-full h-full p-4 flex flex-col gap-4">
         <input type="hidden" name="content" value={htmlContent}/>
         <input type="hidden" name="word" value={wordCount}/>
@@ -352,7 +344,7 @@ function ChapterPage({props,error,loading}: {props: ChapterProps[], error: Error
 
 function BookPage({props, profiles}: {props: BookProps[], profiles: Profiles}) {
     const { slug } = useParams<{ slug: string }>()
-    const book = props.find((item) => createSlug(item.title) === slug)
+    const book = props.find((item) => Slug(item.title) === slug)
     
     const [pageIndex, setPageIndex] = useState<number>(1)
 
@@ -361,10 +353,10 @@ function BookPage({props, profiles}: {props: BookProps[], profiles: Profiles}) {
     const to = from + pageSize - 1;
 
     const { data: chapter, isLoading, error } = useFetch<ChapterProps>("chapters", 'chapter_id', {
-        eq: {book_id: book?.book_id},
+        eq: { book_id: book?.book_id },
     });
     const { data, counted } = useFetch<ChapterProps>("chapters", '', {
-        eq: {book_id: book?.book_id},
+        eq: { book_id: book?.book_id },
         ascend: {
             col: "created_at",
             order: true
@@ -377,8 +369,7 @@ function BookPage({props, profiles}: {props: BookProps[], profiles: Profiles}) {
     });
 
     const maxChapter = profiles?.plan === "free" ? 100 : profiles?.plan === "hobbies" ? 120 : 140
-
-    const { onCreate } = useForm([], 'chapter', data.length > 0 ? data[0].chapter_id : '')
+    const { onCreate } = useForm({inputs:[], enp:'chapter', id:data.length > 0 ? data[0]?.chapter_id : ''})
     const handleCreate = async () => {
         if (chapter.length < maxChapter) {
             const res = await onCreate({
@@ -391,7 +382,6 @@ function BookPage({props, profiles}: {props: BookProps[], profiles: Profiles}) {
     } 
 
     const pageLength = Math.ceil((counted ?? 0) / 10);
-
     if (isLoading) return <Loading message="Chapters" />
     if (error || !book) return <Error err={error || "Book not found!"}/>
     return <Routes>
@@ -409,20 +399,18 @@ function BookPage({props, profiles}: {props: BookProps[], profiles: Profiles}) {
                 </form>
             </div>
         </div>}/>
-        <Route path=":slug" element={<ChapterPage props={data} error={error} loading={isLoading}/>}/>
+        <Route path=":slug" element={<ChapterPage props={data} loading={isLoading}/>}/>
     </Routes>
 }
 
 export default function Library({project_id, profiles}: {project_id: string, profiles: Profiles}) {
     const { data, isLoading, error } = useFetch<BookProps>("books", '', {
-        eq: {
-            project_id: project_id
-        }
+        eq: {project_id: project_id}
     });
 
     const maxBook = profiles?.plan === "free" ? 2 : profiles?.plan === "hobbies" ? 5 : 10
 
-    const { onCreate } = useForm([], 'book', data.length > 0 ? data[0].book_id : '')
+    const { onCreate } = useForm({inputs:[], enp:"book", id:data.length > 0 ? data[0]?.book_id : ''})
     const handleCreate = async () => {
         if (data.length < maxBook) {
             const res = await onCreate({

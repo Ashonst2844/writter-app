@@ -32,7 +32,7 @@ export function useUpload(bucket: string) {
             
             return url;
         } catch (err: unknown) {
-            alert(`Gagal upload: ${err}`);
+            alert(`Failed to upload: ${err}`);
             return null;
         } finally {
             setUploading(false);

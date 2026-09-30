@@ -5,3 +5,7 @@ export function Sanitizer(html: string) {
         .replace(/&nbsp;/g, ' ')
         .replace(/<[^>]*>/g, '')
 }
+export function Slug(text: string | null | undefined) {
+    if (!text) return "NONE";
+    return text.toLowerCase().trim().replaceAll(" ","-");
+}

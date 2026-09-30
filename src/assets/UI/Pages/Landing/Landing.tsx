@@ -70,9 +70,12 @@ function Header({plan}: {plan: 'free' | 'hobbies' | 'professionals'}) {
                         <p className="opacity-75 text-sm">Tier : {(plan ?? "free").toUpperCase()}</p>
                         <p className="opacity-75 text-sm">{email}</p>
                     </div>}
-                    <Button type="custom" use={userData ? "button" : "link"} onClick={userData ? handleLogout : undefined} target={userData ? undefined : "register"} className={`hover:brightness-75 ${userData?"text-(--warning)":""}`}>
-                        {userData ? "Logout" : "Register"}
-                    </Button>
+                    <div className="w-full flex justify-around">
+                        {userData ? <>
+                            <Button type="custom" use="link" target="register" className="hover:brightness-75">Switch</Button>
+                            <Button type="custom" use="button" onClick={handleLogout} className="hover:brightness-75 text-(--warning)">Logout</Button>
+                        </> : <Button type="custom" use="link" target="register" className="hover:brightness-75">Register</Button>}
+                    </div>
                 </div>}
                 <Button type="custom" use="button" className="h-full w-18 hover:brightness-75" onClick={() => showModal(e => !e)}>
                     <Icon type="normal" use="burger" color="white" width={6}/>

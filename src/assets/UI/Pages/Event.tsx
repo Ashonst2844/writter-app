@@ -12,6 +12,7 @@ import { Routes, Route, useParams } from "react-router-dom"
 import { useFetch } from "../../Hooks/useFetch"
 import { useForm } from "../../Hooks/useForm";
 import Pinning, {getPins} from "../../Utils/Pinning";
+import { Slug } from "../../Utils/Sanitizer";
 import { type Profiles } from "./Dashboard";
 
 interface EventProps {
@@ -21,16 +22,9 @@ interface EventProps {
     tags:string[] | null;
 }
 
-const createSlug = (text: string | null | undefined) => {
-    if (!text) return "Untitled";
-    return text.toLowerCase().trim().replaceAll(" ","-");
-};
-
 function EventAccordion(props: EventProps) {
-    const slug = createSlug(props.title)
-    const {onDelete} = useForm([], "event", props.event_id)
+    const {onDelete} = useForm({inputs:[], enp:"event", id:props?.event_id ?? ""})
     const [showModal, setShowModal] = useState<boolean>(false)
-
     const [pinned, setPinned] = useState<boolean>(() => getPins().some((item) => item.id === props.event_id && item.type === "Event"))
 
     const handlePin = () => {
@@ -40,19 +34,19 @@ function EventAccordion(props: EventProps) {
 
     return <Card>
         <div className="h-full flex flex-col justify-between">
-            <h2 className="text-4xl font-black capitalize">{slug.replaceAll("-", " ")}</h2>
+            <h2 className="text-4xl font-black capitalize">{Slug(props.title)}</h2>
             <div className="flex gap-2 w-auto">
                 {props.tags?.map((item, i)=><Badge key={i} content={item}/>)}
             </div>
             {showModal && <Modal message={`Delete ${props.title}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
             <div className='flex w-full h-12 justify-end gap-2'>
-                <Button onClick={() => setShowModal(true)} type='warning' use="button" target={slug} className='rounded-md w-12'>
+                <Button onClick={() => setShowModal(true)} type='warning' use="button" target={Slug(props.title)} className='rounded-md w-12'>
                     <Icon type="online" use="trash" width={3} color="white" fill/>
                 </Button>
                 <Button type={pinned ? "normal" : "alternate"} use='button' className='rounded-md w-12' onClick={handlePin}>
                     <Icon type="online" use="pin" color={pinned ? "var(--text)" : "var(--primary)"} fill/>
                 </Button>
-                <Button type='normal' use='link' target={slug} className='rounded-md w-12'>
+                <Button type='normal' use='link' target={Slug(props.title)} className='rounded-md w-12'>
                     <Icon type="online" use="eye" color="white" fill/>
                 </Button>
             </div>
@@ -60,11 +54,11 @@ function EventAccordion(props: EventProps) {
     </Card>
 }
 
-function EventPage({props, error}: {props: EventProps[]; error: Error | null}) {
+function EventPage({props}: {props: EventProps[]}) {
     const { slug } = useParams<{ slug: string }>()
-    const event = props.find((item) => createSlug(item.title) === slug)
+    const event = props.find((item) => Slug(item.title) === slug)
     
-    const { onSubmit, loading, setValue, getValue } = useForm(['title','content','tags'], 'event', event?.event_id ?? "")
+    const { result, onSubmit, setValue, getValue } = useForm({inputs:['title','content','tags'], enp:'event', id:event?.event_id ?? ""})
 
     const [mode, setMode] = useState<boolean>(false)
 
@@ -83,8 +77,8 @@ function EventPage({props, error}: {props: EventProps[]; error: Error | null}) {
         if (res?.ok) setMode(false);
     }
 
-    if (loading) return <Loading message="Events"/>
-    if (error || !event) return <Error err={error || "Event not found!"}/>
+    if (result.loading) return <Loading message="Events"/>
+    if (result.error || !event) return <Error err={result.error || "Event not found!"}/>
     return <form onSubmit={handleSubmit} className="w-full h-full p-4 flex flex-col gap-4">
         <input type="hidden" name="content" value={htmlContent}/>
         <Editable type="input" name="title" editMode={mode} text={(getValue('title') as string) ?? event.title} onChange={(v)=>setValue('title', v)} className="text-4xl font-bold">
@@ -121,15 +115,12 @@ function EventPage({props, error}: {props: EventProps[]; error: Error | null}) {
 
 export default function Event({project_id, profiles}: {project_id: string, profiles: Profiles}) {
     const {data, isLoading, error} = useFetch<EventProps>("events", 'event_id, title, content, tags', {
-        eq: {
-            project_id: project_id
-        }
+        eq: { project_id: project_id }
     })
     const [searchQ, setSearchQ] = useState<string>("")
 
     const maxEvent = profiles?.plan === "free" ? 20 : 40
-
-    const { onCreate } = useForm([], 'event', data.length > 0 ? data[0].event_id : '')
+    const { onCreate } = useForm({inputs:[], enp:"event", id:data.length > 0 ? data[0]?.event_id : ''})
     const handleCreate = async () => {
         if ( data.length < maxEvent ) {
             const res = await onCreate({
@@ -161,7 +152,7 @@ export default function Event({project_id, profiles}: {project_id: string, profi
                     </div>
                 </div>
             </div>}/>
-            <Route path=":slug" element={<EventPage props={data} error={error}/>}/>
+            <Route path=":slug" element={<EventPage props={data}/>}/>
         </Routes>
     </section>
 }

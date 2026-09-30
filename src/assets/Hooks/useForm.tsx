@@ -2,19 +2,30 @@ import { useCallback, useState, type FormEvent } from "react";
 import { supabase } from "../Utils/supabase";
 import { useQueryClient } from "@tanstack/react-query";
 
-export function useForm(inputs: string[], enp: string, id: string, defaultValues?: Record<string, unknown>) {
-    const [values, setValues] = useState<Record<string, unknown>>({});
-    const [loading, setLoading] = useState<boolean>(false);
-    const [error, setError] = useState<Error | string | null>(null);
-    const queryClient = useQueryClient();
+interface FormProps {
+    inputs: string[];
+    enp: string;
+    id: string;
+    defaultValues?: Record<string, unknown>
+}
+interface ResultState {
+    values: Record<string, unknown>;
+    loading: boolean;
+    error: Error | string | null;
+} 
 
-    const tableName = `${enp}s`;
-    const key = `${enp}_id`
+export function useForm({inputs, enp, id, defaultValues}: FormProps) {
+    const [result, setResult] = useState<ResultState>({
+        values: {},
+        loading: false,
+        error: null,
+    })
+    const queryClient = useQueryClient();
 
     const normalizeValue = useCallback((value: unknown, fieldName?: string) => {
         if (fieldName === "tags") {
-            if (Array.isArray(value)) return value.map((item) => String(item).trim()).filter(Boolean);
-            if (typeof value === "string") return value.split(",").map((item) => item.trim()).filter(Boolean);
+            if (Array.isArray(value)) return value.map((v) => String(v).trim()).filter(Boolean);
+            if (typeof value === "string") return value.split(",").map((v) => v.trim()).filter(Boolean);
             if (!value) return [];
             return [String(value).trim()].filter(Boolean);
         }
@@ -24,10 +35,8 @@ export function useForm(inputs: string[], enp: string, id: string, defaultValues
             if (typeof value === "string") {
                 try {
                     const parsed = JSON.parse(value);
-                if (Array.isArray(parsed)) return parsed.map((v) => Number(v));
-                } catch (e) {
-                    console.error(e);
-                }
+                    if (Array.isArray(parsed)) return parsed.map((v) => Number(v));
+                } catch (e) {console.error(e)}
                 return value.split(",").map((item) => Number(item.trim()));
             }
             if (!value) return [0, 0, 0, 0, 0, 0];
@@ -42,14 +51,13 @@ export function useForm(inputs: string[], enp: string, id: string, defaultValues
     const onSubmit = useCallback(async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const form = e.currentTarget;
-        setLoading(true);
-        setError(null);
+        setResult(prev => ({...prev, loading: true}));
+        setResult(prev => ({...prev, error: null}));
 
         const formData = new FormData(form);
         const resultForm: Record<string, unknown> = {};
 
-        try {
-            inputs.forEach((field) => {
+        try {inputs.forEach((field) => {
                 const element = form.elements.namedItem(field) as HTMLInputElement | null;
                 if (element && element.type === "checkbox") {
                     resultForm[field] = element.checked;
@@ -57,79 +65,70 @@ export function useForm(inputs: string[], enp: string, id: string, defaultValues
                 }
                 resultForm[field] = normalizeValue(formData.get(field), field);
             });
-
-            setValues((prev) => ({ ...prev, ...resultForm }));
+            setResult(prev => ({...prev, values: {...prev.values, ...resultForm}}));
 
             const { error: updateError, data } = await supabase
-                .from(tableName)
+                .from(enp+"s")
                 .update(resultForm)
-                .eq(key, id)
+                .eq(enp+"_id", id)
                 .select();
 
             if (updateError) throw updateError;
-
-            await queryClient.invalidateQueries({ queryKey: [tableName] });
-
+            await queryClient.invalidateQueries({ queryKey: [enp+"s"] });
             return { ok: true, data };
+
         } catch (err) {
-            console.error(`Gagal update ${tableName}:`, err);
-            setError((err as Error)?.message || "Gagal mengedit data");
+            console.error(`Failed to Update [${(enp+"s").toUpperCase()}]:`, err);
+            setResult(prev => ({...prev, error: (err as Error)?.message || `Failed to Update ${enp+"s"}`}));
             return { ok: false, error: err };
-        } finally {
-            setLoading(false);
-        }
-    }, [inputs, key, tableName, id, normalizeValue, queryClient]);
+
+        } finally {setResult(prev => ({...prev, loading: false}))}
+    }, [inputs, enp, id, normalizeValue, queryClient]);
 
     const onCreate = useCallback(async (customPayload: Record<string, unknown>) => {
-        setLoading(true);
-        setError(null);
+        setResult(prev => ({...prev, loading: true}));
+        setResult(prev => ({...prev, error: null}));
 
         try {
-            const payload = {
-                ...(defaultValues ?? {}),
-                ...(customPayload ?? {})
-            };
+            const payload = {...(defaultValues ?? {}), ...(customPayload ?? {})}
             const { data, error: insertError } = await supabase
-                .from(tableName)
+                .from(enp+"s")
                 .insert([payload])
                 .select();
 
             if (insertError) throw insertError;
-            await queryClient.invalidateQueries({ queryKey: [tableName] });
+            await queryClient.invalidateQueries({ queryKey: [enp+"s"] });
             return { ok: true, data };
         } catch (err) {
-            console.error(`Gagal membuat ${tableName}:`, err);
-            setError((err as Error)?.message || `Gagal membuat ${tableName}`);
+            console.error(`Failed to Create [${(enp+"s").toUpperCase()}]:`, err);
+            setResult(prev => ({...prev, error: (err as Error)?.message || `Failed to Create ${enp+"s"}`}));
             return { ok: false, error: err };
-        } finally {
-            setLoading(false);
-        }
-    }, [tableName, defaultValues, queryClient]);
+        } finally {setResult(prev => ({...prev, loading: false}))}
+    }, [enp, defaultValues, queryClient]);
 
     const onDelete = useCallback(async () => {
-        setLoading(true);
+        setResult(prev => ({...prev, loading: true}))
         try {
             const { error: deleteError } = await supabase
-                .from(tableName)
+                .from(enp+"s")
                 .delete()
-                .eq(key, id);
+                .eq(enp+"_id", id);
 
             if (deleteError) throw deleteError;
-            await queryClient.invalidateQueries({ queryKey: [tableName] });
+            await queryClient.invalidateQueries({ queryKey: [enp+"s"] });
             return true;
         } catch (err) {
-            console.error("Failed To Delete:", err);
-            return false;
-        } finally {
-            setLoading(false);
-        }
-    }, [tableName, key, id, queryClient]);
+            console.error(`Failed to Delete [${(enp+"s").toUpperCase()}]:`, err);
+            setResult(prev => ({...prev, error: (err as Error)?.message || `Failed to Delete ${enp+"s"}`}));
+            return { ok: false, error: err };
+        } finally {setResult(prev => ({...prev, loading: false}))}
+    }, [enp, id, queryClient]);
 
     const setValue = useCallback((name: string, value: unknown) => {
-        setValues((prev) => ({ ...prev, [name]: normalizeValue(value, name) }));
+        setResult(prev => ({ ...prev, values: {...(prev.values ?? {}), [name]: normalizeValue(value, name)}}));
     }, [normalizeValue]);
 
-    const getValue = useCallback((name: string) => values[name], [values]);
+    const getValue = useCallback((name: string) => result?.values?.[name],  [result.values]);
 
-    return {onCreate,onDelete,onSubmit,loading,error,values,setValue,getValue}
+    return {result, onCreate,onDelete,onSubmit,setValue,getValue}
 }

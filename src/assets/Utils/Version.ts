@@ -78,5 +78,11 @@ export const changelog = [
         {id:16,version:"10.1",date:"29 Sept. 2026",desc:[
             "Fix UI/UX",
         ]},
+        {id:17,version:"10.2",date:"29 Sept. 2026",desc:[
+            "Optimalisasi source-code",
+            "Memperketat Validasi Input",
+            "Forgot Password",
+            "Manual Crawling dengan sitemap.xml dan robots.txt"
+        ]},
     ]}
 ]

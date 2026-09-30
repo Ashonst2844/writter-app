@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Allow: /register
+Allow: /terms-of-services
+Allow: /privacy-policy
+Allow: /changelog
+
+# Mencegah Google memuat halaman internal/reset password
+Disallow: /reset-password
+
+Sitemap: https://writter-app-sooty.vercel.app/sitemap.xml

@@ -25,7 +25,7 @@ interface StickyProps extends GoalsProps {
 function StickyNotes(props: StickyProps) {
     const [mode, setMode] = useState<boolean>(false)
     const [showModal, setShowModal] = useState<boolean>(false)
-    const { onSubmit, onDelete, loading: formLoading, setValue, getValue } = useForm(['name','status','due'], 'goal', props.goal_id)
+    const { result, onSubmit, onDelete, setValue, getValue } = useForm({inputs:['name','status','due'], enp:'goal', id:props?.goal_id})
 
     useEffect(()=>{
         setValue('name', props.name)
@@ -70,6 +70,8 @@ function StickyNotes(props: StickyProps) {
         return `${years} Year${years > 1 ? 's' : ''} Left`
     }
 
+    if (result.loading) return <Loading message="Goals"/>
+    if (result.error || !props) return <Error err={result.error || "Goals not found!"}/>
     return <form onSubmit={handleSubmit} className="w-full h-full bg-(--primary) rounded-xl shadow-xl p-4 flex flex-col items-center justify-between gap-2">
         <div className="w-full h-2 rounded-md shadow-md" style={{backgroundColor:props.status?"var(--success)":"var(--warning)"}}/>
         <Editable type="input" name='name' text={(getValue('name') as string) ?? props.name} onChange={(v)=>setValue('name', v)} editMode={mode} className="font-bold underline text-xl text-center w-full">
@@ -89,7 +91,7 @@ function StickyNotes(props: StickyProps) {
                     setValue('due', props.due)
                 }}><Icon type="normal" use="cancel" color="white" width={3}/></Button>
                 <Button type="normal" use="submit" className="w-12 h-12 rounded-md">
-                    {formLoading?"...":<Icon type="normal" use="submit" color="white" width={3} fill/>}
+                    {result.loading?"...":<Icon type="normal" use="submit" color="white" width={3} fill/>}
                 </Button>
             </>
             : <>
@@ -106,14 +108,11 @@ function StickyNotes(props: StickyProps) {
 
 export default function Goals({project_id, profiles}: {project_id: string, profiles: Profiles}) {
     const {data, isLoading, error} = useFetch<GoalsProps>("goals", '', {
-        eq: {
-            project_id: project_id
-        }
+        eq: {project_id: project_id}
     })
 
     const maxGoals = profiles?.plan === "free" ? 20 : 40
-
-    const { onCreate } = useForm([], 'goal', data.length > 0 ? data[0].goal_id : '')
+    const { onCreate } = useForm({inputs:[], enp:'goal', id:data.length > 0 ? data[0]?.goal_id : ''})
     const handleCreate = async () => {
         if ( data.length < maxGoals ) {
             const res = await onCreate({
