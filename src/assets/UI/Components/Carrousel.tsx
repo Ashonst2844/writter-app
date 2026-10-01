@@ -21,15 +21,15 @@ export default function Carrousel({length, children}: {length:number, children:R
             ))}
         </div>
         <div className="absolute center gap-4 bottom-0 w-auto h-16">
-            <Button onClick={() => func({type: 'prev'})} type="custom" use="button" className="hover:brightness-150 bg-(--primary)/20 w-16 h-16 center rounded-full">
+            <Button label="Slide Sebelumnya" onClick={() => func({type: 'prev'})} type="custom" use="button" className="hover:brightness-150 bg-(--primary)/20 w-16 h-16 center rounded-full">
                 <Icon type="normal" use="caret" width={4} color="var(--text)" scale="50%" className="rotate-180"></Icon>
             </Button>
             <div className="flex gap-4">
-                {Array.from({length}, (_,i) => <Button className="w-2 h-2 rounded-full border border-(--text)" key={i} onClick={() => func({type: 'set', payload: i})} type="custom" use="button" style={{
+                {Array.from({length}, (_,i) => <Button label={`Slide ${i + 1}`} className="w-2 h-2 rounded-full border border-(--text)" key={i} onClick={() => func({type: 'set', payload: i})} type="custom" use="button" style={{
                     backgroundColor:index==i?"var(--text)":"var(--bg)"
                 }}>{""}</Button>)}
             </div>
-            <Button onClick={() => func({type: 'next'})} type="custom" use="button" className="hover:brightness-150 bg-(--primary)/20 w-16 h-16 center rounded-full p-0">
+            <Button label="Slide Berikutnya" onClick={() => func({type: 'next'})} type="custom" use="button" className="hover:brightness-150 bg-(--primary)/20 w-16 h-16 center rounded-full p-0">
                 <Icon type="normal" use="caret" width={4} color="var(--text)" scale="50%" ></Icon>
             </Button>
         </div>

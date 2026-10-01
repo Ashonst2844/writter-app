@@ -132,8 +132,8 @@ function Export({ bookTitle, chapters, onClose }: ExportModalProps) {
             </div>
 
             <div className="flex gap-4">
-                <Button onClick={onClose} type="warning" use="button" className="w-[50%] rounded-md">Cancel</Button>
-                <Button onClick={handleExport} type="normal" use="button" className="w-[50%] rounded-md">{exporting?"Exporting...":"Export"}</Button>
+                <Button label="Close Export" onClick={onClose} type="warning" use="button" className="w-[50%] rounded-md">Cancel</Button>
+                <Button label="Confirm Export" onClick={handleExport} type="normal" use="button" className="w-[50%] rounded-md">{exporting?"Exporting...":"Export"}</Button>
             </div>
         </div>
     </section>
@@ -216,7 +216,7 @@ function Book({props, profiles}: {props: BookProps, profiles: Profiles}) {
             {showModal && <Modal message={`Delete ${props.title}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
             <div className='flex w-full h-12 justify-end gap-2 absolute bottom-0'>
                 {mode ? <>
-                    <Button type='warning' use="button" className='rounded-md w-12' onClick={() => {
+                    <Button label={"Cancel Edit "+props.title} type='warning' use="button" className='rounded-md w-12' onClick={() => {
                         setMode(false);
                         setUploadedCover(null);
                         setValue('title', props.title);
@@ -226,20 +226,20 @@ function Book({props, profiles}: {props: BookProps, profiles: Profiles}) {
                     }}>
                         <Icon type="normal" use="cancel" width={3} color="white"/>
                     </Button>
-                    <Button type='normal' use="submit" className='rounded-md w-12'>
+                    <Button label={"Submit Edit "+props.title} type='normal' use="submit" className='rounded-md w-12'>
                         <Icon type="normal" use="submit" width={3} color="white" fill/>
                     </Button>
                 </> : <>
                     <div className="flex relative gap">
-                        <Button onClick={() => setShowMenu(prev => !prev)} type='normal' use='button' className='rounded-md w-12'>
+                        <Button label="" onClick={() => setShowMenu(prev => !prev)} type='normal' use='button' className='rounded-md w-12'>
                             <Icon type="normal" use="burger" width={3} color="var(--text)"/>
                         </Button>
                         {showMenu && <div className="absolute z-50 top-0 -left-24 p-4 gap-4 shadow-md flex flex-col bg-(--bg) rounded overflow-hidden text-center">
-                            <Button type='custom' use='url' target={props.link} className='hover:brightness-110'>Read!</Button>
-                            <Button type='custom' use='link' target={Slug(props.title)} className='hover:brightness-110'>Chapters</Button>
-                            <Button type='custom' use='button' onClick={()=>setMode(true)} className='hover:brightness-110'>Edit</Button>
-                            <Button onClick={() => setShowExport(true)} disabled={profiles?.plan === "free"} type='custom' use='button' className={profiles?.plan === "free"?"opacity-75":"hover:brightness-125"}>Export</Button>
-                            <Button onClick={() => setShowModal(true)} type='custom' use='button' className='hover:brightness-110 text-(--warning)'>Delete</Button>
+                            <Button label={"Read "+props.title} type='custom' use='url' target={props.link} className='hover:brightness-110'>Read!</Button>
+                            <Button label={"Open "+props.title} type='custom' use='link' target={Slug(props.title)} className='hover:brightness-110'>Chapters</Button>
+                            <Button label={"Edit "+props.title} type='custom' use='button' onClick={()=>setMode(true)} className='hover:brightness-110'>Edit</Button>
+                            <Button label={"Export "+props.title} onClick={() => setShowExport(true)} disabled={profiles?.plan === "free"} type='custom' use='button' className={profiles?.plan === "free"?"opacity-75":"hover:brightness-125"}>Export</Button>
+                            <Button label={"Delete "+props.title} onClick={() => setShowModal(true)} type='custom' use='button' className='hover:brightness-110 text-(--warning)'>Delete</Button>
                         </div>}
                     </div>
                 </>}
@@ -255,7 +255,7 @@ function Chapter({name, index, status, chapter_id}: {name: string, index: number
     const [showModal, setShowModal] = useState<boolean>(false)
 
     return <div className="flex items-center w-full h-16 bg-(--primary) rounded-xl overflow-hidden">
-        <Button type="normal" use="link" target={Slug(name)} className="w-[10%] h-full bg-(--accent) center text-4xl font-black">
+        <Button label={"Open Chapter "+index} type="normal" use="link" target={Slug(name)} className="w-[10%] h-full bg-(--accent) center text-4xl font-black">
             <p className="text-4xl">{index}</p>
         </Button>
         <div className="flex justify-between items-center w-[90%] h-full px-2">
@@ -263,7 +263,7 @@ function Chapter({name, index, status, chapter_id}: {name: string, index: number
             {showModal && <Modal message={`Delete ${name}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
             <div className="flex h-12 gap-2">
                 <span className={`w-24 h-full inline-block center border-2 rounded-2xl transition-all duration-150 hover:brightness-125 ${state?"bg-(--success)/50 border-(--success)":"bg-(--warning)/50 border-(--warning)"}`}>{status.toUpperCase()}</span>
-                <Button onClick={() => setShowModal(true)} type='warning' use="button" target={Slug(name)} className='rounded-xl w-12'>
+                <Button label={"Delete "+name} onClick={() => setShowModal(true)} type='warning' use="button" target={Slug(name)} className='rounded-xl w-12'>
                     <Icon type="online" use="trash" width={3} color="white" fill/>
                 </Button>
             </div>
@@ -323,14 +323,14 @@ function ChapterPage({props,loading}: {props: ChapterProps[], loading: boolean})
             <Editable type="option" list={["draft", "finish"]} name="status" editMode={mode} onChange={(v)=>setValue('status', v)} text={(getValue('status') as string) ?? chapter.status} className="bg-(--primary) p-2 rounded-xl"/>
 
             <div className="flex h-12 justify-end gap-2">
-                <Button type="warning" use="button" className='rounded-md w-12' onClick={()=>{
+                <Button label="Cancel Edit" type="warning" use="button" className='rounded-md w-12' onClick={()=>{
                     setMode(false)
                     setValue('name', chapter.name)
                     setValue('content', chapter.content)
                 }}>
                     <Icon type="normal" use="cancel" width={6} color="var(--text)"/>
                 </Button>
-                <Button type='normal' use='submit' className='rounded-md w-12'>
+                <Button label="Submit" type='normal' use='submit' className='rounded-md w-12'>
                     <Icon type="normal" use="submit" width={3} fill color="var(--text)"/>
                 </Button>
             </div>
@@ -388,7 +388,7 @@ function BookPage({props, profiles}: {props: BookProps[], profiles: Profiles}) {
         <Route path="/" element={<div className="w-full p-4 flex flex-col gap-2">
             <div className="flex gap-2 flex-col items-center sticky top-0 left-[50%] translate-x-[-50%] z-10 w-fit">
                 <div className="flex gap-2 bg-(--primary) p-2 rounded-xl">
-                    {Array.from({length:pageLength}, (_,i) => <Button type="custom" key={i} use="button" onClick={()=>setPageIndex(i+1)} className="w-12 h-12 border border-(--accent) rounded-full font-bold hover:bg-(--accent)">{i+1}</Button>)}
+                    {Array.from({length:pageLength}, (_,i) => <Button label={"Page "+i+1} type="custom" key={i} use="button" onClick={()=>setPageIndex(i+1)} className="w-12 h-12 border border-(--accent) rounded-full font-bold hover:bg-(--accent)">{i+1}</Button>)}
                 </div>
                 <span className="text-xl">{pageIndex}/{pageLength} | max. Page {chapter?.length ?? 0} / {maxChapter}</span>
             </div>

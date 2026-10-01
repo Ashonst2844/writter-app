@@ -1,6 +1,7 @@
 import Button from "../../Components/Button"
 import Icon from "../../Components/Icon"
 import Loading from "../../Components/Loading"
+import Images from "../../Components/Image"
 
 import { supabase } from "../../../Utils/supabase"
 import { useEffect, useState, useRef } from "react"
@@ -60,7 +61,7 @@ function Header({plan}: {plan: 'free' | 'hobbies' | 'professionals'}) {
                 <span className="font-bold text-xl">Writer App</span>
             </div>
             <div className="flex gap-4">
-                {nav.map((item, i) => <Button key={i} use="url" target={`#${item}`} type="custom" className="hover:text-(--accent) hover:underline">{item.toUpperCase()}</Button>)}
+                {nav.map((item, i) => <Button label={item.charAt(0).toUpperCase() + item.slice(1)} key={i} use="url" target={`#${item}`} type="custom" className="hover:text-(--accent) hover:underline">{item.toUpperCase()}</Button>)}
             </div>
             <div className="relative">
                 {modal && <div className="w-64 shadow-xl h-auto center flex-col gap-4 p-4 bg-(--primary) rounded-md absolute top-0 translate-y-9 -translate-x-full">
@@ -72,12 +73,12 @@ function Header({plan}: {plan: 'free' | 'hobbies' | 'professionals'}) {
                     </div>}
                     <div className="w-full flex justify-around">
                         {userData ? <>
-                            <Button type="custom" use="link" target="register" className="hover:brightness-75">Switch</Button>
-                            <Button type="custom" use="button" onClick={handleLogout} className="hover:brightness-75 text-(--warning)">Logout</Button>
-                        </> : <Button type="custom" use="link" target="register" className="hover:brightness-75">Register</Button>}
+                            <Button label="Switch" type="custom" use="link" target="register" className="hover:brightness-75">Switch</Button>
+                            <Button label="Logout" type="custom" use="button" onClick={handleLogout} className="hover:brightness-75 text-(--warning)">Logout</Button>
+                        </> : <Button label="Register" type="custom" use="link" target="register" className="hover:brightness-75">Register</Button>}
                     </div>
                 </div>}
-                <Button type="custom" use="button" className="h-full w-18 hover:brightness-75" onClick={() => showModal(e => !e)}>
+                <Button label="Menu" type="custom" use="button" className="h-full w-18 hover:brightness-75" onClick={() => showModal(e => !e)}>
                     <Icon type="normal" use="burger" color="white" width={6}/>
                 </Button>
             </div>
@@ -134,23 +135,19 @@ function Home() {
         }})
     })
 
-    return <section ref={home} id="home" className="w-full h-screen bg-[url(/bg.jpg)] bg-cover bg-center bg-no-repeat">
-        <div className="w-full h-full bg-linear-to-r from-black to-transparent flex justify-center flex-col gap-8 p-8">
+    return <section ref={home} id="home" className="w-full h-screen relative">
+        <Images target="bg/bg.jpg" className="absolute top-0 left-0 w-full h-full" />
+        <div className="absolute w-full h-full bg-linear-to-r from-black to-transparent flex justify-center flex-col gap-8 p-8">
             <code className="home text-(--accent)">// {version}</code>
             <h1 className="home text-8xl font-bold">From Zero, <br /> <span className="text-(--accent) font-light">To Universe</span></h1>
             <p className="home w-[60%] p-4 text-white/75">Platform all-in-one workspace khusus novelis dan worldbuilder. Kelola garis waktu, atribut karakter, lokasi krusial, hingga draf naskah dalam satu ekosistem yang terstruktur</p>
             <div className="home flex gap-4 w-[40%] h-16">
-                <Button type="normal" use="url" target="#about" className="w-[50%] rounded-md h-full shadow-md">Jelajahi</Button>
-                {userData?
-                    <>
-                        <Button type="normal" use="link" target={`/projects/${id}`} className="rounded-md h-full shadow-md">
-                            <Icon type="normal" use="grid" color="white" scale="0.75"/>
-                        </Button>
-                    </>:
-                    <Button type="alternate" use="link" target="register" className="w-[50%] rounded-md h-full shadow-md">
-                        Daftar
+                <Button label="See More" type="normal" use="url" target="#about" className="w-[50%] rounded-md h-full shadow-md">Jelajahi</Button>
+                {userData?<>
+                    <Button label="My Projects" type="normal" use="link" target={`/projects/${id}`} className="rounded-md h-full shadow-md">
+                        <Icon type="normal" use="grid" color="white" scale="0.75"/>
                     </Button>
-                }
+                </>:<Button label="Register" type="alternate" use="link" target="register" className="w-[50%] rounded-md h-full shadow-md">Daftar</Button>}
             </div>
         </div>
     </section>
@@ -213,14 +210,14 @@ function About() {
                         <p className="text-center text-sm p-4">adalah platform all-in-one worldbuilding & story writing workspace yang dirancang khusus untuk novelis, kreator, dan lore-master yang ingin membangun fiksi imajinatif berskala besar dalam jangka panjang.</p>
                     </div>
                     <div className="w-full h-full overflow-hidden">
-                        <img loading="eager" src="/Illustrations/illus-1.jpg" alt="Writer Illustration" className="hover:scale-125 transition-transform duration-150"/>
+                        <Images target="Illustrations/illus-1/illus-1.jpg" className="hover:scale-125 transition-transform duration-150 w-full h-full object-cover" isLazy={true}/>
                     </div>
                 </div>
             </div>
             <div className="about w-full h-96 center border-b-2 border-neutral-700">
                 <div className="grid grid-cols-2 h-full items-center">
                     <div className="w-full h-full overflow-hidden">
-                        <img loading="eager" src="/Illustrations/illus-2.jpg" alt="Fantasy Illustration" className="hover:scale-125 transition-transform duration-150"/>
+                        <Images target="Illustrations/illus-2/illus-2.jpg" className="hover:scale-125 transition-transform duration-150 w-full h-full object-cover" isLazy={true}/>
                     </div>
                     <div className="center flex-col gap-4">
                         <h2 className="text-center text-xl text-(--accent) font-bold">Bangun Dunia Fiksimu</h2>
@@ -280,7 +277,7 @@ function Feature() {
     return <section ref={features} id="features" className="w-full min-h-screen p-8 center flex-col gap-24">
         <h2 className="text-2xl uppercase text-(--accent)">| App Features |</h2>
         <div className="relative w-full flex flex-wrap justify-center gap-8 p-8 shadow-inner rounded-xl overflow-hidden" ref={tools}>
-            <img loading="eager" src="/Illustrations/illus-3.jpg" alt="Mediaval Illustration" className="absolute top-0"/>
+            <Images target="Illustrations/illus-3/illus-3.jpg" className="absolute top-0 left-0 w-full h-full object-cover" isLazy={true}/>
             {featuresData.map(item => <div key={item.id} className="features z-10 center transition-all duration-150 hover:border-(--accent) hover:bg-(--primary) border-b-2 border-neutral-600 flex-col min-h-48 gap-8 p-4 rounded-lg bg-(--primary)/75 w-[calc(33.333%-2rem)]">
                 <h3 className="uppercase font-bold">{item.name}</h3>
                 <Icon type="online" use={item.icon} fill color="var(--accent)" scale="2"/>
@@ -362,7 +359,7 @@ function Planning() {
                     <div className="flex flex-col gap-4">
                         {item.benefits.map((item, i) => <p key={i} className="text-sm opacity-75">- {item}</p>)}
                     </div>
-                    <Button disabled={active} use="button" type="normal" className="rounded-md">Planning</Button>
+                    <Button label="Plan This Tier" disabled={active} use="button" type="normal" className="rounded-md">Planning</Button>
                 </div>})
             }
         </div>
@@ -408,7 +405,7 @@ function Footer() {
             <div className="flex h-full flex-col gap-4">
                 <p className="opacity-75 text-lg">About</p>
                 <div className="flex flex-col gap-4">
-                    {['terms-of-services','privacy-policy','changelog'].map((item, i) => <Button key={i} use="link" type="custom" target={item} className="hover:underline hover:brightness-75">{item.toUpperCase().replaceAll("-"," ")}</Button>)}
+                    {['terms-of-services','privacy-policy','changelog'].map((item, i) => <Button label={item} key={i} use="link" type="custom" target={item} className="hover:underline hover:brightness-75">{item.toUpperCase().replaceAll("-"," ")}</Button>)}
                 </div>
             </div>
         </div>
@@ -416,6 +413,10 @@ function Footer() {
 }
 
 export default function Landing() {
+    useEffect(() => {
+        document.title = "Writer App"
+    }, [])
+
     const authValue = window.localStorage.getItem("auth");
     const userData = authValue ? JSON.parse(authValue) : null;
     const id = userData?.user?.id ?? ""

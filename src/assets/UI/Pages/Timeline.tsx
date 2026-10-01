@@ -70,7 +70,7 @@ function Content({props, onRequestDelete}: {props: TimelineData, onRequestDelete
         </div>
         <div className='flex w-full h-12 justify-end gap-2 z-90'>
             {mode?<> 
-                <Button type='warning' use='button' onClick={()=>{
+                <Button label={"Cancel Edit "+props.name} type='warning' use='button' onClick={()=>{
                     setMode(false)
                     setValue('name', props.name)
                     setValue('timeline', props.timeline)
@@ -78,18 +78,18 @@ function Content({props, onRequestDelete}: {props: TimelineData, onRequestDelete
                 }} className='rounded-md w-12'>
                     <Icon type="normal" use="cancel" color="white" width={3}/>
                 </Button>
-                <Button type='normal' use='submit' className='rounded-md w-12'><p>{result.loading ? '...' : <Icon type="normal" use="submit" color="white" fill width={1}/>}</p></Button>
+                <Button label={"Submit Edit "+props.name} type='normal' use='submit' className='rounded-md w-12'><p>{result.loading ? '...' : <Icon type="normal" use="submit" color="white" fill width={1}/>}</p></Button>
             </>:<>
-                <Button onClick={() => onRequestDelete({
+                <Button label={"Delete "+props.name} onClick={() => onRequestDelete({
                     name: props.name,
                     onConfirm: async () => { await onDelete(); }
                 })} type='warning' use="button" className='rounded-md w-12'>
                     <Icon type="online" use="trash" width={3} color="white" fill/>
                 </Button>
-                <Button type={pinned ? "normal" : "alternate"} use='button' className='rounded-md w-12' onClick={handlePin}>
+                <Button label={pinned?"Unpin Timeline " + props.name : "Pin Timeline " + props.name} type={pinned ? "normal" : "alternate"} use='button' className='rounded-md w-12' onClick={handlePin}>
                     <Icon type="online" use="pin" color={pinned ? "var(--text)" : "var(--primary)"} fill/>
                 </Button>
-                <Button type='alternate' use='button' onClick={()=>setMode(prev=>!prev)} className='rounded-md w-12 h-12'>
+                <Button label={"Edit "+props.name} type='alternate' use='button' onClick={()=>setMode(prev=>!prev)} className='rounded-md w-12 h-12'>
                     <Icon type="online" use="edit" width={1} color="var(--bg)"/>
                 </Button>
             </>}

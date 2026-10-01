@@ -1,12 +1,17 @@
 import Button from "../../Components/Button"
 import Icon from "../../Components/Icon"
 
+import { useEffect } from "react"
 import { changelog } from "../../../Utils/Version"
 
 export default function Changelog() {
+    useEffect(() => {
+        document.title = "Writer App | Changelog"
+    }, [])
+
     return <main className="w-screen min-h-screen flex flex-col">
         <header className="flex text-xl items-center gap-4 h-16 w-full border-b border-neutral-700">
-            <Button type="custom" use="link" target="/" className="w-16 h-full hover:brightness-125 center">
+            <Button label="Back" type="custom" use="link" target="/" className="w-16 h-full hover:brightness-125 center">
                 <Icon type="online" use="exit" fill color="var(--warning)"/>
             </Button>
             <h1>Changelog</h1>

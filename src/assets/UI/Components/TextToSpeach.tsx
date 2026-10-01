@@ -128,7 +128,7 @@ export default function TextToSpeech({ text, isLoadingText = false }: TextToSpee
     };
 
     return <div className="w-full h-12 flex gap-2">
-        <Button use="button" type={isSpeaking ? "normal" : "alternate"} className="rounded-md p-4 disabled:opacity-50" onClick={handleToggleSpeak} disabled={isLoadingText || !text.trim()}>
+        <Button label="Speak" use="button" type={isSpeaking ? "normal" : "alternate"} className="rounded-md p-4 disabled:opacity-50" onClick={handleToggleSpeak} disabled={isLoadingText || !text.trim()}>
             {isLoadingText ? "Loading Chapter..." : isSpeaking ? "Stop Reader" : "Chapter Reader"}
         </Button>
 

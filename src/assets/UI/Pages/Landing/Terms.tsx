@@ -1,6 +1,8 @@
 import Button from "../../Components/Button"
 import Icon from "../../Components/Icon"
 
+import { useEffect } from "react"
+
 const terms = [
     {id:1,title:"Pendaftaran Akun & Keamanan",desc:[
         "Anda harus berusia setidaknya 13 tahun (atau usia legal minimum di wilayah hukum Anda) untuk membuat akun dan menggunakan Layanan ini.",
@@ -37,15 +39,17 @@ const terms = [
     ]},
     {id:8,title:"Kontak & Hubungi Kami",desc:[
         "Jika Anda memiliki pertanyaan, saran, atau kendala mengenai Syarat dan Ketentuan ini, silakan hubungi kami melalui Email Support agusyantosugiyanto@gmail.com"
-    ]
-
-    }
+    ]}
 ]
 
 export default function Terms() {
+    useEffect(() => {
+        document.title = "Writer App | Terms Of Services"
+    }, [])
+
     return <main className="w-screen min-h-screen flex flex-col">
         <header className="flex text-xl items-center gap-4 h-16 w-full border-b border-neutral-700">
-            <Button type="custom" use="link" target="/" className="w-16 h-full hover:brightness-125 center">
+            <Button label="Back" type="custom" use="link" target="/" className="w-16 h-full hover:brightness-125 center">
                 <Icon type="online" use="exit" fill color="var(--warning)"/>
             </Button>
             <h1>Terms Of Services</h1>

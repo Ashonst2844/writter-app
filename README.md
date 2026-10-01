@@ -166,7 +166,10 @@ Keterangan:
     - Perbarui sedikit UI/UX Landing Page
   - (29 Sept. 2026) **update-build v1.10.1**
     - Fix UI/UX
-  - (1 Okt. 2026) **update-build v1.10.2**
+  - (1 Oct. 2026) **update-build v1.10.2**
     - Optimaslisasi source-code"
     - Forgot Password
     - Manual Crawling dengan sitemap.xml dan robots.txt
+  - (1 Oct. 2026) **update-build v1.10.3**
+    - Boost beberapa metrik analisis Lighthouse
+    - Upgrade SEO

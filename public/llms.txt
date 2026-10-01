@@ -1,0 +1,53 @@
+# WRITER APP
+----
+## Descripttion:
+
+### Using TechStack
+![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)  ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white) ![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white) ![Supabase](https://img.shields.io/badge/Supabase-%233ECF8E.svg?style=for-the-badge&logo=supabase&logoColor=white) ![React Query](https://img.shields.io/badge/React%20Query-%23FF4154.svg?style=for-the-badge&logo=react%20query&logoColor=white) ![React Router](https://img.shields.io/badge/React_Router-%23CA4245.svg?style=for-the-badge&logo=react-router&logoColor=white) ![GSAP](https://img.shields.io/badge/gsap-%230AE448.svg?style=for-the-badge&logo=gsap&logoColor=white)
+**And Build By :**
+![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white)
+****
+Projek Aplikasi Pribadi untuk **Penulis** yang ingin membangun sebuah Novel dengan **Universe Fiksi** yang sangat luas dalam jangka panjang.
+
+----
+
+## Website 
+
+- https://writter-app-sooty.vercel.app/llms.txt
+
+----
+
+## Features:
+
+- ***Project Management*** : 
+  Management lebih dari satu Project/Universe Fiksi.
+- ***Dashboard*** :
+  - **Timeline Building**:
+  Mengatur garis waktu secara lengkap, untuk *Novelist* yang ingin mengatur garis waktu *Universe Fiksi* mereka secara runut.
+  - **World Building**:
+  Mendeskripsikan latar dunia *Universe Fiksi* penulis untuk mendeskripsikan masing cara kerja tentang dunia mereka, seperti *Peta Dunia*, *Benua* di dalamnya, dan *Tempat-tempat penting* untuk cerita.
+  - **Character Development**:
+  Management Tokoh-tokoh yang akan hadir dalam cerita di *Universe Fiksi Novelist* seperti menambahkan atribut untuk mereka (*Nama*, *Umur*, *Gender*, *Pihak Baik/Netral/Jahat*, Stats personal karakter, dan tentunya *Deskriptsi sifat* atau detail penting karakter lainnya berupa teks).
+  - **Goals Management**:
+  Mengatur *To-Do-List* atau tugas untuk *Novelist* itu sendiri sebagai pengingat tujuan mereka terhadap *Universe Fiksi* mereka.
+  - **Events Management**:
+  Mengatur Kejadian-kejadian penting yang terjadi di dalam *Universe Fiksi* secara detail.
+  - **Relic/Items Management**:
+  Mengatur benda-benda fisik yang berpengaruh penting dan menjadi pusaka di dalam *Universe Fiksi*.
+  - **Book Library**:
+  Berupa *perpustakaan* untuk menyimpan *draft novel/cerpen* atau jenis buku lainnya yang di dalamnya terdapat *list Chapter* yang dapat di edit dan menjadi ruang kerja penulis *untuk menuliskan cerita* mereka.
+  - **Notes Management**:
+  Mengatur catatan untuk *Novelist* membangun garis besar konsep cerita sebelum mereka menulis di ***Book Library***
+- ***Fitur Tambahan***
+  - **Pinning**
+  Terdapat fitur untuk melakukan pin konten khususnya untuk **Notes** dan **Event** agar tidak perlu untuk sering pindah halaman saat sedang menulis di halaman **Chapter Page**
+  - **Average Word Count**
+  Menghitung seluruh jumlah kata per Chapter lalu melakukan penghitungan untuk rata-rata.
+  - **Export To Document** 
+  Dapat melakukan export ke file document (.docx) sebagai *draft script* serta melakukan kostumisasi pemformatan export.
+  - **AI Integration**
+  Ai Writer Companion akan membantu pengguna untuk brainstorming dan teman diskusi dalam membangun *Universe Fiksi*
+  - **Chapter Reader Tools**
+  Klik Tombol Chapter Reader di Halaman Chapter untuk meminta ssistem membacakan hasil tulisan anda*
+
+----

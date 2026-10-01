@@ -37,13 +37,13 @@ function RelicAccordion(props: RelicProps) {
             <h2 className="text-4xl font-black capitalize">{props.title}</h2>
             {showModal && <Modal message={`Delete ${props.title}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
             <div className='flex w-full h-12 justify-end gap-2'>
-                <Button onClick={() => setShowModal(true)} type='warning' use="button" target={Slug(props.title)} className='rounded-md w-12'>
+                <Button label={"Delete "+props.title} onClick={() => setShowModal(true)} type='warning' use="button" target={Slug(props.title)} className='rounded-md w-12'>
                     <Icon type="online" use="trash" width={3} color="white" fill/>
                 </Button>
-                <Button type={pinned ? "normal" : "alternate"} use='button' className='rounded-md w-12' onClick={handlePin}>
+                <Button label={pinned?"Unpin Relic " + props.title : "Pin Relic " + props.title} type={pinned ? "normal" : "alternate"} use='button' className='rounded-md w-12' onClick={handlePin}>
                     <Icon type="online" use="pin" color={pinned ? "var(--text)" : "var(--primary)"} fill/>
                 </Button>
-                <Button type='normal' use='link' target={Slug(props.title)} className='rounded-md w-12'>
+                <Button label={"Open "+props.title} type='normal' use='link' target={Slug(props.title)} className='rounded-md w-12'>
                     <Icon type="online" use="eye" color="white" fill/>
                 </Button>
             </div>
@@ -84,14 +84,14 @@ function RelicPage({props}: {props: RelicProps[]}) {
         <Editable type="richedit" text={htmlContent} onChange={(html) => setValue("content", html)} editMode={mode} onClick={() => setMode(true)}/>
         {mode? <>  
             <div className="flex justify-end gap-2">
-                <Button type="warning" use="button" className='rounded-md w-12' onClick={()=>{
+                <Button label={"Cancel Edit "+relic.title} type="warning" use="button" className='rounded-md w-12' onClick={()=>{
                     setMode(false)
                     setValue('title', relic.title)
                     setValue('content', relic.content)
                 }}>
                     <Icon type="normal" use="cancel" width={6} color="var(--text)"/>
                 </Button>
-                <Button type='normal' use='submit' className='rounded-md w-12'>
+                <Button label={"Submit Edit "+relic.title} type='normal' use='submit' className='rounded-md w-12'>
                     <Icon type="normal" use="submit" width={3} fill color="var(--text)"/>
                 </Button>
             </div>

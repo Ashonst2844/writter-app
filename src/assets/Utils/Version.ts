@@ -78,11 +78,15 @@ export const changelog = [
         {id:16,version:"10.1",date:"29 Sept. 2026",desc:[
             "Fix UI/UX",
         ]},
-        {id:17,version:"10.2",date:"29 Sept. 2026",desc:[
+        {id:17,version:"10.2",date:"1 Oct. 2026",desc:[
             "Optimalisasi source-code",
             "Memperketat Validasi Input",
             "Forgot Password",
             "Manual Crawling dengan sitemap.xml dan robots.txt"
+        ]},
+        {id:18,version:"10.3",date:"1 Oct. 2026",desc:[
+            "Boost beberapa metrik analisis Lighthouse",
+            "Upgrade SEO",
         ]},
     ]}
 ]

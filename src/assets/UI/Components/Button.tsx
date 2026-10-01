@@ -10,6 +10,7 @@ interface ButtonProps {
     className?: string;
     style?: CSSProperties;
     disabled?: boolean
+    label?: string
 }
 
 export default function Button(props: ButtonProps) {
@@ -27,15 +28,15 @@ export default function Button(props: ButtonProps) {
     };
 
     if (props.use==="link") {
-        return <Link to={props.target||"#"} style={props.style} className={props.type=="custom"?props.className:buttonStyle}>{props.children}</Link> 
+        return <Link aria-label={props.label+" Button"} to={props.target||"#"} style={props.style} className={props.type=="custom"?props.className:buttonStyle}>{props.children}</Link> 
     }
     if (props.use==="button") {
-        return <button disabled={props.disabled} type={'button'} onClick={handleClick} style={props.style} className={props.type=="custom"?props.className:buttonStyle}>
+        return <button aria-label={props.label+" Button"} disabled={props.disabled} type={'button'} onClick={handleClick} style={props.style} className={props.type=="custom"?props.className:buttonStyle}>
             {props.children}
         </button>
     }
     if (props.use==="submit") {
-        return <button type={'submit'} onClick={handleClick} style={props.style} className={props.type=="custom"?props.className:buttonStyle}>
+        return <button aria-label={props.label+" Button"} type={'submit'} onClick={handleClick} style={props.style} className={props.type=="custom"?props.className:buttonStyle}>
             {props.children}
         </button>
     }
@@ -43,7 +44,7 @@ export default function Button(props: ButtonProps) {
         const href = props.target || undefined;
         const isHashLink = !!props.target && props.target.startsWith("#");
 
-        return <a href={href} style={props.style} className={props.type=="custom"?props.className:buttonStyle} target={isHashLink ? undefined : "_blank"}>
+        return <a aria-label={props.label+" Button"} href={href} style={props.style} className={props.type=="custom"?props.className:buttonStyle} target={isHashLink ? undefined : "_blank"}>
             {props.children}
         </a>
     }

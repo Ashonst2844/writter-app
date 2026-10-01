@@ -44,22 +44,22 @@ export function RichText({ value, onChange, editMode, onClickView, className }: 
     
     return <div className="flex flex-col gap-4">
         <div className="flex gap-2">
-            <Button type="alternate" use="button" className="w-12 rounded-xl" onClick={() => {
+            <Button label="Copy To Clipboard" type="alternate" use="button" className="w-12 rounded-xl" onClick={() => {
                 navigator.clipboard.writeText(Sanitizer(value))
                 alert("Copy To Clipboard!")
             }}>
                 <Icon type="normal" use="copy" color="black" width={3}/>
             </Button>
-            <Button type="normal" use="button" onClick={() => executeCommand("bold")} className="w-12 rounded-xl font-bold">
+            <Button label="Bold" type="normal" use="button" onClick={() => executeCommand("bold")} className="w-12 rounded-xl font-bold">
                 B
             </Button>
-            <Button type="normal" use="button" onClick={() => executeCommand("italic")} className="w-12 rounded-xl italic">
+            <Button label="Italic" type="normal" use="button" onClick={() => executeCommand("italic")} className="w-12 rounded-xl italic">
                 I
             </Button>
-            <Button type="normal" use="button" onClick={() => executeCommand("underline")} className="w-12 rounded-xl underline">
+            <Button label="Underline" type="normal" use="button" onClick={() => executeCommand("underline")} className="w-12 rounded-xl underline">
                 U
             </Button>
-            <Button type="normal" use="button" onClick={clearFormat} className="w-12 rounded-xl">
+            <Button label="Clear Format" type="normal" use="button" onClick={clearFormat} className="w-12 rounded-xl">
                 CF
             </Button>
         </div>

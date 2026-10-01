@@ -1,6 +1,8 @@
 import Button from "../../Components/Button"
 import Icon from "../../Components/Icon"
 
+import { useEffect } from "react"
+
 const privacy = [
     {id:1,title:"Informasi Yang Dikumpulkan",desc:[
         "Writer App akan meminta data pengguna untuk memberikan berupa username, dan email, serta metadata dari proyek-proyek pengguna",
@@ -24,9 +26,13 @@ const privacy = [
 ]
 
 export default function Privacy() {
+    useEffect(() => {
+        document.title = "Writer App | Privacy Policy"
+    }, [])
+
     return <main className="w-screen min-h-screen flex flex-col">
         <header className="flex text-xl items-center gap-4 h-16 w-full border-b border-neutral-700">
-            <Button type="custom" use="link" target="/" className="w-16 h-full hover:brightness-125 center">
+            <Button label="Back" type="custom" use="link" target="/" className="w-16 h-full hover:brightness-125 center">
                 <Icon type="online" use="exit" fill color="var(--warning)"/>
             </Button>
             <h1>Privacy Policy</h1>

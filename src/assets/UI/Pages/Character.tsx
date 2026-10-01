@@ -50,14 +50,14 @@ function CharacterCard(props: CharacterProps) {
                 <span className="opacity-75 text-sm">{props.desc.slice(0, 100)}{props.desc.length >= 100 ? "..." : ""}</span>
             </div>
             <div className='flex w-full h-12 justify-end gap-2 relative'>
-                <Button onClick={() => setShowModal(true)} type='warning' use="button" target={Slug(props.name)} className='rounded-md w-12'>
+                <Button label={"Delete Character " + props.name} onClick={() => setShowModal(true)} type='warning' use="button" target={Slug(props.name)} className='rounded-md w-12'>
                     <Icon type="online" use="trash" width={3} color="white" fill/>
                 </Button>
                 {showModal && <Modal message={`Delete ${props.name}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
-                <Button type={pinned ? "normal" : "alternate"} use='button' className='rounded-md w-12' onClick={handlePin}>
+                <Button label={pinned ? "Unpin Character " + props.name : "Pin Character " + props.name} type={pinned ? "normal" : "alternate"} use='button' className='rounded-md w-12' onClick={handlePin}>
                     <Icon type="online" use="pin" color={pinned ? "var(--text)" : "var(--primary)"} fill/>
                 </Button>
-                <Button type='normal' use='link' target={Slug(props.name)} className='rounded-md w-12'>
+                <Button label={"Edit " + props.name} type='normal' use='link' target={Slug(props.name)} className='rounded-md w-12'>
                     <Icon type="normal" use="burger" width={3} color="white"/>
                 </Button>
             </div>
@@ -146,7 +146,7 @@ function CharacterPage({props}: {props: CharacterProps[]}) {
             </div>
             <div className='flex w-full h-12 justify-end gap-2 z-90'>
                 {mode?<> 
-                    <Button type='warning' use='button' onClick={()=>{
+                    <Button label="Cancel" type='warning' use='button' onClick={()=>{
                         setMode(false)
                         setValue('name', character.name)
                         setValue('age', character.age)
@@ -155,8 +155,8 @@ function CharacterPage({props}: {props: CharacterProps[]}) {
                     }} className='rounded-md w-12'>
                         <Icon type="normal" use="cancel" color="white" width={3}/>
                     </Button>
-                    <Button type='normal' use='submit' className='rounded-md w-12'><p>{result.loading ? '...' : <Icon type="normal" use="submit" color="white" fill width={1}/>}</p></Button>
-                </>:<Button type='alternate' use='button' onClick={()=>setMode(prev=>!prev)} className='rounded-md w-12 h-12'>
+                    <Button label="Save Changes" type='normal' use='submit' className='rounded-md w-12'><p>{result.loading ? '...' : <Icon type="normal" use="submit" color="white" fill width={1}/>}</p></Button>
+                </>:<Button label="Edit Character" type='alternate' use='button' onClick={()=>setMode(prev=>!prev)} className='rounded-md w-12 h-12'>
                     <Icon type="online" use="edit" width={1} color="var(--bg)"/>
                 </Button>}
             </div>

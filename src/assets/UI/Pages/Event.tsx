@@ -40,13 +40,13 @@ function EventAccordion(props: EventProps) {
             </div>
             {showModal && <Modal message={`Delete ${props.title}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
             <div className='flex w-full h-12 justify-end gap-2'>
-                <Button onClick={() => setShowModal(true)} type='warning' use="button" target={Slug(props.title)} className='rounded-md w-12'>
+                <Button label={"Delete Event " + props.title} onClick={() => setShowModal(true)} type='warning' use="button" target={Slug(props.title)} className='rounded-md w-12'>
                     <Icon type="online" use="trash" width={3} color="white" fill/>
                 </Button>
-                <Button type={pinned ? "normal" : "alternate"} use='button' className='rounded-md w-12' onClick={handlePin}>
+                <Button label={pinned?"Unpin Event " + props.title : "Pin Event " + props.title} type={pinned ? "normal" : "alternate"} use='button' className='rounded-md w-12' onClick={handlePin}>
                     <Icon type="online" use="pin" color={pinned ? "var(--text)" : "var(--primary)"} fill/>
                 </Button>
-                <Button type='normal' use='link' target={Slug(props.title)} className='rounded-md w-12'>
+                <Button label={"Open Event " + props.title} type='normal' use='link' target={Slug(props.title)} className='rounded-md w-12'>
                     <Icon type="online" use="eye" color="white" fill/>
                 </Button>
             </div>
@@ -93,7 +93,7 @@ function EventPage({props}: {props: EventProps[]}) {
             </Editable>
 
             <div className="flex h-12 justify-end gap-2">
-                <Button type="warning" use="button" className='rounded-md w-12' onClick={()=>{
+                <Button label="Cancel" type="warning" use="button" className='rounded-md w-12' onClick={()=>{
                     setMode(false)
                     setValue('title', event.title)
                     setValue('content', event.content)
@@ -101,7 +101,7 @@ function EventPage({props}: {props: EventProps[]}) {
                 }}>
                     <Icon type="normal" use="cancel" color="white" width={6}/>
                 </Button>
-                <Button type='normal' use='submit' className='rounded-md w-12'>
+                <Button label="Submit" type='normal' use='submit' className='rounded-md w-12'>
                     <Icon type="normal" use="submit" color="white" fill/>
                 </Button>
             </div>

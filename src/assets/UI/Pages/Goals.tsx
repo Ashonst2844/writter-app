@@ -84,21 +84,21 @@ function StickyNotes(props: StickyProps) {
         {showModal && <Modal message={`Delete ${props.name}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
         <div className="flex justify-between w-full">
             {mode?<>
-                <Button type="warning" use="button" className='rounded-md w-12' onClick={()=>{
+                <Button label={"Cancel Edit "+props.name} type="warning" use="button" className='rounded-md w-12' onClick={()=>{
                     setMode(false)
                     setValue('name', props.name)
                     setValue('status', props.status)
                     setValue('due', props.due)
                 }}><Icon type="normal" use="cancel" color="white" width={3}/></Button>
-                <Button type="normal" use="submit" className="w-12 h-12 rounded-md">
+                <Button label={"Submit Edit "+props.name} type="normal" use="submit" className="w-12 h-12 rounded-md">
                     {result.loading?"...":<Icon type="normal" use="submit" color="white" width={3} fill/>}
                 </Button>
             </>
             : <>
-                <Button type="warning" use="button" onClick={() => setShowModal(true)} className="w-12 h-12 rounded-md">
+                <Button label={"Delete "+props.name} type="warning" use="button" onClick={() => setShowModal(true)} className="w-12 h-12 rounded-md">
                     <Icon type="online" use="trash" width={3} color="white" fill/>
                 </Button>
-                <Button type='alternate' use='button' onClick={()=>{setMode(true)}} className='rounded-md w-12'>
+                <Button label={"Edit "+props.name} type='alternate' use='button' onClick={()=>{setMode(true)}} className='rounded-md w-12'>
                     <Icon type="online" use="edit" width={1} color="var(--bg)"/>
                 </Button>
             </>}

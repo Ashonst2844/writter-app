@@ -48,7 +48,7 @@ function Content({timeline, name, map}: {timeline: string, name: string, map: st
                 <i>File Not Found</i>
             </div>}
             <div className="z-20 absolute top-0 bg-black/25 left-0 w-full h-full opacity-0 hover:opacity-100 transition-all duration-150 cursor-pointer flex justify-end items-end p-4">
-                <Button type="normal" use="link" target={Slug(`Dunia ${name}`)} className="p-4 rounded-md w-16 h-12">
+                <Button label={"Open "+name} type="normal" use="link" target={Slug(`Dunia ${name}`)} className="p-4 rounded-md w-16 h-12">
                     <Icon type="normal" use="submit" color="white" scale="2" width={4} fill/>
                 </Button>
             </div>
@@ -78,7 +78,7 @@ function PlaceAccordion({props}: {props: PlaceData}) {
             <Editable type="input" name='name' text={(getValue('name') as string) ?? props.name} onChange={(v)=>setValue('name', v)} editMode={mode} className='text-2xl'>
                 <h3 className="text-2xl">{(getValue('name') as string) ?? props.name}</h3>
             </Editable>
-            <Button onClick={() => setOpen(prev => !prev)} type="custom" use="button" className="w-8 rounded-full bg-(--primary) hover:brightness-150">
+            <Button label={"Show "+props.name} onClick={() => setOpen(prev => !prev)} type="custom" use="button" className="w-8 rounded-full bg-(--primary) hover:brightness-150">
                 <Icon type="normal" use="caret" width={6} color="var(--text)" className="transition-transform duration-150" style={{
                     rotate: open?"-90deg":"90deg"
                 }}/>
@@ -91,21 +91,21 @@ function PlaceAccordion({props}: {props: PlaceData}) {
             {showModal && <Modal message={`Delete ${props.name}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
             <div className="flex h-12 gap-2">
                 {mode ? <>
-                    <Button type='warning' use="button" className='rounded-md w-12' onClick={() => {
+                    <Button label={"Cancel Edit "+props.name} type='warning' use="button" className='rounded-md w-12' onClick={() => {
                         setMode(false);
                         setValue('name', props.name);
                         setValue('desc', props.desc);
                     }}>
                         <Icon type="normal" use="cancel" width={3} color="white"/>
                     </Button>
-                    <Button type='normal' use="submit" className='rounded-md w-12'>
+                    <Button label={"Submit Edit "+props.name} type='normal' use="submit" className='rounded-md w-12'>
                         <Icon type="normal" use="submit" width={3} color="white" fill/>
                     </Button>
                 </> : <>
-                    <Button onClick={() => setShowModal(true)} type='warning' use='button' className='rounded-md w-12'>
+                    <Button label={"Delete "+props.name} onClick={() => setShowModal(true)} type='warning' use='button' className='rounded-md w-12'>
                         <Icon type="online" use="trash" width={3} color="white" fill/>
                     </Button>
-                    <Button type='alternate' use='button' onClick={()=>{
+                    <Button label={"Edit "+props.name} type='alternate' use='button' onClick={()=>{
                         setMode(true);
                     }} className='rounded-md w-12'>
                         <Icon type="online" use="edit" width={1} color="var(--bg)"/>
@@ -192,7 +192,7 @@ function ContinentPage({props, profiles}: {props: ContinentData, profiles: Profi
             {showModal && <Modal message={`Delete ${props.name}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
             <div className='flex h-12 gap-2'>
                 {mode ? <>
-                    <Button type='warning' use="button" className='rounded-md w-12' onClick={() => {
+                    <Button label={"Cancel Edit "+props.name} type='warning' use="button" className='rounded-md w-12' onClick={() => {
                         setMode(false);
                         setUploadedCover(null);
                         setValue('name', props.name);
@@ -201,14 +201,14 @@ function ContinentPage({props, profiles}: {props: ContinentData, profiles: Profi
                     }}>
                         <Icon type="normal" use="cancel" width={3} color="white"/>
                     </Button>
-                    <Button type='normal' use="submit" className='rounded-md w-12'>
+                    <Button label={"Submit Edit "+props.name} type='normal' use="submit" className='rounded-md w-12'>
                         <Icon type="normal" use="submit" width={3} color="white" fill/>
                     </Button>
                 </> : <>
-                    <Button onClick={() => setShowModal(true)} type='warning' use='button' target={Slug(props.name)} className='rounded-md w-12'>
+                    <Button label={"Delete "+props.name} onClick={() => setShowModal(true)} type='warning' use='button' target={Slug(props.name)} className='rounded-md w-12'>
                         <Icon type="online" use="trash" width={3} color="white" fill/>
                     </Button>
-                    <Button type='alternate' use='button' onClick={()=>{
+                    <Button label={"Edit "+props.name} type='alternate' use='button' onClick={()=>{
                         setMode(true);
                     }} className='rounded-md w-12'>
                         <Icon type="online" use="edit" width={1} color="var(--bg)"/>
@@ -218,7 +218,7 @@ function ContinentPage({props, profiles}: {props: ContinentData, profiles: Profi
         </form>
         <div className="flex gap-4">
             <h2 className="text-4xl font-black">Places ({data.length} / {maxPlace}) :</h2>
-            <Button type="normal" use="button" onClick={handleCreate} className="rounded-full w-12">+</Button>
+            <Button label="Create New Place" type="normal" use="button" onClick={handleCreate} className="rounded-full w-12">+</Button>
         </div>
         {data.map((item, i) => <PlaceAccordion key={i} props={item}/>)}
     </div>
@@ -258,8 +258,8 @@ function Continent({props, profiles}: {props: TimelineData[], profiles: Profiles
         <Routes>
             <Route path="/" element={<div className="w-full h-full flex flex-col overflow-hidden">
                 <div className="w-full p-4 flex shrink-0">
-                    <Button onClick={() => setOpen("map")} use="button" type="custom" className="w-[50%] h-12 center hover:bg-(--accent) hover:text-(--primary) transition-all ">Map Overview</Button>
-                    <Button onClick={() => setOpen("continent")} use="button" type="custom" className="w-[50%] h-12 center hover:bg-(--accent) hover:text-(--primary) transition-all ">World Contintents</Button>
+                    <Button label="Show Map Section" onClick={() => setOpen("map")} use="button" type="custom" className="w-[50%] h-12 center hover:bg-(--accent) hover:text-(--primary) transition-all ">Map Overview</Button>
+                    <Button label="Show Contintent List Section" onClick={() => setOpen("continent")} use="button" type="custom" className="w-[50%] h-12 center hover:bg-(--accent) hover:text-(--primary) transition-all ">World Contintents</Button>
                 </div>
                 <div className="flex w-full min-h-0 transition-all duration-300" style={{transform: `translateX(-${isOpen === "map" ? 0 : 100}%)`}}>
                     <div className="min-w-full h-full flex flex-col p-4">
@@ -277,7 +277,7 @@ function Continent({props, profiles}: {props: TimelineData[], profiles: Profiles
                                 <h2 className="text-2xl font-bold">{item.name}</h2>
                                 <p className="text-sm opacity-50">{item.desc}</p>
                             </div>
-                            <Button type="normal" use="link" target={Slug(item.name)} className="rounded-xl">
+                            <Button label={"Open "+(world?.name||"")} type="normal" use="link" target={Slug(item.name)} className="rounded-xl">
                                 <Icon type="online" use="eye" color="white" fill/>
                             </Button>
                         </div>)}

@@ -42,7 +42,7 @@ export function Password(props :PasswordProps) {
     return <>
         <div className="w-full h-12 flex gap-2">
             <input type={state?"text":"password"} onChange={(e: ChangeEvent<HTMLInputElement>) => setInput(e.target.value)} name={props.name} placeholder={props.placeholder} className="w-[80%] h-full shadow-inner bg-(--bg) p-2" required/>
-            <Button type={state?"normal":"alternate"} use="button" className="w-[20%] h-full rounded-md" onClick={() => setState(e => !e)}>
+            <Button label="Hide/Show Password" type={state?"normal":"alternate"} use="button" className="w-[20%] h-full rounded-md" onClick={() => setState(e => !e)}>
                 <Icon type="online" use="eye" color={state?"white":"var(--bg)"} fill/>
             </Button>
         </div> 
@@ -62,6 +62,10 @@ const toErrorMessage = (err: unknown) => {
 }
 
 export default function Register() {
+    useEffect(() => {
+        document.title = "Writer App | Register"
+    }, [])
+
     const [mode, setMode] = useState<boolean>(false)
     const inputStyle = "w-full h-12 shadow-inner p-2 bg-(--bg)"
 
@@ -191,33 +195,33 @@ export default function Register() {
                 <input type="email" name="email" placeholder="Email" className={inputStyle} required/>
                 <Password name="password" placeholder="Password" onScoreChange={setPasswordScore}/>
                 <Password name="c_password" placeholder="Confirm Password" isNormal/>
-                <Button type="normal" use="submit" className="h-12 w-full rounded-md">Sign-Up</Button>
+                <Button label="Sign-Up" type="normal" use="submit" className="h-12 w-full rounded-md">Sign-Up</Button>
             </form>
         </section>
         <section className="w-[50%] h-full center flex-col gap-4">
             <form onSubmit={handleSignIn} className="w-[60%] bg-(--primary) shadow-xl p-8 flex flex-col gap-8">
                 <input type="email" name="email" placeholder="Email" className={inputStyle} required/>
                 <Password name="password" placeholder="Password" isNormal/>
-                <Button type="normal" use="submit" className="h-12 w-full rounded-md">Sign-In</Button>
-                <Button type="custom" use="button" onClick={() => isForgetPass(true)} className="text-center underline hover:opacity-75">Forgot Password</Button>
+                <Button label="Sign-In" type="normal" use="submit" className="h-12 w-full rounded-md">Sign-In</Button>
+                <Button label="Forgot Password" type="custom" use="button" onClick={() => isForgetPass(true)} className="text-center underline hover:opacity-75">Forgot Password</Button>
             </form>
         </section>
         <section className="center w-[50%] text-white h-full bg-(--accent) absolute top-0 left-0 transition-all duration-300 flex-col gap-8" style={{transform: `translateX(${mode?"0":"100%"})`}}>
             <h1 className="font-black text-4xl">{mode?"Sign-In":"Sign-Up"}</h1>
             <p className="w-[50%] opacity-75 text-center">{mode?"Create Your Account, If You Have One, Click Sign-In Button!":"Please Sign-In Your Account, If You Don't Have One, Click Sign-Up Button!"}</p>
             <div className="flex gap-2 w-[50%]">
-                <Button type="alternate" use="button" onClick={() => setMode(e => !e)} className="w-[50%] h-12 rounded-md">{mode?"Sign-Up":"Sign-In"}</Button>
-                <Button type="warning" use="link" target="/" className="w-[50%] h-12 rounded-md">Back</Button>
+                <Button label="Change Mode" type="alternate" use="button" onClick={() => setMode(e => !e)} className="w-[50%] h-12 rounded-md">{mode?"Sign-Up":"Sign-In"}</Button>
+                <Button label="Back" type="warning" use="link" target="/" className="w-[50%] h-12 rounded-md">Back</Button>
             </div>
         </section>
         <section className="w-screen h-screen absolute top-0 left-0 bg-(--bg) z-50 center transition-transform duration-150" style={{transform: `translateY(${forgetPass?"0":"100%"})`}}>
             <form onSubmit={handleChangePassword} className="w-[40%] bg-(--primary) p-4 rounded-lg flex flex-col gap-4">
                 <input type="email" name="email" placeholder="Email (email@example.com)" className={inputStyle} value={passChange.email} onChange={e => setPassChange(prev => ({...prev, email:e.target.value}))} required/>
-                <Button type="normal" use="submit" className="h-12 rounded-md">Kirim Link!</Button>
+                <Button label="Send Link" type="normal" use="submit" className="h-12 rounded-md">Kirim Link!</Button>
                 {passChange.message && <div className="w-full center text-sm">
                     <p style={{color:passChange.message.type==="success"?"var(--success)":"var(--warning)"}}>({passChange.message.type}) {passChange.message.text}</p>
                 </div>}
-                <Button type="custom" use="button" onClick={() => isForgetPass(false)} className="text-center underline hover:opacity-75">Cancel</Button>
+                <Button label="Cancel" type="custom" use="button" onClick={() => isForgetPass(false)} className="text-center underline hover:opacity-75">Cancel</Button>
             </form>
         </section>
     </main>

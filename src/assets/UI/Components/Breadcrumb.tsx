@@ -18,7 +18,7 @@ export default function Breadcrumb() {
             return <span key={to}>
                 <span>/ </span>
                 {isLast?<span className="text-(--accent) font-bold">{text}</span>
-                :<Link to={to} className="hover:text-(--accent)">{text}</Link>}
+                :<Link aria-label={"Navigasi " + text} to={to} className="hover:text-(--accent)">{text}</Link>}
             </span>
             })}
     </div>

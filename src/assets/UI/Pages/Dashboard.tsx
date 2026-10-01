@@ -2,20 +2,21 @@ import Button from "../Components/Button";
 import Breadcrumb from "../Components/Breadcrumb";
 import Icon from "../Components/Icon";
 import Modal from "../Components/Modal";
-
-import Timeline from "./Timeline";
-import World from "./World";
-import Character from "./Character";
-import Goals from "./Goals";
-import Event from "./Event";
-import Relic from "./Relic";
-import Library from "./Library";
-import Note from "./Note";
+import Loading from "../Components/Loading";
 
 import {Routes, Route, useParams, useLocation, Navigate} from "react-router-dom"
-import { useState, useRef, useEffect, type FormEvent, type ChangeEvent } from "react";
+import { useState, useRef, useEffect, type FormEvent, type ChangeEvent, lazy, Suspense } from "react";
 import {type PinEntry, getPins, clearPins} from "../../Utils/Pinning";
 import { askAI, type Chat } from "../../Utils/AIService";
+
+const Timeline = lazy(() => import("./Timeline"))
+const World = lazy(() => import("./World"))
+const Character = lazy(() => import("./Character"))
+const Goals = lazy(() => import("./Goals"))
+const Event = lazy(() => import("./Event"))
+const Relic = lazy(() => import("./Relic"))
+const Library = lazy(() => import("./Library"))
+const Note = lazy(() => import("./Note"))
 
 interface ProjectData {
     project_id: string;
@@ -49,7 +50,7 @@ function Navigation({name, click, state}:{name:string, click:()=>void, state:boo
                 <span className="opacity-50">Project</span>
                 <h1 className="text-2xl font-black uppercase">{name}</h1>
             </div>
-            <Button type="custom" use="button" className="bg-(--primary) hover:brightness-150 h-16" onClick={click} style={{
+            <Button label="Change Layout" type="custom" use="button" className="bg-(--primary) hover:brightness-150 h-16" onClick={click} style={{
                 width: state?"10%":"100%"
             }}>{state?'<':'>'}</Button>
         </div>
@@ -57,7 +58,7 @@ function Navigation({name, click, state}:{name:string, click:()=>void, state:boo
             {nav.map((item, i)=>{
                 const targetPath = `/dashboard/${id}/${item}`;
                 const isActive = currentPath == targetPath;
-                return <Button key={i} type="custom" target={`/projects/${user_id}/dashboard/${id}/${item}`} use="link">
+                return <Button label={item} key={i} type="custom" target={`/projects/${user_id}/dashboard/${id}/${item}`} use="link">
                     <p className={`text-xs bg-(--primary) w-full flex gap-2 items-center hover:outline hover:outline-white hover:brightness-150 ${state?"":"center"} ${isActive?"brightness-150 bg-linear-120 from-transparent via-transparent to-(--accent)/50 shadow-md":""}`} style={{
                         padding: state?"1rem":"0.5rem"
                     }}>
@@ -65,7 +66,7 @@ function Navigation({name, click, state}:{name:string, click:()=>void, state:boo
                     </p>
                 </Button>
             })}
-            <Button type="custom" target={`/projects/${user_id}`} use="link" className="rounded-md bg-(--primary) w-full p-4 inline-block hover:brightness-150 text-(--warning) uppercase">
+            <Button label="Back" type="custom" target={`/projects/${user_id}`} use="link" className="rounded-md bg-(--primary) w-full p-4 inline-block hover:brightness-150 text-(--warning) uppercase">
                 {state?"Back":<Icon scale="0.75" type="online" use="exit" fill color="var(--warning)"/>}
             </Button>
         </div>
@@ -78,7 +79,7 @@ function Pin({pin}: {pin: PinEntry[]}) {
     return <div className="w-full h-full grid grid-cols-2 gap-4 overflow-y-auto relative">
         <div className="flex gap-2 fixed bottom-0 right-0 m-4 rounded-full z-50">
             {showModal && <Modal message={`Clear All Pinned? (${pin.length}) Pinned Found`} type="alert" onConfirm={() => {clearPins(); window.location.reload()}} onClose={() => setShowModal(false)}/> }
-            <Button type="warning" use="button" onClick={(() => setShowModal(true))} className="w-24 rounded-md">Clear</Button>
+            <Button label="Clear Pinned" type="warning" use="button" onClick={(() => setShowModal(true))} className="w-24 rounded-md">Clear</Button>
         </div>
         <div className="flex flex-col gap-2">
             {pin?.filter((_, i) => i % 2 == 0).map((item, i) => <div key={i} className="bg-(--primary) overflow-hidden group shadow-md rounded-2xl p-4 flex flex-col gap-4 break-inside-avoid mb-4">
@@ -146,7 +147,7 @@ function AI({profiles}: {profiles: Profiles}) {
     return <div className="w-full h-full grid grid-cols-2">
         <div className="flex gap-2 fixed bottom-0 right-0 m-4 rounded-full z-50">
             {showModal && <Modal message={`Clear All Your Chat History?`} type="alert" onConfirm={() => {clearHistory(); window.location.reload()}} onClose={() => setShowModal(false)}/> }
-            <Button type="warning" use="button" onClick={(() => setShowModal(true))} className="rounded-md">Clear Chat</Button>
+            <Button label="Clear Chat History" type="warning" use="button" onClick={(() => setShowModal(true))} className="rounded-md">Clear Chat</Button>
         </div>
         <div className="w-full h-150 bg-(--primary) rounded-xl p-4 flex flex-col gap-2">
             <div className="w-full min-h-0 flex-1 rounded-lg bg-(--bg) overflow-y-auto shadow-inner p-4 flex gap-2 flex-col">
@@ -169,7 +170,7 @@ function AI({profiles}: {profiles: Profiles}) {
             </div>
             <form onSubmit={handleSend} className="flex gap-2 w-full h-11 shrink-0">
                 <input type="text" value={input} onChange={(e: ChangeEvent<HTMLInputElement>) => setInput(e.target.value)} disabled={loading} className="flex-1 rounded-lg bg-(--bg) px-4 py-2 text-sm text-(--text) border border-(--text)/10 focus:outline-none focus:ring-2 focus:ring-(--accent) disabled:opacity-50 transition-all placeholder:text-sm" placeholder="Tanyakan ide cerita atau fitur aplikasi..."/>
-                <button type="submit" disabled={loading || !input.trim()} className="px-4 h-full bg-(--accent) text-white rounded-lg hover:brightness-110 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center shrink-0 cursor-pointer">
+                <button aria-label="Send Button" type="submit" disabled={loading || !input.trim()} className="px-4 h-full bg-(--accent) text-white rounded-lg hover:brightness-110 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center shrink-0 cursor-pointer">
                     {loading ? "..." : <Icon type="normal" use="submit" color="white" fill width={1} />}
                 </button>
             </form>
@@ -178,6 +179,10 @@ function AI({profiles}: {profiles: Profiles}) {
 }
 
 export default function Dashboard({projects, profiles}:{projects:ProjectData[], profiles: Profiles}) {
+    useEffect(() => {
+        document.title = "Writer App | Dashboard"
+    }, [])
+
     const { id } = useParams<{id:string}>();
     const projectName = id && projects.length > 0 ? projects.find(user => user.project_id === id)?.name : ""
     const projectId = id && projects.length > 0 ? projects.find(user => user.project_id === id)?.project_id : ""
@@ -199,17 +204,17 @@ export default function Dashboard({projects, profiles}:{projects:ProjectData[], 
         
         {/*//* Widget Button */}
         <div className="absolute h-12 flex gap-2 top-0 right-0 m-4 z-50">
-            <Button onClick={handlePin} type="normal" use="button" className="w-12 rounded-full shadow-md">
+            <Button label="Pinned Widget" onClick={handlePin} type="normal" use="button" className="w-12 rounded-full shadow-md">
                 <Icon type="online" use="pin" color="var(--text)" fill scale="0.75"/>
             </Button>
-            <Button onClick={handleChat} disabled={profiles?.plan==="free"} type="normal" use="button" className="w-12 rounded-full shadow-md">
+            <Button label="AI Companio Widget" onClick={handleChat} disabled={profiles?.plan==="free"} type="normal" use="button" className="w-12 rounded-full shadow-md">
                 <Icon type="online" use="assistant" color="var(--text)" fill scale="0.75"/>
             </Button>
         </div>
 
         {/*//* Overlay */}
         {openOverlay && <div className="absolute w-screen h-screen bg-black/75 z-60 p-4 overflow-hidden">
-            <Button type="warning" use="button" onClick={() => setOpenOverlay(null)} className="z-70 w-12 h-12 absolute top-0 right-0 m-4 rounded-md">
+            <Button label="Close" type="warning" use="button" onClick={() => setOpenOverlay(null)} className="z-70 w-12 h-12 absolute top-0 right-0 m-4 rounded-md">
                 <Icon type="normal" use="cancel" color="var(--text)" width={6}/>
             </Button>
             {openOverlay=="pin"?<Pin pin={pin}/>:openOverlay=="chat"?<AI profiles={profiles}/>:null}
@@ -221,6 +226,8 @@ export default function Dashboard({projects, profiles}:{projects:ProjectData[], 
         }}>
             <Breadcrumb/>
             <div className="h-[90%] w-full overflow-y-scroll">
+                <Suspense fallback={<Loading message="Section"/>}>
+                </Suspense>
                 <Routes>
                     <Route index element={<Navigate to="timeline-building" replace />} />
                     <Route path={`timeline-building`} element={<Timeline project_id={projectId ?? ""} profiles={profiles}/>}/>

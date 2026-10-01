@@ -13,8 +13,8 @@ export default function Modal({message, type, onConfirm, onClose}: {message: str
                     <p className="text-base text-white/80">{message}</p>
                 </div>
                 <div className="flex justify-end gap-3 mt-2">
-                    <Button type="alternate" use="button" onClick={() => onClose?.()} className="rounded-md">Cancel</Button>
-                    <Button type="warning" use="button" onClick={() => { onConfirm(); onClose?.(); }} className="rounded-md">Confirm</Button>
+                    <Button label="Cancel" type="alternate" use="button" onClick={() => onClose?.()} className="rounded-md">Cancel</Button>
+                    <Button label="Confirm" type="warning" use="button" onClick={() => { onConfirm(); onClose?.(); }} className="rounded-md">Confirm</Button>
                 </div>
             </div>
         </section>

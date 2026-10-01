@@ -51,22 +51,22 @@ function Project(props: ProjectData) {
       {showModal && <Modal message={`Delete ${props.name}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
       <div className='flex w-full h-12 justify-end gap-2'>
         {mode?<> 
-          <Button type='warning' use='button' onClick={()=>{
+          <Button label={"Cancel Edit "+props.name} type='warning' use='button' onClick={()=>{
             setMode(false) 
             setValue('name', props.name)}} className='rounded-md w-12'>
               <Icon type="normal" use="cancel" width={6} color="var(--text)"/>
             </Button>
-          <Button type='normal' use='submit' className='rounded-md w-12'>
+          <Button label={"Submit Edit "+props.name} type='normal' use='submit' className='rounded-md w-12'>
             <Icon type="normal" use="submit" width={3} fill color="var(--text)"/>
           </Button>
         </>:<>
-          <Button type='warning' use='button' onClick={() => setShowModal(true)} className='rounded-md w-12 h-12'>
+          <Button label={"Delete "+props.name} type='warning' use='button' onClick={() => setShowModal(true)} className='rounded-md w-12 h-12'>
             <Icon type="online" use="trash" width={1} fill color="white"/>
           </Button>
-          <Button type='alternate' use='button' onClick={()=>setMode(prev=>!prev)} className='rounded-md w-12 h-12'>
+          <Button label={"Edit "+props.name} type='alternate' use='button' onClick={()=>setMode(prev=>!prev)} className='rounded-md w-12 h-12'>
             <Icon type="online" use="edit" width={1} color="var(--bg)"/>
           </Button>
-          <Button type='normal' use='link' target={`/projects/${props.user_id}/dashboard/${props.project_id}`} className='rounded-md w-25'><p>Open</p></Button>
+          <Button label={"Open "+props.name} type='normal' use='link' target={`/projects/${props.user_id}/dashboard/${props.project_id}`} className='rounded-md w-25'><p>Open</p></Button>
         </>
         }
       </div>
@@ -75,6 +75,10 @@ function Project(props: ProjectData) {
 }
 
 export default function Projects() {
+  useEffect(() => {
+    document.title = "Writer App | Projects"
+  }, [])
+
   const authValue = window.localStorage.getItem("auth");
   const userData = authValue ? JSON.parse(authValue) : null;
   const id = userData?.user?.id ?? ""
@@ -112,7 +116,7 @@ export default function Projects() {
               <div className='text-center mb-4 relative'>
                 <h1 className='text-4xl font-bold uppercase'>Universes</h1>
                 <span className='opacity-50'>{author || "User"}</span>
-                <Button use='link' type='custom' target='/' className='absolute top-0 left-0 hover:brightness-125'>
+                <Button label='Back' use='link' type='custom' target='/' className='absolute top-0 left-0 hover:brightness-125'>
                   <Icon type='online' use='exit' fill color='var(--warning)'/>
                 </Button>
               </div>
