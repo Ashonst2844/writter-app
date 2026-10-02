@@ -4,7 +4,7 @@ export default function Breadcrumb() {
     const location = useLocation()
     const pathname = location.pathname.split("/").filter((x)=>x)
 
-    return <div className="w-full h-[10%] flex p-4 items-center text-sm">
+    return <div className="w-full h-[10%] hidden lg:flex p-4 items-center text-sm">
         <Link to="/" className="hover:text-(--accent)">HOME</Link>
         {pathname.map((item,i)=>{
             const to = `/${pathname.slice(0, i + 1).join("/")}`;

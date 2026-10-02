@@ -70,7 +70,7 @@ function Export({ bookTitle, chapters, onClose }: ExportModalProps) {
     }}
 
     return <section className="center w-screen h-screen fixed top-0 left-0 bg-black/75 inset-0 z-100">
-        <div className="w-[50%] bg-(--primary) rounded-xl shadow-xl flex flex-col p-4 gap-4">
+        <div className="w-[90%] md:w-[50%] bg-(--primary) rounded-xl shadow-xl flex flex-col p-4 gap-4">
 
             <div className="w-full h-16 flex gap-2">
                 <div className="w-[50%] flex flex-col">
@@ -191,19 +191,19 @@ function Book({props, profiles}: {props: BookProps, profiles: Profiles}) {
     if (isLoading) return <Loading message="Chapter" />
     if (error || !chapters) return <Error err={error || "Chapters not found!"}/>
     return <Card>
-        <form onSubmit={handleSubmit} className="h-full flex gap-4 relative">
+        <form onSubmit={handleSubmit} className="h-full flex flex-col md:flex-row gap-4 relative">
             <div>
                 <Editable type="upload" editMode={mode} onChange={handleCoverUpload} uploading={uploading}>
                     {props.cover==null||props.cover==""?
                         <div className="w-full h-full bg-(--accent) rounded-md"/>:
-                        <img src={currentCover} alt={props.title} className="w-full h-52 object-fit rounded-lg" />
+                        <img src={currentCover} alt={props.title} className="w-full md:h-52 object-fit rounded-lg" />
                     }
                 </Editable>
             </div>
 
             <input type="hidden" name="cover" value={currentCover} />
             
-            <div className="flex flex-col gap-2 w-[60%]">
+            <div className="flex flex-col gap-2 w-full md:w-[calc(100%-13rem)]">
                 <Editable type="input" name='title' text={(getValue('title') as string) ?? props.title} onChange={(v)=>setValue('title', v)} editMode={mode} className='text-2xl font-black capitalize w-full'>
                     <h2 className="text-2xl font-black capitalize">{(getValue('title') as string) ?? props.title}</h2>
                 </Editable>
@@ -214,9 +214,9 @@ function Book({props, profiles}: {props: BookProps, profiles: Profiles}) {
                 </Editable>
             </div>
             {showModal && <Modal message={`Delete ${props.title}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
-            <div className='flex w-full h-12 justify-end gap-2 absolute bottom-0'>
+            <div className='flex justify-end items-end gap-2'>
                 {mode ? <>
-                    <Button label={"Cancel Edit "+props.title} type='warning' use="button" className='rounded-md w-12' onClick={() => {
+                    <Button label={"Cancel Edit "+props.title} type='warning' use="button" className='rounded-md w-12 h-12' onClick={() => {
                         setMode(false);
                         setUploadedCover(null);
                         setValue('title', props.title);
@@ -226,12 +226,12 @@ function Book({props, profiles}: {props: BookProps, profiles: Profiles}) {
                     }}>
                         <Icon type="normal" use="cancel" width={3} color="white"/>
                     </Button>
-                    <Button label={"Submit Edit "+props.title} type='normal' use="submit" className='rounded-md w-12'>
+                    <Button label={"Submit Edit "+props.title} type='normal' use="submit" className='rounded-md w-12 h-12'>
                         <Icon type="normal" use="submit" width={3} color="white" fill/>
                     </Button>
                 </> : <>
                     <div className="flex relative gap">
-                        <Button label="" onClick={() => setShowMenu(prev => !prev)} type='normal' use='button' className='rounded-md w-12'>
+                        <Button label="" onClick={() => setShowMenu(prev => !prev)} type='normal' use='button' className='rounded-md w-12 h-12'>
                             <Icon type="normal" use="burger" width={3} color="var(--text)"/>
                         </Button>
                         {showMenu && <div className="absolute z-50 top-0 -left-24 p-4 gap-4 shadow-md flex flex-col bg-(--bg) rounded overflow-hidden text-center">
@@ -254,15 +254,15 @@ function Chapter({name, index, status, chapter_id}: {name: string, index: number
     const {onDelete} = useForm({inputs:[], enp:"chapter", id:chapter_id})
     const [showModal, setShowModal] = useState<boolean>(false)
 
-    return <div className="flex items-center w-full h-16 bg-(--primary) rounded-xl overflow-hidden">
+    return <div className="flex items-center w-full h-12 md:h-16 bg-(--primary) md:rounded-xl overflow-hidden">
         <Button label={"Open Chapter "+index} type="normal" use="link" target={Slug(name)} className="w-[10%] h-full bg-(--accent) center text-4xl font-black">
-            <p className="text-4xl">{index}</p>
+            <p className="text-2xl">{index}</p>
         </Button>
-        <div className="flex justify-between items-center w-[90%] h-full px-2">
-            <h2 className="text-2xl">{name}</h2>
+        <div className="flex justify-between items-center w-[90%] h-full px-4">
+            <h2 className="text-md md:text-2xl">{name}</h2>
             {showModal && <Modal message={`Delete ${name}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
             <div className="flex h-12 gap-2">
-                <span className={`w-24 h-full inline-block center border-2 rounded-2xl transition-all duration-150 hover:brightness-125 ${state?"bg-(--success)/50 border-(--success)":"bg-(--warning)/50 border-(--warning)"}`}>{status.toUpperCase()}</span>
+                <span className={`w-16 md:w-24 h-full inline-block text-sm center border-2 rounded-2xl transition-all duration-150 hover:brightness-125 ${state?"bg-(--success)/50 border-(--success)":"bg-(--warning)/50 border-(--warning)"}`}>{status.toUpperCase()}</span>
                 <Button label={"Delete "+name} onClick={() => setShowModal(true)} type='warning' use="button" target={Slug(name)} className='rounded-xl w-12'>
                     <Icon type="online" use="trash" width={3} color="white" fill/>
                 </Button>
@@ -385,9 +385,9 @@ function BookPage({props, profiles}: {props: BookProps[], profiles: Profiles}) {
     if (isLoading) return <Loading message="Chapters" />
     if (error || !book) return <Error err={error || "Book not found!"}/>
     return <Routes>
-        <Route path="/" element={<div className="w-full p-4 flex flex-col gap-2">
-            <div className="flex gap-2 flex-col items-center sticky top-0 left-[50%] translate-x-[-50%] z-10 w-fit">
-                <div className="flex gap-2 bg-(--primary) p-2 rounded-xl">
+        <Route path="/" element={<div className="w-full p-2 md:p-4 flex flex-col gap-2">
+            <div className="flex gap-2 flex-col items-center sticky top-0 m-auto z-10 w-fit">
+                <div className="flex gap-2 bg-(--primary) p-2 rounded-xl max-w-full overflow-x-auto">
                     {Array.from({length:pageLength}, (_,i) => <Button label={"Page "+i+1} type="custom" key={i} use="button" onClick={()=>setPageIndex(i+1)} className="w-12 h-12 border border-(--accent) rounded-full font-bold hover:bg-(--accent)">{i+1}</Button>)}
                 </div>
                 <span className="text-xl">{pageIndex}/{pageLength} | max. Page {chapter?.length ?? 0} / {maxChapter}</span>

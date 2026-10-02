@@ -14,8 +14,8 @@ export default function Carrousel({length, children}: {length:number, children:R
         }
     }, 0)
 
-    return <div className="overflow-x-hidden center w-full h-full relative">
-        <div className="flex h-full w-full transition-transform transition-300 relative" style={{transform: `translateX(-${100 * index}%)`}}>
+    return <div className="overflow-hidden center w-full h-full relative">
+        <div className="flex h-full min-w-full transition-transform transition-300 relative" style={{transform: `translateX(-${100 * index}%)`}}>
             {slides.map((slide, i) => (
                 <div key={i} className="min-w-full">{slide}</div>
             ))}

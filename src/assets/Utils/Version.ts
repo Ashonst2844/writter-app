@@ -88,5 +88,10 @@ export const changelog = [
             "Boost beberapa metrik analisis Lighthouse",
             "Upgrade SEO",
         ]},
+        {id:19,version:"11.0",date:"2 Oct. 2026",desc:[
+            "Memperbaiki sedikit UI/UX",
+            "Membuat wesbite menjadi responsive untuk mobile dan tablet",
+            "Menambahkan API AI KEY ke env"
+        ]},
     ]}
 ]

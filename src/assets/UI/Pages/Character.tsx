@@ -105,7 +105,7 @@ function CharacterPage({props}: {props: CharacterProps[]}) {
         <div className="flex flex-col gap-4">
             <Editable type="input" name='name' text={(getValue('name') as string) ?? character.name} onChange={(v)=>setValue('name', v)} editMode={mode} className='text-4xl font-black'>
                 <h1 className="text-4xl font-black">{(getValue('name') as string) ?? character.name}</h1>
-                <div className="flex gap-2">
+                <div className="flex gap-2 overflow-x-scroll">
                     {traits.map((item, i) => <Badge key={i} content={item}/>)}
                 </div>
             </Editable>
@@ -120,11 +120,11 @@ function CharacterPage({props}: {props: CharacterProps[]}) {
                         <strong className="capitalize"> {(getValue('gender') as string) ?? character.gender}</strong>
                     </Editable>
                 </span>
-                <div className="grid grid-cols-2 grid-rows-3 gap-1">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
                     {category.map((item, i) => <div key={i} className="flex gap-2 flex-col">
                         <div className="flex relative tooltip">
                             <span className="opacity-75 text-sm">{item.name}</span>
-                            <p className="duration-150 transition-all tooltip-text w-48 absolute opacity-0 right-[50%] translate-x-[-50%] bg-(--primary) p-2 rounded-md shadow-md">{item.desc}</p>
+                            <p className="duration-150 transition-all tooltip-text w-48 absolute opacity-0 left-[50%] lg:right-[50%] translate-x-[-50%] bg-(--primary) p-2 rounded-md shadow-md">{item.desc}</p>
                         </div>
                         {mode ? <input name={item.name.toLowerCase()} type="number" min={0} max={5} value={Number(statValues[i] ?? 0)} onChange={(e) => {
                             const nextStats = [...(statValues ?? character.stats)] 

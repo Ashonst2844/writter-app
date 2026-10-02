@@ -3,7 +3,7 @@ import Button from "./Button"
 export default function Modal({message, type, onConfirm, onClose}: {message: string, type: "alert"|"warning", onConfirm: () => void, onClose?: () => void}) {
     return (
         <section className="top-0 right-0 fixed inset-0 z-100 flex justify-end bg-black/75 p-4">
-            <div className="w-[40%] h-50 bg-(--primary) rounded-2xl shadow-2xl p-4 flex flex-col justify-between gap-4 border-l-8" style={{
+            <div className="w-full md:w-[40%] h-50 bg-(--primary) rounded-2xl shadow-2xl p-4 flex flex-col justify-between gap-4 border-l-8" style={{
                 borderColor: type==="alert"?"yellow":"var(--warning)"
             }}>
                 <div className="flex flex-col gap-4">

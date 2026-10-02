@@ -4,7 +4,7 @@ import Icon from "../Components/Icon";
 import Modal from "../Components/Modal";
 import Loading from "../Components/Loading";
 
-import {Routes, Route, useParams, useLocation, Navigate} from "react-router-dom"
+import {Routes, Route, useParams, Navigate} from "react-router-dom"
 import { useState, useRef, useEffect, type FormEvent, type ChangeEvent, lazy, Suspense } from "react";
 import {type PinEntry, getPins, clearPins} from "../../Utils/Pinning";
 import { askAI, type Chat } from "../../Utils/AIService";
@@ -32,41 +32,26 @@ export type Profiles = {
 
 function Navigation({name, click, state}:{name:string, click:()=>void, state:boolean}) {
     const {id} = useParams<{id:string}>();
-    const currentPath = useLocation().pathname;
 
     const authValue = window.localStorage.getItem("auth");
     const user = authValue ? JSON.parse(authValue) : null;
     const user_id = user?.user?.id ?? ""
 
     const nav =["timeline-building","world-building","character-development","goals","events","relics","book-library","note"]
-    return <nav className="h-full bg-(--primary) flex flex-col gap-4 shadow-sm z-30 overflow-auto transition-all duration-150" style={{
-        width: state?"20%":"auto",
-        padding: state?"1rem":"0"
-    }}>
-        <div className="flex h-16">
-            <div className="w-[90%]" style={{
-                display: state?"block":"none"
-            }}>
+    
+    return <nav className={`min-h-32 lg:h-full w-full overflow-hidden ${state?"lg:w-[20%] p-4":"lg:w-auto p-2"} bg-(--primary) flex flex-col gap-8 shadow-sm z-30 overflow-auto transition-all duration-150`}>
+        <div className="flex h-12 lg:h-16"> {/* Title Header */}
+            <div className={`w-[90%] block ${state?"lg:block":"lg:hidden"}`}>
                 <span className="opacity-50">Project</span>
                 <h1 className="text-2xl font-black uppercase">{name}</h1>
             </div>
-            <Button label="Change Layout" type="custom" use="button" className="bg-(--primary) hover:brightness-150 h-16" onClick={click} style={{
-                width: state?"10%":"100%"
-            }}>{state?'<':'>'}</Button>
-        </div>
-        <div className="flex flex-col">
-            {nav.map((item, i)=>{
-                const targetPath = `/dashboard/${id}/${item}`;
-                const isActive = currentPath == targetPath;
-                return <Button label={item} key={i} type="custom" target={`/projects/${user_id}/dashboard/${id}/${item}`} use="link">
-                    <p className={`text-xs bg-(--primary) w-full flex gap-2 items-center hover:outline hover:outline-white hover:brightness-150 ${state?"":"center"} ${isActive?"brightness-150 bg-linear-120 from-transparent via-transparent to-(--accent)/50 shadow-md":""}`} style={{
-                        padding: state?"1rem":"0.5rem"
-                    }}>
-                        {state? (item.replace("-"," ") ?? "").toUpperCase():<Icon scale="0.75" type="online" use={item} fill color="var(--text)"/>}
-                    </p>
-                </Button>
-            })}
-            <Button label="Back" type="custom" target={`/projects/${user_id}`} use="link" className="rounded-md bg-(--primary) w-full p-4 inline-block hover:brightness-150 text-(--warning) uppercase">
+            <Button label="Change Layout" type="custom" use="button" className={`bg-(--primary) hover:brightness-150 h-16 hidden lg:block ${state?"w-[10%]":"w-full"}`} onClick={click}>{state?'<':'>'}</Button>
+        </div> {/* Navigation Header */}
+        <div className="flex lg:flex-col overflow-x-auto">
+            {nav.map((item, i)=><Button label={item} key={i} type="custom" target={`/projects/${user_id}/dashboard/${id}/${item}`} use="link" className={`rounded-md bg-(--primary) w-full inline-block text-xs hover:brightness-150 text-(--text) min-h-12 uppercase ${state?"p-4":"p-2"}`}>
+                {state ? <p className="hidden lg:block">{(item.replace("-"," ") ?? "").toUpperCase()}</p> : <Icon scale="0.75" type="online" use={item} fill color="var(--text)"/>}
+            </Button>)}
+            <Button label="Back" type="custom" target={`/projects/${user_id}`} use="link" className={`rounded-md bg-(--primary) w-full inline-block text-xs hover:brightness-150 text-(--warning) uppercase ${state?"p-4":"p-2"}`}>
                 {state?"Back":<Icon scale="0.75" type="online" use="exit" fill color="var(--warning)"/>}
             </Button>
         </div>
@@ -76,20 +61,13 @@ function Navigation({name, click, state}:{name:string, click:()=>void, state:boo
 function Pin({pin}: {pin: PinEntry[]}) {
     const [showModal, setShowModal] = useState<boolean>(false)
 
-    return <div className="w-full h-full grid grid-cols-2 gap-4 overflow-y-auto relative">
+    return <div className="w-full h-full overflow-y-auto relative">
         <div className="flex gap-2 fixed bottom-0 right-0 m-4 rounded-full z-50">
             {showModal && <Modal message={`Clear All Pinned? (${pin.length}) Pinned Found`} type="alert" onConfirm={() => {clearPins(); window.location.reload()}} onClose={() => setShowModal(false)}/> }
             <Button label="Clear Pinned" type="warning" use="button" onClick={(() => setShowModal(true))} className="w-24 rounded-md">Clear</Button>
         </div>
-        <div className="flex flex-col gap-2">
-            {pin?.filter((_, i) => i % 2 == 0).map((item, i) => <div key={i} className="bg-(--primary) overflow-hidden group shadow-md rounded-2xl p-4 flex flex-col gap-4 break-inside-avoid mb-4">
-                <h2 className="text-4xl font-black">{item?.title} </h2>
-                <span className="opacity-75 text-(--accent)">{(item?.type ?? "").toUpperCase()}</span>
-                <div dangerouslySetInnerHTML={{ __html: item?.content}} className={`p-4 bg-(--primary) border transition-all whitespace-pre-wrap leading-relaxed`}></div>
-            </div>)}
-        </div>
-        <div className="flex flex-col gap-2">
-            {pin?.filter((_, i) => i % 2 == 1).map((item, i) => <div key={i} className="bg-(--primary) overflow-hidden group shadow-md rounded-2xl p-4 flex flex-col gap-4 break-inside-avoid mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 p-2 w-full h-full">
+            {pin?.map((item, i) => <div key={i} className="bg-(--primary) overflow-auto group shadow-md rounded-2xl p-4 flex flex-col gap-4 break-inside-avoid mb-4">
                 <h2 className="text-4xl font-black">{item?.title} </h2>
                 <span className="opacity-75 text-(--accent)">{(item?.type ?? "").toUpperCase()}</span>
                 <div dangerouslySetInnerHTML={{ __html: item?.content}} className={`p-4 bg-(--primary) border transition-all whitespace-pre-wrap leading-relaxed`}></div>
@@ -144,7 +122,7 @@ function AI({profiles}: {profiles: Profiles}) {
         setMessages([{role: "model", text: "Halo! Saya Writer Companion ✍️. Butuh inspirasi cerita atau panduan menggunakan fitur di aplikasi ini?"}])
     }
 
-    return <div className="w-full h-full grid grid-cols-2">
+    return <div className="w-full h-full grid grid-cols-1 md:grid-cols-2">
         <div className="flex gap-2 fixed bottom-0 right-0 m-4 rounded-full z-50">
             {showModal && <Modal message={`Clear All Your Chat History?`} type="alert" onConfirm={() => {clearHistory(); window.location.reload()}} onClose={() => setShowModal(false)}/> }
             <Button label="Clear Chat History" type="warning" use="button" onClick={(() => setShowModal(true))} className="rounded-md">Clear Chat</Button>
@@ -200,7 +178,7 @@ export default function Dashboard({projects, profiles}:{projects:ProjectData[], 
         setOpenOverlay("chat")
     }
 
-    return <section className="w-screen h-screen flex relative">
+    return <section className="w-screen h-screen flex flex-col lg:flex-row relative">
         
         {/*//* Widget Button */}
         <div className="absolute h-12 flex gap-2 top-0 right-0 m-4 z-50">
@@ -221,11 +199,9 @@ export default function Dashboard({projects, profiles}:{projects:ProjectData[], 
         </div>}
 
         <Navigation name={projectName ?? ""} click={() => setMode(prev => !prev)} state={mode}/>
-        <div className="h-full" style={{
-            width: mode?"80%":"95%"
-        }}>
+        <div className={`h-[calc(100%-12rem)] lg:h-full w-full ${mode?"lg:w-[80%]":"lg:w-[95%]"}`}>
             <Breadcrumb/>
-            <div className="h-[90%] w-full overflow-y-scroll">
+            <div className="h-full lg:h-[90%] w-full overflow-y-scroll">
                 <Suspense fallback={<Loading message="Section"/>}>
                 </Suspense>
                 <Routes>

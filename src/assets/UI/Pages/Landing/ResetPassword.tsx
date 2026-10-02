@@ -37,12 +37,13 @@ export default function ResetPassword() {
     };
 
     return <main className="w-screen h-screen center">
-        <form onSubmit={handleUpdatePassword} className="w-[40%] p-4 bg-(--primary) rounded-xl flex flex-col gap-4">
+        <form onSubmit={handleUpdatePassword} className="w-full md:w-[40%] p-4 bg-(--primary) rounded-xl flex flex-col gap-4">
             <Password name="password" placeholder="Enter New Password"/>
             <Button label="Update Password" type="normal" use="submit" className="h-12 rounded-md">Update!</Button>
             {passChange.message && <div className="w-full center text-sm">
                 <p style={{color:passChange.message.type==="success"?"var(--success)":"var(--warning)"}}>({passChange.message.type}) {passChange.message.text}</p>
             </div>}
+            <Button label="Cancel Update Password" target="register" type="warning" use="link" className="h-12 rounded-md">Cancel!</Button>
         </form>
     </main>
 }

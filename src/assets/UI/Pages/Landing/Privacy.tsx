@@ -30,24 +30,27 @@ export default function Privacy() {
         document.title = "Writer App | Privacy Policy"
     }, [])
 
-    return <main className="w-screen min-h-screen flex flex-col">
+    return <main className="w-screen min-h-screen flex flex-col relative">
         <header className="flex text-xl items-center gap-4 h-16 w-full border-b border-neutral-700">
             <Button label="Back" type="custom" use="link" target="/" className="w-16 h-full hover:brightness-125 center">
                 <Icon type="online" use="exit" fill color="var(--warning)"/>
             </Button>
             <h1>Privacy Policy</h1>
         </header>
-        <section className="w-full h-full px-16">
+        <section className="w-full h-full px-8 md:px-16">
             <div className="border-x border-neutral-700 w-full h-full">
-                {privacy.map(item => <div key={item.id} className="flex flex-col w-full min-h-24 p-8 gap-4">
+                {privacy.map(item => <div key={item.id} className="flex flex-col w-full min-h-24 p-4 md:p-8 gap-4">
                     <h2 className="text-xl">{item.title}</h2>
-                    <div className="px-8 flex flex-col border-l-2 border-(--accent) w-full">
-                        <ul className="text-sm opacity-75 px-8 list-disc">
+                    <div className="px-4 md:px-8 flex flex-col border-l-2 border-(--accent) w-full">
+                        <ul className="text-sm opacity-75 px-4 md:px-8 list-disc">
                             {item.desc.map((item, i) => <li key={i}>{item}</li>)}
                         </ul>
                     </div>
                 </div>)}
             </div>
         </section>
+        <Button label="Got To Top" type="alternate" use="url" target="#" className="fixed m-4 bottom-0 right-0 w-16 h-16 rounded-full">
+            <Icon type="normal" use="caret" color="var(--bg)" width={6} className="rotate-270"/>
+        </Button>
     </main>
 }

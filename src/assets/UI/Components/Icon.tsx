@@ -64,7 +64,7 @@ export default function Icon(props: IconProps) {
         if (props.use==="voice") {return <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" style={{scale:props.scale}}>
             <path fill="none" stroke={props.color} strokeLinecap="round" strokeWidth="3" d="M4 10v4m4-7v10m4-13v16m4-13v10m4-7v4" />
         </svg>}
-        else return <svg xmlns="http://www.w3.org/2000/svg" fill={props.fill?props.color:"none"} width="32" height="32" viewBox="0 0 24 24" style={{scale:props.scale}}>
+        else return <svg xmlns="http://www.w3.org/2000/svg" fill={props.fill?props.color:"none"} width="32" height="32" viewBox="0 0 24 24" style={{scale:props.scale}} className={props.className||""}>
             {props.use==="edit"?<g stroke={props.color} strokeLinecap="round" strokeLinejoin="round" strokeWidth={props.width}>
                 <path d="M19.09 14.441v4.44a2.37 2.37 0 0 1-2.369 2.369H5.12a2.37 2.37 0 0 1-2.369-2.383V7.279a2.356 2.356 0 0 1 2.37-2.37H9.56"/>
                 <path d="M6.835 15.803v-2.165c.002-.357.144-.7.395-.953l9.532-9.532a1.36 1.36 0 0 1 1.934 0l2.151 2.151a1.36 1.36 0 0 1 0 1.934l-9.532 9.532a1.36 1.36 0 0 1-.953.395H8.197a1.36 1.36 0 0 1-1.362-1.362M19.09 8.995l-4.085-4.086"/>

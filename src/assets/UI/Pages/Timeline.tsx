@@ -53,7 +53,7 @@ function Content({props, onRequestDelete}: {props: TimelineData, onRequestDelete
 
     if (result.loading) return <Loading message="Timeline"/>
     if (result.error || !props) return <Error err={result.error || "Timeline not found!"}/>
-    return <form onSubmit={handleSubmit} className="h-full min-w-full p-4 flex flex-col gap-8 relative">
+    return <form onSubmit={handleSubmit} className="h-full min-w-full p-4 flex flex-col gap-8 relative overflow-y-scroll pb-16">
         <div className="w-full p-8 bg-(--primary) center flex-col gap-8 rounded-xl shadow-inner">
             <Editable type="input" name='timeline' text={(getValue('timeline') as string) ?? props.timeline} onChange={(v)=>setValue('timeline', v)} editMode={mode} className='text-4xl font-black text-center'>
                 <h2 className="text-4xl font-black text-center">{(getValue('timeline') as string) ?? props.timeline}</h2>
@@ -62,7 +62,7 @@ function Content({props, onRequestDelete}: {props: TimelineData, onRequestDelete
                 <span className="tracking-widest text-(--accent) uppercase text-xl text-center">{(getValue('name') as string) ?? props.name}</span>
             </Editable>
         </div>
-        <div className="px-16 flex flex-col gap-4">
+        <div className="flex flex-col gap-4">
             <span className="text-2xl font-bold opacity-50">Description</span>
             <Editable type="textarea" name="desc" text={(getValue('desc') as string) ?? props.desc} onChange={(v)=>setValue('desc', v)} editMode={mode} className="text-justify">
                 <p className="text-justify">{(getValue('desc') as string) ?? props.desc}</p>

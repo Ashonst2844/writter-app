@@ -173,3 +173,7 @@ Keterangan:
   - (1 Oct. 2026) **update-build v1.10.3**
     - Boost beberapa metrik analisis Lighthouse
     - Upgrade SEO
+  - (2 Oct. 2026) **update-build v1.11.0**
+    - Memperbaiki sedikit UI/UX
+    - Membuat wesbite menjadi responsive untuk mobile dan tablet
+    - Menambahkan API AI KEY ke env

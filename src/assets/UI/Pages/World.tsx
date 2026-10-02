@@ -47,11 +47,9 @@ function Content({timeline, name, map}: {timeline: string, name: string, map: st
                 <Icon type="online" use="danger" color="var(--text)" scale="2" fill/>
                 <i>File Not Found</i>
             </div>}
-            <div className="z-20 absolute top-0 bg-black/25 left-0 w-full h-full opacity-0 hover:opacity-100 transition-all duration-150 cursor-pointer flex justify-end items-end p-4">
-                <Button label={"Open "+name} type="normal" use="link" target={Slug(`Dunia ${name}`)} className="p-4 rounded-md w-16 h-12">
-                    <Icon type="normal" use="submit" color="white" scale="2" width={4} fill/>
-                </Button>
-            </div>
+            <Button label={"Open "+name} type="normal" use="link" target={Slug(`Dunia ${name}`)} className="p-4 rounded-md w-16 h-12 m-4 absolute bottom-0 right-0">
+                <Icon type="normal" use="submit" color="white" scale="2" width={4} fill/>
+            </Button>
         </div>
     </div>
 }
@@ -171,12 +169,12 @@ function ContinentPage({props, profiles}: {props: ContinentData, profiles: Profi
     if (result.loading && isLoading) return <Loading message="Continent"/>
     if (result.error || error || !data) return <Error err={result.error || "Continent not found!"}/>
     return <div className="w-full h-full p-4 flex flex-col gap-4 overflow-auto">
-        <form onSubmit={handleSubmit} className="w-full h-48 bg-(--primary) rounded-xl flex justify-between items-end p-4 shadow-md">
-            <div className="center gap-4 h-full">
+        <form onSubmit={handleSubmit} className="w-full bg-(--primary) rounded-xl center flex-col md:flex-row p-4 gap-4 shadow-md">
+            <div className="gap-4 h-full center flex-col md:flex-row">
                 <Editable type="upload" editMode={mode} onChange={handleCoverUpload} uploading={uploading}>
                     {props.image==null||props.image==""?
                         <p>NotFound</p>:
-                        <img src={currentCover} alt={props.name} className="h-full" />
+                        <img src={currentCover} alt={props.name} className="h-48 w-48" />
                     }
                 </Editable>
                 <input type="hidden" name="image" value={currentCover} />
