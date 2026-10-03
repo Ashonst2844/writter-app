@@ -97,5 +97,8 @@ export const changelog = [
             "Fix AI Companion Error",
             "Fix Responsive UI",
         ]},
+        {id:21,version:"11.2",date:"3 Oct. 2026",desc:[
+            "Fix Some Error",
+        ]},
     ]}
 ]

@@ -7,8 +7,8 @@ export interface Chat {
 }
 
 export async function askAI(message: string, history: Chat[]) {
-    const apiKey = import.meta.env.API_GEMINI_AI_KEY;
-    if (!apiKey) throw new Error("API_GEMINI_AI_KEY belum dikonfigurasi di file .env");
+    const apiKey = import.meta.env.VITE_GEMINI_AI_KEY;
+    if (!apiKey) throw new Error("VITE_GEMINI_AI_KEY belum dikonfigurasi di file .env");
 
     const ai = new GoogleGenAI({ apiKey });
 
