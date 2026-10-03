@@ -1,4 +1,4 @@
-import Button from "../Components/Button"
+import Button, { BackButton } from "../Components/Button"
 import Card from "../Components/Card";
 import Editable from "../Components/Editable";
 import Icon from "../Components/Icon";
@@ -46,7 +46,7 @@ function CharacterCard(props: CharacterProps) {
     return <Card>
         <div className="h-full flex flex-col justify-between relative">
             <div className="flex flex-col gap-2">
-                <h2 className="text-4xl font-black">{props.name}</h2>
+                <h2 className="text-xl md:text-4xl font-black">{props.name}</h2>
                 <span className="opacity-75 text-sm">{props.desc.slice(0, 100)}{props.desc.length >= 100 ? "..." : ""}</span>
             </div>
             <div className='flex w-full h-12 justify-end gap-2 relative'>
@@ -104,7 +104,7 @@ function CharacterPage({props}: {props: CharacterProps[]}) {
         <input type="hidden" name="stats" value={JSON.stringify(statValues)} />
         <div className="flex flex-col gap-4">
             <Editable type="input" name='name' text={(getValue('name') as string) ?? character.name} onChange={(v)=>setValue('name', v)} editMode={mode} className='text-4xl font-black'>
-                <h1 className="text-4xl font-black">{(getValue('name') as string) ?? character.name}</h1>
+                <h1 className="text-xl md:text-4xl font-black">{(getValue('name') as string) ?? character.name}</h1>
                 <div className="flex gap-2 overflow-x-scroll">
                     {traits.map((item, i) => <Badge key={i} content={item}/>)}
                 </div>
@@ -161,6 +161,7 @@ function CharacterPage({props}: {props: CharacterProps[]}) {
                 </Button>}
             </div>
         </div>
+        <BackButton/>
     </form>
 }
 
@@ -200,7 +201,7 @@ export default function Character({project_id, profiles}: {project_id: string, p
                 <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(200px,1fr))] lg:grid-cols-3 p-4">
                     {data?.map((item) => item.name.includes(searchQ) && <CharacterCard key={item.character_id} {...item}/>)}
                     <div className="h-full w-full bg-(--primary) shadow-2xl rounded-2xl overflow-hidden">
-                        <form onClick={handleCreate} className="min-h-60 w-full p-4 flex flex-col hover:bg-(--accent) center transition-colors transition-300">
+                        <form onClick={handleCreate} className="min-h-40 md:min-h-60 w-full p-4 flex flex-col hover:bg-(--accent) center transition-colors transition-300">
                             <span>{data.length} / {maxCharacter}</span>
                             <span className="text-white text-2xl"><code>+</code> Create New Character</span>
                         </form>

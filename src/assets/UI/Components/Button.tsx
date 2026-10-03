@@ -1,3 +1,4 @@
+import Icon from "./Icon";
 import {type MouseEventHandler, type ReactNode, type CSSProperties} from "react";
 import { Link } from "react-router-dom";
 
@@ -11,6 +12,12 @@ interface ButtonProps {
     style?: CSSProperties;
     disabled?: boolean
     label?: string
+}
+
+export function BackButton() {
+    return <Button label="Back Previous" type="warning" use="link" target="../" className="w-12 h-12 rounded-full fixed bottom-0 right-0 m-4">
+        <Icon type="normal" use="caret" width={6} color="white" className="rotate-180"/>
+    </Button>
 }
 
 export default function Button(props: ButtonProps) {

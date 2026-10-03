@@ -177,3 +177,6 @@ Keterangan:
     - Memperbaiki sedikit UI/UX
     - Membuat wesbite menjadi responsive untuk mobile dan tablet
     - Menambahkan API AI KEY ke env
+  - (3 Oct. 2026) **update-build v1.11.1**
+    - Fix AI Companion Error
+    - Fix Responsive UI

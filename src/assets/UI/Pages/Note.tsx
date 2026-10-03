@@ -1,5 +1,5 @@
 import Card from "../Components/Card";
-import Button from "../Components/Button";
+import Button, { BackButton } from "../Components/Button";
 import Editable from "../Components/Editable";
 import Icon from "../Components/Icon";
 import Loading from "../Components/Loading";
@@ -35,7 +35,7 @@ function NoteAccordion(props: NoteProps) {
 
     return <Card>
         <div className="h-full flex flex-col justify-between">
-            <h2 className="text-4xl font-black capitalize">{props.title}</h2>
+            <h2 className="text-xl md:text-4xl font-black capitalize">{props.title}</h2>
             <div className="flex gap-2 w-auto">
                 {props.tags?.map((item, i)=><Badge key={i} content={item}/>)}
             </div>
@@ -80,10 +80,10 @@ function NotePage({props}: {props: NoteProps[]}) {
 
     if (result.loading) return <Loading message="Note"/>
     if (result.error || !note) return <Error err={result.error || "Note not found!"}/>
-    return <form onSubmit={handleSubmit} className="w-full h-full p-4 flex flex-col gap-4">
+    return <form onSubmit={handleSubmit} className="w-full h-full p-4 flex flex-col gap-4 relative">
         <input type="hidden" name="content" value={htmlContent}/>
-        <Editable type="input" name="title" editMode={mode} text={(getValue('title') as string) ?? note.title} onChange={(v)=>setValue('title', v)} className="text-4xl font-bold">
-            <h2 className="text-4xl font-bold">{(getValue('title') as string) ?? note.title}</h2>
+        <Editable type="input" name="title" editMode={mode} text={(getValue('title') as string) ?? note.title} onChange={(v)=>setValue('title', v)} className="text-xl md:text-4xl font-bold">
+            <h2 className="text-xl md:text-4xl font-bold">{(getValue('title') as string) ?? note.title}</h2>
         </Editable>
 
         <Editable type="richedit" text={htmlContent} onChange={(html) => setValue("content", html)} editMode={mode} onClick={() => setMode(true)}/>
@@ -109,6 +109,7 @@ function NotePage({props}: {props: NoteProps[]}) {
             <div onClick={() => setMode(true)} dangerouslySetInnerHTML={{ __html: htmlContent }} className="p-4 bg-(--primary) border hover:border-white cursor-pointer transition-all whitespace-pre-wrap leading-relaxed"/>
             <span className="text-xs text-neutral-500 mt-2 block">Klik teks untuk mengedit & meformat</span>
         </div>}
+        <BackButton/>
     </form>
 }
 
@@ -144,7 +145,7 @@ export default function Note({project_id, profiles}: {project_id: string, profil
                 </div>
                 <div className="grid gap-4 lg:grid-cols-2 p-4">
                     {data.map((item)=><NoteAccordion key={item.note_id} {...item}/>)}
-                    <div className="h-full w-full bg-(--primary) shadow-2xl rounded-2xl overflow-hidden">
+                    <div className="min-h-40 md:min-h-60 w-full bg-(--primary) shadow-2xl rounded-2xl overflow-hidden">
                         <form onClick={handleCreate} className="h-full w-full p-4 flex flex-col hover:bg-(--accent) center transition-colors transition-300">
                             <span>{data.length} / {maxNote}</span>
                             <span className="text-white text-2xl"><code>+</code> Create New Character</span>

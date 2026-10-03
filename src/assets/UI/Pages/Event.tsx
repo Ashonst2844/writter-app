@@ -1,5 +1,5 @@
 import Card from "../Components/Card";
-import Button from "../Components/Button";
+import Button, { BackButton } from "../Components/Button";
 import Editable from "../Components/Editable";
 import Icon from "../Components/Icon";
 import Loading from "../Components/Loading";
@@ -34,7 +34,7 @@ function EventAccordion(props: EventProps) {
 
     return <Card>
         <div className="h-full flex flex-col justify-between">
-            <h2 className="text-4xl font-black capitalize">{Slug(props.title)}</h2>
+            <h2 className="text-xl md:text-4xl font-black capitalize">{props?.title}</h2>
             <div className="flex gap-2 w-auto">
                 {props.tags?.map((item, i)=><Badge key={i} content={item}/>)}
             </div>
@@ -81,8 +81,8 @@ function EventPage({props}: {props: EventProps[]}) {
     if (result.error || !event) return <Error err={result.error || "Event not found!"}/>
     return <form onSubmit={handleSubmit} className="w-full h-full p-4 flex flex-col gap-4">
         <input type="hidden" name="content" value={htmlContent}/>
-        <Editable type="input" name="title" editMode={mode} text={(getValue('title') as string) ?? event.title} onChange={(v)=>setValue('title', v)} className="text-4xl font-bold">
-            <h2 className="text-4xl font-bold">{(getValue('title') as string) ?? event.title}</h2>
+        <Editable type="input" name="title" editMode={mode} text={(getValue('title') as string) ?? event.title} onChange={(v)=>setValue('title', v)} className="text-xl md:text-4xl font-bold">
+            <h2 className="text-xl md:text-4xl font-bold">{(getValue('title') as string) ?? event.title}</h2>
         </Editable>
 
         <Editable type="richedit" text={htmlContent} onChange={(html) => setValue("content", html)} editMode={mode} onClick={() => setMode(true)}/>
@@ -110,6 +110,7 @@ function EventPage({props}: {props: EventProps[]}) {
             <div onClick={() => setMode(true)} dangerouslySetInnerHTML={{ __html: htmlContent }} className="p-4 bg-(--primary) border hover:border-white cursor-pointer transition-all whitespace-pre-wrap leading-relaxed"/>
             <span className="text-xs text-neutral-500 mt-2 block">Klik teks untuk mengedit & meformat</span>
         </div>}
+        <BackButton/>
     </form>
 }
 
@@ -144,7 +145,7 @@ export default function Event({project_id, profiles}: {project_id: string, profi
                 </div>
                 <div className="grid gap-4 lg:grid-cols-2 p-4">
                     {data.map((item) => item.title?.includes(searchQ) && <EventAccordion key={item.event_id} {...item}/>)}
-                    <div className="min-h-60 w-full bg-(--primary) shadow-2xl rounded-2xl overflow-hidden">
+                    <div className="min-h-40 md:min-h-60 w-full bg-(--primary) shadow-2xl rounded-2xl overflow-hidden">
                         <form onClick={handleCreate} className="h-full flex flex-col hover:bg-(--accent) center p-4 transition-colors transition-300">
                             <span>{data.length} / {maxEvent}</span>
                             <span className="text-white text-2xl"><code>+</code> Create New Event</span>

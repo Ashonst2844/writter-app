@@ -1,6 +1,6 @@
 import Loading from "../Components/Loading";
 import Card from "../Components/Card";
-import Button from "../Components/Button";
+import Button, { BackButton } from "../Components/Button";
 import Icon from "../Components/Icon";
 import Editable from "../Components/Editable";
 import Error from "../Components/Error";
@@ -314,7 +314,7 @@ function ChapterPage({props,loading}: {props: ChapterProps[], loading: boolean})
         <input type="hidden" name="content" value={htmlContent}/>
         <input type="hidden" name="word" value={wordCount}/>
         <Editable type="input" name="name" editMode={mode} text={(getValue('name') as string) ?? chapter.name} onChange={(v)=>setValue('name', v)} className="text-4xl font=bold">
-            <h2 className="text-4xl font=bold">{(getValue('name') as string) ?? chapter.name} - {chapter.word}</h2>
+            <h2 className="text-2xl md:text-4xl font=bold">{(getValue('name') as string) ?? chapter.name} - {chapter.word}</h2>
         </Editable>
         {!mode && <TextToSpeach text={Sanitizer(chapter?.content)} isLoadingText={loading}/>}
         <Editable type="richedit" text={htmlContent} onChange={(html) => setValue("content", html)} editMode={mode} onClick={() => setMode(true)}/>
@@ -384,23 +384,26 @@ function BookPage({props, profiles}: {props: BookProps[], profiles: Profiles}) {
     const pageLength = Math.ceil((counted ?? 0) / 10);
     if (isLoading) return <Loading message="Chapters" />
     if (error || !book) return <Error err={error || "Book not found!"}/>
-    return <Routes>
-        <Route path="/" element={<div className="w-full p-2 md:p-4 flex flex-col gap-2">
-            <div className="flex gap-2 flex-col items-center sticky top-0 m-auto z-10 w-fit">
-                <div className="flex gap-2 bg-(--primary) p-2 rounded-xl max-w-full overflow-x-auto">
-                    {Array.from({length:pageLength}, (_,i) => <Button label={"Page "+i+1} type="custom" key={i} use="button" onClick={()=>setPageIndex(i+1)} className="w-12 h-12 border border-(--accent) rounded-full font-bold hover:bg-(--accent)">{i+1}</Button>)}
+    return <>
+        <Routes>
+            <Route path="/" element={<div className="w-full p-2 md:p-4 flex flex-col gap-2">
+                <div className="flex gap-2 flex-col items-center sticky top-0 m-auto z-10 w-fit">
+                    <div className="flex gap-2 bg-(--primary) p-2 rounded-xl max-w-full overflow-x-auto">
+                        {Array.from({length:pageLength}, (_,i) => <Button label={"Page "+i+1} type="custom" key={i} use="button" onClick={()=>setPageIndex(i+1)} className="w-12 h-12 border border-(--accent) rounded-full font-bold hover:bg-(--accent)">{i+1}</Button>)}
+                    </div>
+                    <span className="text-xl">{pageIndex}/{pageLength} | max. Page {chapter?.length ?? 0} / {maxChapter}</span>
                 </div>
-                <span className="text-xl">{pageIndex}/{pageLength} | max. Page {chapter?.length ?? 0} / {maxChapter}</span>
-            </div>
-            {data?.map((item, i)=><Chapter key={i} name={item.name} index={(pageIndex - 1) * 10 + i} status={item.status} chapter_id={item.chapter_id}/>)}
-            <div className="h-16 w-full bg-(--primary) shadow-2xl rounded-xl overflow-hidden">
-                <form onClick={handleCreate} className="h-full flex flex-col hover:bg-(--accent) center p-4 transition-colors transition-300">
-                    <span className="text-white text-2xl"><code>+</code> Create New Chapter</span>
-                </form>
-            </div>
-        </div>}/>
-        <Route path=":slug" element={<ChapterPage props={data} loading={isLoading}/>}/>
-    </Routes>
+                {data?.map((item, i)=><Chapter key={i} name={item.name} index={(pageIndex - 1) * 10 + i} status={item.status} chapter_id={item.chapter_id}/>)}
+                <div className="h-16 w-full bg-(--primary) shadow-2xl rounded-xl overflow-hidden">
+                    <form onClick={handleCreate} className="h-full flex flex-col hover:bg-(--accent) center p-4 transition-colors transition-300">
+                        <span className="text-white text-2xl"><code>+</code> Create New Chapter</span>
+                    </form>
+                </div>
+            </div>}/>
+            <Route path=":slug" element={<ChapterPage props={data} loading={isLoading}/>}/>
+        </Routes>
+        <BackButton/>
+    </>
 }
 
 export default function Library({project_id, profiles}: {project_id: string, profiles: Profiles}) {

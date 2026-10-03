@@ -1,7 +1,7 @@
 import Carrousel from "../Components/Carrousel"
 import Loading from "../Components/Loading"
 import Icon from "../Components/Icon"
-import Button from "../Components/Button"
+import Button, { BackButton } from "../Components/Button"
 import Editable from "../Components/Editable"
 import Error from "../Components/Error"
 import Modal from "../Components/Modal"
@@ -219,6 +219,7 @@ function ContinentPage({props, profiles}: {props: ContinentData, profiles: Profi
             <Button label="Create New Place" type="normal" use="button" onClick={handleCreate} className="rounded-full w-12">+</Button>
         </div>
         {data.map((item, i) => <PlaceAccordion key={i} props={item}/>)}
+        <BackButton/>
     </div>
 }
 
@@ -290,6 +291,7 @@ function Continent({props, profiles}: {props: TimelineData[], profiles: Profiles
             </div>}/>
             {data.map((item, i) => <Route path={Slug(item.name)} element={<ContinentPage key={i} props={item} profiles={profiles}/>}/>)}
         </Routes>
+        <BackButton/>
     </div>
 }
 

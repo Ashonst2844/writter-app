@@ -127,27 +127,32 @@ export default function TextToSpeech({ text, isLoadingText = false }: TextToSpee
         speakChunk(0);
     };
 
-    return <div className="w-full h-12 flex gap-2">
-        <Button label="Speak" use="button" type={isSpeaking ? "normal" : "alternate"} className="rounded-md p-4 disabled:opacity-50" onClick={handleToggleSpeak} disabled={isLoadingText || !text.trim()}>
-            {isLoadingText ? "Loading Chapter..." : isSpeaking ? "Stop Reader" : "Chapter Reader"}
-        </Button>
-
-        <div className="flex gap-2 w-[40%]">
-            <select title="Pitch" value={setting.pitch ?? 1} onChange={(e) => setSetting((prev) => ({...prev,pitch: parseFloat(e.target.value) || 1}))}>
-                {[0.5, 1, 1.25, 1.5, 1.75, 2].map((pitch) => <option key={pitch} value={pitch}>
-                    {pitch}
-                </option>)}
-            </select>
-            <select title="Speed" value={setting.rate ?? 1} onChange={(e) => setSetting((prev) => ({...prev,rate: parseFloat(e.target.value) || 1}))}>
-                {[0.5, 1, 1.25, 1.5, 1.75, 2].map((rate) => <option key={rate} value={rate}>
-                    {rate}
-                </option>)}
-            </select>
-            <select title="Voice" value={setting.voice ?? ""} onChange={(e) => setSetting((prev) => ({...prev,voice: e.target.value}))}className="p-2 text-sm bg-(--bg) text-(--text) rounded-md border border-(--text)/20 outline-none">
+    return <div className="w-full h-auto">
+        <div className="grid grid-rows-2 gap-2 w-full shrink-0">
+            <div className="flex gap-4">
+                <label htmlFor="pitch-control">Pitch</label>
+                <select id="pitch-control" title="Pitch" value={setting.pitch ?? 1} onChange={(e) => setSetting((prev) => ({...prev,pitch: parseFloat(e.target.value) || 1}))}>
+                    {[0.5, 1, 1.25, 1.5, 1.75, 2].map((pitch) => <option key={pitch} value={pitch}>
+                        {pitch}
+                    </option>)}
+                </select>
+            </div>
+            <div className="flex gap-4">
+                <label htmlFor="speed-control">Speed</label>
+                <select id="speed-control" title="Speed" value={setting.rate ?? 1} onChange={(e) => setSetting((prev) => ({...prev,rate: parseFloat(e.target.value) || 1}))}>
+                    {[0.5, 1, 1.25, 1.5, 1.75, 2].map((rate) => <option key={rate} value={rate}>
+                        {rate}
+                    </option>)}
+                </select>
+            </div>
+            <select title="Voice" value={setting.voice ?? ""} onChange={(e) => setSetting((prev) => ({...prev,voice: e.target.value}))}className="p-2 w-full text-sm bg-(--bg) text-(--text) rounded-md border border-(--text)/20 outline-none">
                 {voices.map((voice) => <option key={voice.name} value={voice.name}>
                     {voice.name} ({voice.lang})
                 </option>)}
             </select>
         </div>
+        <Button label="Speak" use="button" type={isSpeaking ? "normal" : "alternate"} className="rounded-md my-2 w-full md:w-auto p-4 disabled:opacity-50" onClick={handleToggleSpeak} disabled={isLoadingText || !text.trim()}>
+            {isLoadingText ? "Loading Chapter..." : isSpeaking ? "Stop Reader" : "Chapter Reader"}
+        </Button>
     </div>
 }

@@ -1,5 +1,5 @@
 import Card from "../Components/Card";
-import Button from "../Components/Button";
+import Button, { BackButton } from "../Components/Button";
 import Editable from "../Components/Editable";
 import Loading from "../Components/Loading";
 import Icon from "../Components/Icon";
@@ -34,7 +34,7 @@ function RelicAccordion(props: RelicProps) {
 
     return <Card>
         <div className="h-full flex flex-col justify-between">
-            <h2 className="text-4xl font-black capitalize">{props.title}</h2>
+            <h2 className="text-xl md:text-4xl font-black capitalize">{props.title}</h2>
             {showModal && <Modal message={`Delete ${props.title}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
             <div className='flex w-full h-12 justify-end gap-2'>
                 <Button label={"Delete "+props.title} onClick={() => setShowModal(true)} type='warning' use="button" target={Slug(props.title)} className='rounded-md w-12'>
@@ -77,8 +77,8 @@ function RelicPage({props}: {props: RelicProps[]}) {
     if (result.error || !relic) return <Error err={result.error || "Relic not found!"}/>
     return <form onSubmit={handleSubmit} className="w-full h-full p-4 flex flex-col gap-4">
         <input type="hidden" name="content" value={htmlContent}/>
-        <Editable type="input" name="title" editMode={mode} text={(getValue('title') as string) ?? relic.title} onChange={(v)=>setValue('title', v)} className="text-4xl font=bold">
-            <h2 className="text-4xl font=bold">{(getValue('title') as string) ?? relic.title}</h2>
+        <Editable type="input" name="title" editMode={mode} text={(getValue('title') as string) ?? relic.title} onChange={(v)=>setValue('title', v)} className="text-xl md:text-4xl font=bold">
+            <h2 className="text-xl md:text-4xl font=bold">{(getValue('title') as string) ?? relic.title}</h2>
         </Editable>
 
         <Editable type="richedit" text={htmlContent} onChange={(html) => setValue("content", html)} editMode={mode} onClick={() => setMode(true)}/>
@@ -100,6 +100,7 @@ function RelicPage({props}: {props: RelicProps[]}) {
             <div onClick={() => setMode(true)} dangerouslySetInnerHTML={{ __html: htmlContent }} className="p-4 bg-(--primary) border hover:border-white cursor-pointer transition-all whitespace-pre-wrap leading-relaxed"/>
             <span className="text-xs text-neutral-500 mt-2 block">Klik teks untuk mengedit & meformat</span>
         </div>}
+        <BackButton/>
     </form>
 }
 
@@ -134,7 +135,7 @@ export default function Relic({project_id, profiles}: {project_id: string, profi
                 </div>
                 <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(200px,1fr))] lg:grid-cols-2 p-4">
                     {data.map((item) => item.title?.includes(searchQ) && <RelicAccordion key={item.relic_id} {...item}/>)}
-                    <div className="min-h-60 w-full bg-(--primary) shadow-xl rounded-2xl overflow-hidden">
+                    <div className="min-h-40 md:min-h-60 w-full bg-(--primary) shadow-xl rounded-2xl overflow-hidden">
                         <form onClick={handleCreate} className="h-full w-full p-4 flex flex-col hover:bg-(--accent) center transition-colors transition-300">
                             <span>{data.length} / {maxRelic}</span>
                             <span className="text-white text-2xl"><code>+</code> Create New Relic</span>

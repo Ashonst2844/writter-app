@@ -93,5 +93,9 @@ export const changelog = [
             "Membuat wesbite menjadi responsive untuk mobile dan tablet",
             "Menambahkan API AI KEY ke env"
         ]},
+        {id:20,version:"11.1",date:"3 Oct. 2026",desc:[
+            "Fix AI Companion Error",
+            "Fix Responsive UI",
+        ]},
     ]}
 ]
