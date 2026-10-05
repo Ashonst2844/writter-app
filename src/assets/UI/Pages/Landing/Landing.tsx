@@ -61,7 +61,7 @@ function Header({plan}: {plan: 'free' | 'hobbies' | 'professionals'}) {
             </Button>
             <div className="flex items-center gap-4">
                 <img src="/favicon.svg" alt="Icon" width={50} height={50}/>
-                <span className="font-bold text-xl">Writer App</span>
+                <span className="font-bold text-xl">UniFiction</span>
             </div>
         </div>
         <div className="transition-transform duration-150 lg:w-[30%] w-full p-4 h-screen absolute top-0 right-0 bg-(--bg) shadow-xl flex flex-col gap-4" style={{transform: `translateX(${modal?"0":"100%"})`}}>
@@ -148,7 +148,7 @@ function Home() {
         <Images target="bg/bg.jpg" className="absolute top-0 left-0 w-full h-full object-cover" />
         <div className="absolute w-full h-full bg-linear-to-r from-black to-transparent flex justify-center flex-col md:gap-8 gap-2 p-8">
             <code className="home text-(--accent)">// {version}</code>
-            <h1 className="home md:text-8xl text-6xl font-bold">From Zero, <br /> <span className="text-(--accent) font-light">To Universe</span></h1>
+            <h1 className="home md:text-8xl text-4xl font-bold">From Zero, <br /> <span className="text-(--accent) font-light">To Universe</span></h1>
             <p className="home md:w-[60%] text-center md:text-left p-4 text-white/75">Platform all-in-one workspace khusus novelis dan worldbuilder. Kelola garis waktu, atribut karakter, lokasi krusial, hingga draf naskah dalam satu ekosistem yang terstruktur</p>
             <div className="home mx-auto lg:mx-0 flex flex-col md:flex-row gap-4 w-[90%] lg:w-[40%]">
                 <Button label="See More" type="normal" use="url" target="#about" className="w-full lg:w-[50%] rounded-md h-16 shadow-md">Jelajahi</Button>
@@ -215,7 +215,7 @@ function About() {
             <div className="about w-full h-96 center border-b-2 border-neutral-700">
                 <div className="flex flex-col md:flex-row gap-2 md:gap-0 h-full items-center">
                     <div className="center flex-col gap-4 w-full md:w-[50%]">
-                        <h2 className="text-center text-xl text-(--accent) font-bold">Writer App</h2>
+                        <h2 className="text-center text-xl text-(--accent) font-bold">UniFiction</h2>
                         <p className="text-center text-sm p-4">adalah platform all-in-one worldbuilding & story writing workspace yang dirancang khusus untuk novelis, kreator, dan lore-master yang ingin membangun fiksi imajinatif berskala besar dalam jangka panjang.</p>
                     </div>
                     <div className="w-full md:w-[50%] h-full overflow-hidden">
@@ -388,7 +388,7 @@ function Footer() {
         <div className="flex flex-col md:grid md:grid-cols-3 h-full gap-16">
             <div className="flex h-full flex-col gap-4">
                 <img src="/favicon.svg" alt="Icon"  width={75}/>
-                <p>Writer App</p>
+                <p>UniFiction</p>
                 <hr className="border border-neutral-600"/>
                 <p className="opacity-75">Reach Developer :</p>
                 <div className="flex flex-col gap-4">
@@ -416,6 +416,7 @@ function Footer() {
                 <p className="opacity-75 text-lg">About</p>
                 <div className="flex flex-col gap-4">
                     {['terms-of-services','privacy-policy','changelog'].map((item, i) => <Button label={item} key={i} use="link" type="custom" target={item} className="hover:underline hover:brightness-75">{item.toUpperCase().replaceAll("-"," ")}</Button>)}
+                    <Button label="Support Dev" use="url" type="custom" target="https://trakteer.id/masagusahmadramadhan" className="hover:underline hover:brightness-75">{"Support Developer".toUpperCase()}</Button>
                 </div>
             </div>
         </div>
@@ -424,7 +425,7 @@ function Footer() {
 
 export default function Landing() {
     useEffect(() => {
-        document.title = "Writer App"
+        document.title = "UniFiction"
     }, [])
 
     const authValue = window.localStorage.getItem("auth");
@@ -435,6 +436,8 @@ export default function Landing() {
             user_id: id || undefined
         }
     })
+
+    const demo = false
     
     return <main className="w-screen relative">
         {isLoading && <Loading message="User"/>}
@@ -442,7 +445,7 @@ export default function Landing() {
         <Home/>
         <About/>
         <Feature/>
-        <Planning/>
+        {demo && <Planning/>}
         <hr className="w-full border-4 border-(--bg)"/>
         <Builder/>
         <Footer/>

@@ -44,7 +44,7 @@ const terms = [
 
 export default function Terms() {
     useEffect(() => {
-        document.title = "Writer App | Terms Of Services"
+        document.title = "UniFiction | Terms Of Services"
     }, [])
 
     return <main className="w-screen min-h-screen flex flex-col relative">
@@ -58,7 +58,7 @@ export default function Terms() {
             <div className="border-x border-neutral-700 w-full h-full">
                 <div className="p-4 md:p-8">
                     <p>Terakhir Diperbarui: 24, September 2026</p>
-                    <p>Selamat datang di Writer App. Layanan ini dioperasikan dan dikembangkan oleh Masagus Ahmad Ramadhan.</p>
+                    <p>Selamat datang di UniFiction. Layanan ini dioperasikan dan dikembangkan oleh Masagus Ahmad Ramadhan.</p>
                     <p>Dengan mendaftar, mengakses, atau menggunakan Layanan kami, Anda ("Pengguna") menyatakan bahwa Anda telah membaca, memahami, dan menyetujui untuk terikat oleh Syarat dan Ketentuan ini. Jika Anda tidak menyetujui bagian mana pun dari ketentuan ini, Anda tidak diperkenankan menggunakan Layanan kami.</p>
                 </div>
                 {terms.map(item => <div key={item.id} className="flex flex-col w-full min-h-24 p-4 md:p-8 gap-4">

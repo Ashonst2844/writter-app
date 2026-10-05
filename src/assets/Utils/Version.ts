@@ -100,5 +100,12 @@ export const changelog = [
         {id:21,version:"11.2",date:"3 Oct. 2026",desc:[
             "Fix Some Error",
         ]},
+        {id:22,version:"11.3",date:"5 Oct. 2026",desc:[
+            "Fix Some Error",
+            "Fix UI/UX",
+            "Menambahkan fitur donate",
+            "Menyimpan Premium Content dan membukanya untuk umum",
+            "Polish System agar menjadi Launchable",
+        ]},
     ]}
 ]

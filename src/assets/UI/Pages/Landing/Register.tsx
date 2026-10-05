@@ -63,7 +63,7 @@ const toErrorMessage = (err: unknown) => {
 
 export default function Register() {
     useEffect(() => {
-        document.title = "Writer App | Register"
+        document.title = "UniFiction | Register"
     }, [])
 
     const [mode, setMode] = useState<0|1|2>(0)
@@ -101,62 +101,71 @@ export default function Register() {
     }
 
     const handleSignUP = async (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        setLoading(false)
+        e.preventDefault()
+        setLoading(true)
 
-        const formData = new FormData(e.currentTarget)
-        const form = {
-            email: formData.get("email") as string,
-            password: formData.get("password") as string,
-            c_password: formData.get("c_password") as string,
-            username: formData.get("username") as string,
-        }
+        const formData = new FormData(e.currentTarget)
+        const form = {
+            email: formData.get("email") as string,
+            password: formData.get("password") as string,
+            c_password: formData.get("c_password") as string,
+            username: formData.get("username") as string,
+        }
 
-        if (form.password !== form.c_password) {
-            alert("Password Doesn't Match")
-            return
-        }
-        if (passwordScore <= 60) {
-            alert("Password Doesn't Strong Enough!")
-            return
-        }
+        if (form.password !== form.c_password) {
+            alert("Password Doesn't Match")
+            setLoading(false)
+            return
+        }
+        if (passwordScore <= 60) {
+            alert("Password Doesn't Strong Enough!")
+            setLoading(false)
+            return
+        }
 
-        const {data, error: authErr} = await supabase.auth.signUp({
-            email: form.email, 
-            password: form.password,
-        })
-        if (authErr) throw new Error(authErr.message)
+        try {
+            const {data, error: authErr} = await supabase.auth.signUp({
+                email: form.email, 
+                password: form.password,
+                options: {
+                    data: {
+                        username: form.username,
+                        plan: 'free',
+                    },
+                },
+            })
+            if (authErr) throw new Error(authErr.message)
 
-        const user = data?.user;
-        if (!user) throw new Error("User creation failed.")
+            const user = data?.user;
+            if (!user) throw new Error("User creation failed.")
 
-        try {
-            setLoading(true)
-            const { error: profileError } = await supabase.from('user_data').insert([
-                {
-                    user_id: user.id,
-                    username: form.username,
-                    email: form.email.toLowerCase().trim(),
-                },
-            ]);
+            const { error: profileError } = await supabase.from('user_data').insert([
+                {
+                    user_id: user.id,
+                    username: form.username,
+                    email: form.email.toLowerCase().trim(),
+                },
+            ]);
 
-            if (profileError) {
-                if (profileError.code === "23505") {
-                    alert("Email has been registered! Use another Email")
-                    return
-                }
-            }
-            alert("Registered Succes!")
-        } catch (err) {
-            setLoading(false)
-            alert("Sign-Up Failed!")
-            console.error(err)
-            return { ok: false, error: toErrorMessage(err) };
-        } finally {
-            setLoading(false)
-            setMode(1)
-        }
-    }
+            if (profileError) {
+                if (profileError.code === "23505") {
+                    alert("Email has been registered! Use another Email")
+                    setLoading(false)
+                    return
+                }
+                throw new Error(`Database error: ${profileError.message}`)
+            }
+            alert("Registered Succes!")
+            setMode(1)
+        } catch (err) {
+            setLoading(false)
+            alert("Sign-Up Failed!")
+            console.error(err)
+            return { ok: false, error: toErrorMessage(err) };
+        } finally {
+            setLoading(false)
+        }
+    }
 
     const handleSignIn = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()

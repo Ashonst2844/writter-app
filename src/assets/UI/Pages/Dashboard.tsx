@@ -158,7 +158,7 @@ function AI({profiles}: {profiles: Profiles}) {
 
 export default function Dashboard({projects, profiles}:{projects:ProjectData[], profiles: Profiles}) {
     useEffect(() => {
-        document.title = "Writer App | Dashboard"
+        document.title = "UniFiction | Dashboard"
     }, [])
 
     const { id } = useParams<{id:string}>();
@@ -185,7 +185,7 @@ export default function Dashboard({projects, profiles}:{projects:ProjectData[], 
             <Button label="Pinned Widget" onClick={handlePin} type="normal" use="button" className="w-12 rounded-full shadow-md">
                 <Icon type="online" use="pin" color="var(--text)" fill scale="0.75"/>
             </Button>
-            <Button label="AI Companio Widget" onClick={handleChat} disabled={profiles?.plan==="free"} type="normal" use="button" className="w-12 rounded-full shadow-md">
+            <Button label="AI Companio Widget" onClick={handleChat} type="normal" use="button" className="w-12 rounded-full shadow-md">
                 <Icon type="online" use="assistant" color="var(--text)" fill scale="0.75"/>
             </Button>
         </div>
@@ -203,18 +203,18 @@ export default function Dashboard({projects, profiles}:{projects:ProjectData[], 
             <Breadcrumb/>
             <div className="h-full lg:h-[90%] w-full overflow-y-scroll">
                 <Suspense fallback={<Loading message="Section"/>}>
+                    <Routes>
+                        <Route index element={<Navigate to="timeline-building" replace />} />
+                        <Route path={`timeline-building`} element={<Timeline project_id={projectId ?? ""} profiles={profiles}/>}/>
+                        <Route path={`world-building/*`} element={<World project_id={projectId ?? ""} profiles={profiles}/>} />
+                        <Route path={`character-development/*`} element={<Character project_id={projectId ?? ""} profiles={profiles}/>}/>
+                        <Route path={`goals`} element={<Goals project_id={projectId ?? ""} profiles={profiles}/>}/>
+                        <Route path={`events/*`} element={<Event project_id={projectId ?? ""} profiles={profiles}/>}/>
+                        <Route path={`relics/*`} element={<Relic project_id={projectId ?? ""} profiles={profiles}/>}/>
+                        <Route path={`book-library/*`} element={<Library project_id={projectId ?? ""} profiles={profiles}/>}/>
+                        <Route path={`note/*`} element={<Note project_id={projectId ?? ""} profiles={profiles}/>}/>
+                    </Routes>
                 </Suspense>
-                <Routes>
-                    <Route index element={<Navigate to="timeline-building" replace />} />
-                    <Route path={`timeline-building`} element={<Timeline project_id={projectId ?? ""} profiles={profiles}/>}/>
-                    <Route path={`world-building/*`} element={<World project_id={projectId ?? ""} profiles={profiles}/>} />
-                    <Route path={`character-development/*`} element={<Character project_id={projectId ?? ""} profiles={profiles}/>}/>
-                    <Route path={`goals`} element={<Goals project_id={projectId ?? ""} profiles={profiles}/>}/>
-                    <Route path={`events/*`} element={<Event project_id={projectId ?? ""} profiles={profiles}/>}/>
-                    <Route path={`relics/*`} element={<Relic project_id={projectId ?? ""} profiles={profiles}/>}/>
-                    <Route path={`book-library/*`} element={<Library project_id={projectId ?? ""} profiles={profiles}/>}/>
-                    <Route path={`note/*`} element={<Note project_id={projectId ?? ""} profiles={profiles}/>}/>
-                </Routes>
             </div>
         </div>
     </section>

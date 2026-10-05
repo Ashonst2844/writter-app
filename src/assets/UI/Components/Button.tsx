@@ -15,7 +15,7 @@ interface ButtonProps {
 }
 
 export function BackButton() {
-    return <Button label="Back Previous" type="warning" use="link" target="../" className="w-12 h-12 rounded-full fixed bottom-0 right-0 m-4">
+    return <Button label="Back Previous" type="warning" use="link" target="../" className="w-12 h-12 rounded-full fixed bottom-0 right-0 m-4 z-100">
         <Icon type="normal" use="caret" width={6} color="white" className="rotate-180"/>
     </Button>
 }

@@ -238,7 +238,7 @@ function Book({props, profiles}: {props: BookProps, profiles: Profiles}) {
                             <Button label={"Read "+props.title} type='custom' use='url' target={props.link} className='hover:brightness-110'>Read!</Button>
                             <Button label={"Open "+props.title} type='custom' use='link' target={Slug(props.title)} className='hover:brightness-110'>Chapters</Button>
                             <Button label={"Edit "+props.title} type='custom' use='button' onClick={()=>setMode(true)} className='hover:brightness-110'>Edit</Button>
-                            <Button label={"Export "+props.title} onClick={() => setShowExport(true)} disabled={profiles?.plan === "free"} type='custom' use='button' className={profiles?.plan === "free"?"opacity-75":"hover:brightness-125"}>Export</Button>
+                            <Button label={"Export "+props.title} onClick={() => setShowExport(true)} type='custom' use='button' className={profiles?.plan === "free"?"opacity-75":"hover:brightness-125"}>Export</Button>
                             <Button label={"Delete "+props.title} onClick={() => setShowModal(true)} type='custom' use='button' className='hover:brightness-110 text-(--warning)'>Delete</Button>
                         </div>}
                     </div>

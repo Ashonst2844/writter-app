@@ -5,13 +5,13 @@ import { useEffect } from "react"
 
 const privacy = [
     {id:1,title:"Informasi Yang Dikumpulkan",desc:[
-        "Writer App akan meminta data pengguna untuk memberikan berupa username, dan email, serta metadata dari proyek-proyek pengguna",
+        "UniFiction akan meminta data pengguna untuk memberikan berupa username, dan email, serta metadata dari proyek-proyek pengguna",
         "Segala hasil tulisan dan hasil brainstorming dalam proyek pengguna akan disimpan di dalam database (Supabase)",
         "Sistem browser akan menyimpan data-data teknis seperti session key dan log akses"
     ]},
     {id:2,title:"Penggunaan Data",desc:[
         "Tersedia fitur utama pada aplikasi seperti autentikasi (Sign-Up, Sign-In, dan Log-out), Pembuatan dan penulisan proyek, serta konversi novel menjadi file .docx",
-        "Writer App akan memproses status tingkatan fitur pengguna (Free / Hobbies / Professionals)"
+        "UniFiction akan memproses status tingkatan fitur pengguna (Free / Hobbies / Professionals)"
     ]},
     {id:3,title:"Penyimpanan & Layanan Pihak Ketiga",desc:[
         "Menggunakan Pihak Ketiga Supabase sebagai infrastruktur Backend Minimalis dan Database untuk menyimpan data pengguna di cloud yang aman dan menyimpan Session dan Autentikasi pengguna"
@@ -27,7 +27,7 @@ const privacy = [
 
 export default function Privacy() {
     useEffect(() => {
-        document.title = "Writer App | Privacy Policy"
+        document.title = "UniFiction | Privacy Policy"
     }, [])
 
     return <main className="w-screen min-h-screen flex flex-col relative">

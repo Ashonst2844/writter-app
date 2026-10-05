@@ -76,7 +76,7 @@ function Project(props: ProjectData) {
 
 export default function Projects() {
   useEffect(() => {
-    document.title = "Writer App | Projects"
+    document.title = "UniFiction | Projects"
   }, [])
 
   const authValue = window.localStorage.getItem("auth");

@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom"
 import { lazy, Suspense } from 'react'
 
 import Loading from './assets/UI/Components/Loading'
+import Button from './assets/UI/Components/Button'
 
 const Projects = lazy(() => import("./assets/UI/Pages/Projects"))
 const Register = lazy(() => import("./assets/UI/Pages/Landing/Register"))
@@ -34,5 +35,9 @@ export default function App() {
         </Route>
       </Routes>
     </Suspense>
+    <Button label="Support Dev" use="url" type="normal" target="https://trakteer.id/masagusahmadramadhan" className="z-100 h-8 md:h-12 p-4 gap-2 fixed bottom-0 left-0 m-4 rounded-full">
+      <img src="/coffee.svg" alt="Coffee Icon" className='w-4 h-4'/>
+      <p>Support Dev</p>
+    </Button>
   </main>
 }
