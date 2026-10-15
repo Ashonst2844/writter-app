@@ -1,11 +1,12 @@
 import Loading from "../Components/Loading";
 import Card from "../Components/Card";
-import Button, { BackButton } from "../Components/Button";
+import Button from "../Components/Button";
 import Icon from "../Components/Icon";
 import Editable from "../Components/Editable";
 import Error from "../Components/Error";
 import Modal from "../Components/Modal";
 import TextToSpeach from "../Components/TextToSpeach";
+import Header from "../Components/Header";
 
 import { Route, Routes, useParams } from "react-router-dom";
 import { useState, useEffect, useMemo, type ChangeEvent, type FormEvent } from "react";
@@ -194,15 +195,11 @@ function Book({props, profiles}: {props: BookProps, profiles: Profiles}) {
         <form onSubmit={handleSubmit} className="h-full flex flex-col md:flex-row gap-4 relative">
             <div>
                 <Editable type="upload" editMode={mode} onChange={handleCoverUpload} uploading={uploading}>
-                    {props.cover==null||props.cover==""?
-                        <div className="w-full h-full bg-(--accent) rounded-md"/>:
-                        <img src={currentCover} alt={props.title} className="w-full md:h-52 object-fit rounded-lg" />
-                    }
+                    {props.cover==null||props.cover==""?<div className="w-full h-full bg-(--accent) rounded-md"/>:
+                    <img src={currentCover} alt={props.title} className="w-full md:h-52 object-fit rounded-lg" />}
                 </Editable>
             </div>
-
             <input type="hidden" name="cover" value={currentCover} />
-            
             <div className="flex flex-col gap-2 w-full md:w-[calc(100%-13rem)]">
                 <Editable type="input" name='title' text={(getValue('title') as string) ?? props.title} onChange={(v)=>setValue('title', v)} editMode={mode} className='text-2xl font-black capitalize w-full'>
                     <h2 className="text-2xl font-black capitalize">{(getValue('title') as string) ?? props.title}</h2>
@@ -214,36 +211,37 @@ function Book({props, profiles}: {props: BookProps, profiles: Profiles}) {
                 </Editable>
             </div>
             {showModal && <Modal message={`Delete ${props.title}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
-            <div className='flex justify-end items-end gap-2'>
-                {mode ? <>
-                    <Button label={"Cancel Edit "+props.title} type='warning' use="button" className='rounded-md w-12 h-12' onClick={() => {
-                        setMode(false);
-                        setUploadedCover(null);
-                        setValue('title', props.title);
-                        setValue('synopsys', props.synopsys);
-                        setValue('link', props.link);
-                        setValue('cover', props.cover);
-                    }}>
-                        <Icon type="normal" use="cancel" width={3} color="white"/>
+            {mode ? <>
+                <Button label={"Cancel Edit "+props.title} type='custom' use="button" className='w-12 absolute top-0 right-0' onClick={() => {
+                    setMode(false);
+                    setUploadedCover(null);
+                    setValue('title', props.title);
+                    setValue('synopsys', props.synopsys);
+                    setValue('link', props.link);
+                    setValue('cover', props.cover);
+                }}>
+                    <Icon type="normal" use="cancel" width={3} color="var(--warning)" className="opacity-50 hover:opacity-100"/>
+                </Button>
+                <Button label={"Submit Edit "+props.title} type='custom' use="submit" className='w-12 absolute bottom-0 right-0'>
+                    <Icon type="normal" use="submit" width={3} color="var(--text)" fill className="opacity-50 hover:opacity-100"/>
+                </Button>
+            </> : <>
+                <div className="absolute bottom-0 right-0 flex gap-2">
+                    <Button label="Menu" onClick={() => setShowMenu(prev => !prev)} type='alternate' use='button' className='rounded-md w-12 h-12'>
+                        <Icon type="normal" use="burger" width={5} color="var(--bg)"/>
                     </Button>
-                    <Button label={"Submit Edit "+props.title} type='normal' use="submit" className='rounded-md w-12 h-12'>
-                        <Icon type="normal" use="submit" width={3} color="white" fill/>
-                    </Button>
-                </> : <>
-                    <div className="flex relative gap">
-                        <Button label="" onClick={() => setShowMenu(prev => !prev)} type='normal' use='button' className='rounded-md w-12 h-12'>
-                            <Icon type="normal" use="burger" width={3} color="var(--text)"/>
-                        </Button>
-                        {showMenu && <div className="absolute z-50 top-0 -left-24 p-4 gap-4 shadow-md flex flex-col bg-(--bg) rounded overflow-hidden text-center">
-                            <Button label={"Read "+props.title} type='custom' use='url' target={props.link} className='hover:brightness-110'>Read!</Button>
-                            <Button label={"Open "+props.title} type='custom' use='link' target={Slug(props.title)} className='hover:brightness-110'>Chapters</Button>
-                            <Button label={"Edit "+props.title} type='custom' use='button' onClick={()=>setMode(true)} className='hover:brightness-110'>Edit</Button>
-                            <Button label={"Export "+props.title} onClick={() => setShowExport(true)} type='custom' use='button' className={profiles?.plan === "free"?"opacity-75":"hover:brightness-125"}>Export</Button>
-                            <Button label={"Delete "+props.title} onClick={() => setShowModal(true)} type='custom' use='button' className='hover:brightness-110 text-(--warning)'>Delete</Button>
-                        </div>}
-                    </div>
-                </>}
-            </div>
+                    <Button label={`Open ${props?.title}`} type='normal' use='link' target={Slug(props.title)} className='rounded-md w-24 h-12'>Open</Button>
+                    {showMenu && <div className="absolute z-50 top-0 -left-24 p-4 gap-4 shadow-md flex flex-col bg-(--bg) rounded overflow-hidden text-center">
+                        <Button label={"Read "+props.title} type='custom' use='url' target={props.link} className='hover:brightness-110'>Read!</Button>
+                        <Button label={"Export "+props.title} onClick={() => setShowExport(true)} type='custom' use='button' className={profiles?.plan === "free"?"opacity-75":"hover:brightness-125"}>Export</Button>
+                        <Button label={"Delete "+props.title} onClick={() => setShowModal(true)} type='custom' use='button' className='hover:brightness-110 text-(--warning)'>Delete</Button>
+                    </div>}
+                </div>
+                <Button label={"Edit "+props?.title} onClick={() => setMode(prev => !prev)} type='custom' use='button' className='w-12 absolute top-0 right-0'>
+                    <Icon type="online" use="edit" width={2} color="var(--text)" className="opacity-50 hover:opacity-100"/>
+                </Button>
+
+            </>}
         </form>
         {showExport && <Export bookTitle={props.title} chapters={chapters.filter(item => item.status === "finish")} onClose={() => setShowExport(false)}/>}
     </Card>
@@ -254,7 +252,7 @@ function Chapter({name, index, status, chapter_id}: {name: string, index: number
     const {onDelete} = useForm({inputs:[], enp:"chapter", id:chapter_id})
     const [showModal, setShowModal] = useState<boolean>(false)
 
-    return <div className="flex items-center w-full h-12 md:h-16 bg-(--primary) md:rounded-xl overflow-hidden">
+    return <div className="flex items-center w-full h-12 md:h-16 bg-(--primary) border-y-2 border-neutral-700 overflow-hidden">
         <Button label={"Open Chapter "+index} type="normal" use="link" target={Slug(name)} className="w-[10%] h-full bg-(--accent) center text-4xl font-black">
             <p className="text-2xl">{index}</p>
         </Button>
@@ -386,23 +384,27 @@ function BookPage({props, profiles}: {props: BookProps[], profiles: Profiles}) {
     if (error || !book) return <Error err={error || "Book not found!"}/>
     return <>
         <Routes>
-            <Route path="/" element={<div className="w-full p-2 md:p-4 flex flex-col gap-2">
-                <div className="flex gap-2 flex-col items-center sticky top-0 m-auto z-10 w-fit">
-                    <div className="flex gap-2 bg-(--primary) p-2 rounded-xl max-w-full overflow-x-auto">
+            <Route path="/" element={<div className="w-full flex flex-col border-y-2 border-neutral-700">
+                <div className="grid grid-cols-2 gap-2 items-center p-4 w-full border-y-2 border-neutral-700">
+                    <code className="text-xl border-r-2 border-neutral-700">{pageIndex} of {pageLength}</code>
+                    <code className="text-xl">{chapter?.length ?? 0} / {maxChapter}</code>
+                </div>
+                <div className="w-full h-full flex flex-col lg:flex-row">
+                    <div className="flex flex-row lg:flex-col gap-2 lg:p-4 p-2 overflow-auto border-r-2 border-neutral-700">
                         {Array.from({length:pageLength}, (_,i) => <Button label={"Page "+i+1} type="custom" key={i} use="button" onClick={()=>setPageIndex(i+1)} className="w-12 h-12 border border-(--accent) rounded-full font-bold hover:bg-(--accent)">{i+1}</Button>)}
                     </div>
-                    <span className="text-xl">{pageIndex}/{pageLength} | max. Page {chapter?.length ?? 0} / {maxChapter}</span>
-                </div>
-                {data?.map((item, i)=><Chapter key={i} name={item.name} index={(pageIndex - 1) * 10 + i} status={item.status} chapter_id={item.chapter_id}/>)}
-                <div className="h-16 w-full bg-(--primary) shadow-2xl rounded-xl overflow-hidden">
-                    <form onClick={handleCreate} className="h-full flex flex-col hover:bg-(--accent) center p-4 transition-colors transition-300">
-                        <span className="text-white text-2xl"><code>+</code> Create New Chapter</span>
-                    </form>
+                    <div className="w-full h-full flex flex-col gap-2">
+                        {data?.map((item, i)=><Chapter key={i} name={item.name} index={(pageIndex - 1) * 10 + i} status={item.status} chapter_id={item.chapter_id}/>)}
+                        <div className="h-16 w-full bg-(--primary) shadow-2xl border-y-2 border-neutral-700">
+                            <form onClick={handleCreate} className="h-full flex flex-col hover:bg-(--accent) center p-4 transition-colors transition-300">
+                                <span className="text-white text-2xl"><code>+</code> Create New Chapter</span>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>}/>
             <Route path=":slug" element={<ChapterPage props={data} loading={isLoading}/>}/>
         </Routes>
-        <BackButton/>
     </>
 }
 
@@ -429,17 +431,22 @@ export default function Library({project_id, profiles}: {project_id: string, pro
     if (isLoading) return <Loading message="Books" />
     if (error || !data) return <Error err={error || "Books not found!"}/>
     return <section className="w-full h-full">
-        <Routes>
-            <Route path="/" element={<div className="grid gap-4 lg:grid-cols-1 p-4 relative">
-                {data.map((item) => <Book key={item.book_id} props={item} profiles={profiles}/>)}
-                <div className="h-full w-full bg-(--primary) shadow-2xl rounded-2xl overflow-hidden">
-                    <form onClick={handleCreate} className="min-h-60 flex flex-col hover:bg-(--accent) center p-4 transition-colors transition-300">
-                        <span>{data.length} / {maxBook}</span>
-                        <span className="text-white text-2xl"><code>+</code> Create New Book</span>
-                    </form>
-                </div>
-            </div>} />
-            <Route path=":slug/*" element={<BookPage props={data} profiles={profiles}/>}/>
-        </Routes>
+        <Header title="Library" desc="Create And Write Novels Book!" profiles={profiles}/>
+        <div className="px-8">
+            <div className="min-h-screen w-full flex flex-col py-4 border-x-2 border-neutral-700">
+                <Routes>
+                    <Route path="/" element={<div className="grid gap-4 lg:grid-cols-1">
+                        {data.map((item) => <Book key={item.book_id} props={item} profiles={profiles}/>)}
+                        <div className="h-full w-full bg-(--primary) shadow-2xl border-y-2 border-neutral-700">
+                            <form onClick={handleCreate} className="min-h-60 flex-col hover:bg-(--accent) center">
+                                <span>{data.length} / {maxBook}</span>
+                                <span className="text-white text-2xl"><code>+</code> Create New Book</span>
+                            </form>
+                        </div>
+                    </div>} />
+                    <Route path=":slug/*" element={<BookPage props={data} profiles={profiles}/>}/>
+                </Routes>
+            </div>
+        </div>
     </section>
 }

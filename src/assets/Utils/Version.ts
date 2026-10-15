@@ -107,5 +107,11 @@ export const changelog = [
             "Menyimpan Premium Content dan membukanya untuk umum",
             "Polish System agar menjadi Launchable",
         ]},
+        {id:23,version:"12.0",date:"15 Oct. 2026",desc:[
+            "Update AIPromt",
+            "Big Update UI/UX",
+            "Menghapus Relic And Event Section",
+            "Menambahkan fitur grouping di Note Section",
+        ]},
     ]}
 ]

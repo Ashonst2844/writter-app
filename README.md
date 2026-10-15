@@ -188,3 +188,8 @@ Keterangan:
     - Menambahkan fitur donate
     - Menyimpan Premium Content dan membukanya untuk umum
     - Polish System agar menjadi Launchable
+  - (15 Oct. 2026) **update-build v1.12.0**
+    - Update AIPromt
+    - Big Update UI/UX
+    - Menghapus Relic And Event Section
+    - Menambahkan fitur grouping di Note Section

@@ -1,4 +1,4 @@
-import Button, { BackButton } from "../Components/Button"
+import Button from "../Components/Button"
 import Card from "../Components/Card";
 import Editable from "../Components/Editable";
 import Icon from "../Components/Icon";
@@ -6,6 +6,7 @@ import Loading from "../Components/Loading";
 import Error from "../Components/Error";
 import Modal from "../Components/Modal";
 import Badge from "../Components/Badge";
+import Header from "../Components/Header";
 
 import { useState, useEffect, type ChangeEvent, type FormEvent } from "react";
 import { useFetch } from "../../Hooks/useFetch"
@@ -49,18 +50,14 @@ function CharacterCard(props: CharacterProps) {
                 <h2 className="text-xl md:text-4xl font-black">{props.name}</h2>
                 <span className="opacity-75 text-sm">{props.desc.slice(0, 100)}{props.desc.length >= 100 ? "..." : ""}</span>
             </div>
-            <div className='flex w-full h-12 justify-end gap-2 relative'>
-                <Button label={"Delete Character " + props.name} onClick={() => setShowModal(true)} type='warning' use="button" target={Slug(props.name)} className='rounded-md w-12'>
-                    <Icon type="online" use="trash" width={3} color="white" fill/>
-                </Button>
-                {showModal && <Modal message={`Delete ${props.name}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
-                <Button label={pinned ? "Unpin Character " + props.name : "Pin Character " + props.name} type={pinned ? "normal" : "alternate"} use='button' className='rounded-md w-12' onClick={handlePin}>
-                    <Icon type="online" use="pin" color={pinned ? "var(--text)" : "var(--primary)"} fill/>
-                </Button>
-                <Button label={"Edit " + props.name} type='normal' use='link' target={Slug(props.name)} className='rounded-md w-12'>
-                    <Icon type="normal" use="burger" width={3} color="white"/>
-                </Button>
-            </div>
+            <Button label={"Delete Character " + props.name} onClick={() => setShowModal(true)} type='custom' use="button" className='absolute top-0 right-0'>
+                <Icon type="online" use="trash" width={3} color="var(--warning)" fill className="opacity-50 hover:opacity-100"/>
+            </Button>
+            {showModal && <Modal message={`Delete ${props.name}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
+            <Button label={pinned ? "Unpin Character " + props.name : "Pin Character " + props.name} type="custom" use='button' className='absolute bottom-0 left-0' onClick={handlePin}>
+                <Icon type="online" use="pin" color={pinned ? "var(--accent)" : "var(--text)"} fill className="opacity-50 hover:opacity-100"/>
+            </Button>
+            <Button label={"Edit " + props.name} type='normal' use='link' target={Slug(props.name)} className='absolute bottom-0 right-0 w-24 h-12 rounded-md'>Open</Button>
         </div>
     </Card>
 }
@@ -100,26 +97,32 @@ function CharacterPage({props}: {props: CharacterProps[]}) {
 
     if (result.loading) return <Loading message="Characters"/>
     if (result.error || !character) return <Error err={result.error || "Character not found!"}/>
-    return <form onSubmit={handleSubmit} className="w-full h-full p-4 flex flex-col gap-4">
+    return <form onSubmit={handleSubmit} className="w-full h-full flex flex-col gap-4">
         <input type="hidden" name="stats" value={JSON.stringify(statValues)} />
         <div className="flex flex-col gap-4">
-            <Editable type="input" name='name' text={(getValue('name') as string) ?? character.name} onChange={(v)=>setValue('name', v)} editMode={mode} className='text-4xl font-black'>
-                <h1 className="text-xl md:text-4xl font-black">{(getValue('name') as string) ?? character.name}</h1>
-                <div className="flex gap-2 overflow-x-scroll">
-                    {traits.map((item, i) => <Badge key={i} content={item}/>)}
+            <div className="border-y-2 border-neutral-700 w-full grid grid-rows-1 lg:grid-cols-3 gap-4">
+                <div className="p-4 w-full h-full border-2 border-neutral-700 flex items-center">
+                    <Editable type="input" name='name' text={(getValue('name') as string) ?? character.name} onChange={(v)=>setValue('name', v)} editMode={mode} className='text-4xl font-black'>
+                        <h1 className="text-xl md:text-4xl font-black">{(getValue('name') as string) ?? character.name}</h1>
+                    </Editable>
                 </div>
-            </Editable>
-            <div className="flex gap-4 flex-col">
-                <span>Age : 
-                    <Editable type="input" name='age' text={(getValue('age') as number) ?? character.age} onChange={(v)=>setValue('age', v)} editMode={mode}>
-                        <strong> {(getValue('age') as number) ?? character.age}</strong>
+                <div className="flex flex-col gap-2 p-4 w-full h-full border-2 border-neutral-700">
+                    <span>Age:</span>
+                    <Editable type="input" name='age' text={(getValue('age') as number) ?? character.age} onChange={(v)=>setValue('age', v)} editMode={mode} className="text-2xl">
+                        <strong className="text-2xl"> {(getValue('age') as number) ?? character.age}</strong>
                     </Editable>
-                </span>
-                <span>Gender : 
-                    <Editable type="option" list={['male','female']} name='gender' text={(getValue('gender') as string) ?? character.gender} onChange={(v)=>setValue('gender', v)} editMode={mode}>
-                        <strong className="capitalize"> {(getValue('gender') as string) ?? character.gender}</strong>
+                </div>
+                <div className="flex flex-col gap-2 p-4 w-full h-full border-2 border-neutral-700">
+                    <span>Gender:</span>
+                    <Editable type="option" list={['male','female']} name='gender' text={(getValue('gender') as string) ?? character.gender} onChange={(v)=>setValue('gender', v)} editMode={mode} className="text-2xl">
+                        <strong className="capitalize text-2xl"> {(getValue('gender') as string) ?? character.gender}</strong>
                     </Editable>
-                </span>
+                </div>
+            </div>
+            <div className="md:flex grid grid-cols-2 gap-2 overflow-x-scroll border-y-2 border-neutral-700 p-2">
+                {traits.map((item, i) => <Badge key={i} content={item}/>)}
+            </div>
+            <div className="flex gap-4 flex-col p-2 border-y-2 border-neutral-700">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
                     {category.map((item, i) => <div key={i} className="flex gap-2 flex-col">
                         <div className="flex relative tooltip">
@@ -138,30 +141,32 @@ function CharacterPage({props}: {props: CharacterProps[]}) {
                     </div>)} 
                 </div>
             </div>
-            <div className="mt-4">
+            <div className="p-2 border-y-2 border-neutral-700">
                 <h2 className="text-2xl font-bold mb-2 opacity-50">Description</h2>
                 <Editable type="textarea" name="desc" text={(getValue('desc') as string) ?? character.desc} onChange={(v)=>setValue('desc', v)} editMode={mode} className="text-justify w-full">
                     <p className="text-justify">{(getValue('desc') as string) ?? character.desc}</p>
                 </Editable>
             </div>
-            <div className='flex w-full h-12 justify-end gap-2 z-90'>
+            <div className='flex w-full border-y-2 border-neutral-700 h-16 z-90'>
                 {mode?<> 
-                    <Button label="Cancel" type='warning' use='button' onClick={()=>{
+                    <Button label="Cancel" type='custom' use='button' onClick={()=>{
                         setMode(false)
                         setValue('name', character.name)
                         setValue('age', character.age)
                         setValue('gender', character.gender)
                         setValue('desc', character.desc)
-                    }} className='rounded-md w-12'>
-                        <Icon type="normal" use="cancel" color="white" width={3}/>
+                    }} className='w-full h-full center gap-2 hover:bg-(--warning)'>
+                        <span>Cancel</span>
                     </Button>
-                    <Button label="Save Changes" type='normal' use='submit' className='rounded-md w-12'><p>{result.loading ? '...' : <Icon type="normal" use="submit" color="white" fill width={1}/>}</p></Button>
-                </>:<Button label="Edit Character" type='alternate' use='button' onClick={()=>setMode(prev=>!prev)} className='rounded-md w-12 h-12'>
-                    <Icon type="online" use="edit" width={1} color="var(--bg)"/>
+                    <Button label="Save Changes" type='custom' use='submit' className='w-full h-full center gap-2 hover:bg-(--accent)'>
+                        <span>{result.loading ? "..." : "Confirm"}</span>
+                    </Button>
+                </>:<Button label="Edit Character" type='custom' use='button' onClick={()=>setMode(prev=>!prev)} className='h-full w-full center gap-2 hover:bg-(--accent)'>
+                    <Icon type="online" use="edit" width={2} color="var(--text)"/>
+                    <span>Edit</span>
                 </Button>}
             </div>
         </div>
-        <BackButton/>
     </form>
 }
 
@@ -190,25 +195,28 @@ export default function Character({project_id, profiles}: {project_id: string, p
 
     if (isLoading) return <Loading message="Characters"/>
     if (error || !data) return <Error err={error || "Characters not found!"}/>
-    return <section className="w-full h-full flex flex-col gap-4">
-        <Routes>
-            <Route path="/" element={<div className="flex flex-col gap-4">
-                <div className="w-full h-12 flex">
-                    <input autoComplete="off" autoCorrect="off" autoCapitalize="none" spellCheck="false" value={searchQ} onChange={(e: ChangeEvent<HTMLInputElement>) => 
-                        setSearchQ(e.target.value)
-                    } type="text" placeholder="Search characters..." className="w-full h-full bg-(--primary) p-4 m-4 rounded-xl"/>
-                </div>
-                <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(200px,1fr))] lg:grid-cols-3 p-4">
-                    {data?.map((item) => item.name.includes(searchQ) && <CharacterCard key={item.character_id} {...item}/>)}
-                    <div className="h-full w-full bg-(--primary) shadow-2xl rounded-2xl overflow-hidden">
-                        <form onClick={handleCreate} className="min-h-40 md:min-h-60 w-full p-4 flex flex-col hover:bg-(--accent) center transition-colors transition-300">
-                            <span>{data.length} / {maxCharacter}</span>
-                            <span className="text-white text-2xl"><code>+</code> Create New Character</span>
-                        </form>
-                    </div>
-                </div>
-            </div>}/>
-            <Route path=":slug" element={<CharacterPage props={data}/>}/>
-        </Routes>
+    return <section className="w-full h-full relative">
+        <Header title="Character Development" desc="Create And Customize Character!" profiles={profiles}/>
+        <div className="px-8">
+            <div className="min-h-screen w-full flex flex-col py-4 border-x-2 border-neutral-700">                
+                <Routes>
+                    <Route path="/" element={<div className="flex flex-col gap-4 overflow-y-auto">
+                        <div className="w-full h-12 flex">
+                            <input autoComplete="off" autoCorrect="off" autoCapitalize="none" spellCheck="false" value={searchQ} onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchQ(e.target.value)} type="text" placeholder="Search characters..." className="w-full h-full p-4 border-y-2 border-neutral-700"/>
+                        </div>
+                        <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(200px,1fr))] lg:grid-cols-3">
+                            {data?.sort((a, b) => a?.name?.toLowerCase()?.localeCompare(b?.name?.toLowerCase()))?.map((item) => item.name.includes(searchQ) && <CharacterCard key={item.character_id} {...item}/>)}
+                            <div className="h-full w-full bg-(--primary) border-y-2 border-neutral-700 shadow-2xl">
+                                <form onClick={handleCreate} className="min-h-40 md:min-h-60 w-full p-4 flex flex-col hover:bg-(--accent) center">
+                                    <span>{data.length} / {maxCharacter}</span>
+                                    <span className="text-white text-2xl"><code>+</code> Create New Character</span>
+                                </form>
+                            </div>
+                        </div>
+                    </div>}/>
+                    <Route path=":slug" element={<CharacterPage props={data}/>}/>
+                </Routes>
+            </div>
+        </div>
     </section>
 }

@@ -1,4 +1,3 @@
-import Icon from "./Icon";
 import {type MouseEventHandler, type ReactNode, type CSSProperties} from "react";
 import { Link } from "react-router-dom";
 
@@ -12,12 +11,6 @@ interface ButtonProps {
     style?: CSSProperties;
     disabled?: boolean
     label?: string
-}
-
-export function BackButton() {
-    return <Button label="Back Previous" type="warning" use="link" target="../" className="w-12 h-12 rounded-full fixed bottom-0 right-0 m-4 z-100">
-        <Icon type="normal" use="caret" width={6} color="white" className="rotate-180"/>
-    </Button>
 }
 
 export default function Button(props: ButtonProps) {
@@ -34,8 +27,12 @@ export default function Button(props: ButtonProps) {
         props.onClick?.(event);
     };
 
+    const handleLinkClick: MouseEventHandler<HTMLElement> = (event) => {
+        props.onClick?.(event);
+    };
+
     if (props.use==="link") {
-        return <Link aria-label={props.label+" Button"} to={props.target||"#"} style={props.style} className={props.type=="custom"?props.className:buttonStyle}>{props.children}</Link> 
+        return <Link aria-label={props.label+" Button"} to={props.target||"#"} onClick={props.onClick ? handleLinkClick : undefined} style={props.style} className={props.type=="custom"?props.className:buttonStyle}>{props.children}</Link> 
     }
     if (props.use==="button") {
         return <button aria-label={props.label+" Button"} disabled={props.disabled} type={'button'} onClick={handleClick} style={props.style} className={props.type=="custom"?props.className:buttonStyle}>
@@ -51,7 +48,7 @@ export default function Button(props: ButtonProps) {
         const href = props.target || undefined;
         const isHashLink = !!props.target && props.target.startsWith("#");
 
-        return <a aria-label={props.label+" Button"} href={href} style={props.style} className={props.type=="custom"?props.className:buttonStyle} target={isHashLink ? undefined : "_blank"}>
+        return <a aria-label={props.label+" Button"} href={href} style={props.style} className={props.type=="custom"?props.className:buttonStyle} target={isHashLink ? undefined : "_blank"} onClick={props.onClick}>
             {props.children}
         </a>
     }

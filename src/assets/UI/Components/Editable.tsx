@@ -15,6 +15,7 @@ interface EditableProps {
     onChange?: (e: string | boolean | ChangeEvent<HTMLInputElement>) => void;
     onClick?: () => void;
     list?: string[];
+    option?: string[];
     uploading?: boolean;
 }
 
@@ -76,7 +77,12 @@ export default function Editable(props:EditableProps) {
     if (!props.editMode) return props.children
 
     if (props.type == "input") {
-        return <input type="text" name={props.name} value={String(props.text ?? "")} onChange={(e) => props.onChange?.(e.target.value)} className={props.className}></input>
+        return <>
+            <input type="text" name={props.name} list={props?.option ? props?.name : undefined} value={String(props.text ?? "")} onChange={(e) => props.onChange?.(e.target.value)} className={props?.className ?? ""}></input>
+            {props?.option && <datalist id={props.name}>
+                {props.option.map((opt, i) => <option key={i} value={opt}/>)}
+            </datalist>}
+        </> 
     }
     if (props.type == "textarea") {
         return <textarea name={props.name} value={String(props.text ?? "")} onChange={(e) => props.onChange?.(e.target.value)} className={props.className}></textarea>

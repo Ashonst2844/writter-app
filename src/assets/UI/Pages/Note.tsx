@@ -1,11 +1,11 @@
 import Card from "../Components/Card";
-import Button, { BackButton } from "../Components/Button";
+import Button from "../Components/Button";
 import Editable from "../Components/Editable";
 import Icon from "../Components/Icon";
 import Loading from "../Components/Loading";
-import Badge from "../Components/Badge";
 import Error from "../Components/Error";
 import Modal from "../Components/Modal";
+import Header from "../Components/Header";
 
 import { useState, useEffect, type FormEvent, type ChangeEvent } from "react";
 import { Routes, Route, useParams } from "react-router-dom"
@@ -20,7 +20,7 @@ interface NoteProps {
     note_id:string;
     title:string | null;
     content:string | null;
-    tags:string[] | null;
+    label:string | null;
 }
 
 function NoteAccordion(props: NoteProps) {
@@ -34,32 +34,28 @@ function NoteAccordion(props: NoteProps) {
     }
 
     return <Card>
-        <div className="h-full flex flex-col justify-between">
-            <h2 className="text-xl md:text-4xl font-black capitalize">{props.title}</h2>
-            <div className="flex gap-2 w-auto">
-                {props.tags?.map((item, i)=><Badge key={i} content={item}/>)}
-            </div>
+        <div className="h-full flex flex-col gap-2 relative">
+            <h2 className="text-xl md:text-2xl font-black capitalize">{props.title}</h2>
+            <span className="text-xl text-(--accent) font-bold">{props?.label}</span>
             {showModal && <Modal message={`Delete ${props.title}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
-            <div className='flex w-full h-12 justify-end gap-2'>
-                <Button label={"Delete "+props.title} onClick={() => setShowModal(true)} type='warning' use="button" target={Slug(props.title)} className='rounded-md w-12'>
-                    <Icon type="online" use="trash" width={3} color="white" fill/>
+            <Button label={pinned?"Unpin Note " + props.title : "Pin Note " + props.title} type="custom" use='button' className='absolute bottom-0 left-0' onClick={handlePin}>
+                <Icon type="online" use="pin" color={pinned ? "var(--accent)" : "var(--text)"} fill className="opacity-50 hover:opacity-100"/>
+            </Button>
+            <div className="absolute bottom-0 right-0 flex gap-2">
+                <Button label={"Delete "+props.title} onClick={() => setShowModal(true)} type='custom' use="button" target={Slug(props.title)} className='w-12'>
+                    <Icon type="online" use="trash" width={3} color="var(--warning)" fill className="opacity-50 hover:opacity-100"/>
                 </Button>
-                <Button label={pinned?"Unpin Note " + props.title : "Pin Note " + props.title} type={pinned ? "normal" : "alternate"} use='button' className='rounded-md w-12' onClick={handlePin}>
-                    <Icon type="online" use="pin" color={pinned ? "var(--text)" : "var(--primary)"} fill/>
-                </Button>
-                <Button label={"Open "+props.title} type='normal' use='link' target={Slug(props.title)} className='rounded-md w-12'>
-                    <Icon type="online" use="eye" fill color="var(--text)"/>
-                </Button>
+                <Button label={"Open "+props.title} type='normal' use='link' target={Slug(props.title)} className='rounded-md w-24 h-12'>Open</Button>
             </div>
         </div>
     </Card>
 }
 
-function NotePage({props}: {props: NoteProps[]}) {
+function NotePage({props, opt}: {props: NoteProps[], opt: string[]}) {
     const { slug } = useParams<{ slug: string }>()
     const note = props.find((item) => Slug(item.title) === slug)
     
-    const { result, onSubmit, setValue, getValue } = useForm({inputs:['title','content','tags'], enp:'note', id:note?.note_id||""})
+    const { result, onSubmit, setValue, getValue } = useForm({inputs:['title','content','label'], enp:'note', id:note?.note_id||""})
     
     const [mode, setMode] = useState<boolean>(false)
 
@@ -67,7 +63,7 @@ function NotePage({props}: {props: NoteProps[]}) {
         if (!note) return
         setValue('title', note.title)
         setValue('content', note.content)
-        setValue('tags', note.tags ?? [])
+        setValue('label', note.label ?? "")
     }, [note, setValue])
 
     const htmlContent = (getValue('content') as string) ?? ""
@@ -88,15 +84,15 @@ function NotePage({props}: {props: NoteProps[]}) {
 
         <Editable type="richedit" text={htmlContent} onChange={(html) => setValue("content", html)} editMode={mode} onClick={() => setMode(true)}/>
         {mode? <>            
-            <span className="text-xs text-neutral-500 mt-2 block">Masukkan Tags (Pisahkan dengan Koma(,))</span>
-            <Editable type="input" name="tags" editMode={mode} onChange={(v)=>setValue('tags', v)} text={Array.isArray(getValue('tags')) ? (getValue('tags') as string[]).join(",") : (note.tags ?? []).join(",")} className="bg-(--primary) p-2 w-[50%] rounded-xl"/>
+            <span className="text-xs text-neutral-500 mt-2 block">Masukkan label</span>
+            <Editable type="input" name="label" editMode={mode} onChange={(v)=>setValue('label', v)} text={getValue('label') as string ?? note.label} option={opt} className="bg-(--primary) p-2 w-[50%] rounded-xl"/>
 
             <div className="flex h-12 justify-end gap-2">
                 <Button label="Cancel" type="warning" use="button" className='rounded-md w-12' onClick={()=>{
                     setMode(false)
                     setValue('title', note.title)
                     setValue('content', note.content)
-                    setValue('tags', note.tags ?? [])
+                    setValue('label', note.label ?? "")
                 }}>
                     <Icon type="normal" use="cancel" width={6} color="var(--text)"/>
                 </Button>
@@ -109,7 +105,6 @@ function NotePage({props}: {props: NoteProps[]}) {
             <div onClick={() => setMode(true)} dangerouslySetInnerHTML={{ __html: htmlContent }} className="p-4 bg-(--primary) border hover:border-white cursor-pointer transition-all whitespace-pre-wrap leading-relaxed"/>
             <span className="text-xs text-neutral-500 mt-2 block">Klik teks untuk mengedit & meformat</span>
         </div>}
-        <BackButton/>
     </form>
 }
 
@@ -119,8 +114,10 @@ export default function Note({project_id, profiles}: {project_id: string, profil
     })
     const [searchQ, setSearchQ] = useState<string>("")
 
-    const maxNote = profiles?.plan === "free" ? 20 : 40
+    const labelQuery = [...new Set(data?.map(q => q.label?.trim()?.toLowerCase())?.filter((label): label is string => Boolean(label)))]
+    const [filter, setFilter] = useState<string|"All">("All")
 
+    const maxNote = profiles?.plan === "free" ? 20 : 40
     const { onCreate } = useForm({inputs:[], enp:"note", id:data.length > 0 ? data[0]?.note_id : ''})
     const handleCreate = async () => {
         if (data.length < maxNote) {
@@ -135,25 +132,33 @@ export default function Note({project_id, profiles}: {project_id: string, profil
 
     if (isLoading) return <Loading message="Notes"/>
     if (error || !data) return <Error err={error || "Notes not found!"}/>
-    return <section className="w-full h-full flex flex-col gap-4">
-        <Routes>
-            <Route path="/" element={<div className="flex flex-col gap-4">
-                <div className="w-full h-12 flex">
-                    <input autoComplete="off" autoCorrect="off" autoCapitalize="none" spellCheck="false" value={searchQ} onChange={(e: ChangeEvent<HTMLInputElement>) => 
-                        setSearchQ(e.target.value)
-                    } type="text" placeholder="Search notes..." className="w-full h-full bg-(--primary) p-4 m-4 rounded-xl"/>
-                </div>
-                <div className="grid gap-4 lg:grid-cols-2 p-4">
-                    {data.map((item)=><NoteAccordion key={item.note_id} {...item}/>)}
-                    <div className="min-h-40 md:min-h-60 w-full bg-(--primary) shadow-2xl rounded-2xl overflow-hidden">
-                        <form onClick={handleCreate} className="h-full w-full p-4 flex flex-col hover:bg-(--accent) center transition-colors transition-300">
-                            <span>{data.length} / {maxNote}</span>
-                            <span className="text-white text-2xl"><code>+</code> Create New Character</span>
-                        </form>
-                    </div>
-                </div>
-            </div>}/>
-            <Route path=":slug" element={<NotePage props={data}/>}/>
-        </Routes>
+    return <section className="w-full h-full relative">
+        <Header title="Note" desc="Create And Write Brainstormed Notes!" profiles={profiles}/>
+        <div className="px-8">
+            <div className="min-h-screen w-full flex flex-col py-4 border-x-2 border-neutral-700">
+                <Routes>
+                    <Route path="/" element={<div className="flex flex-col gap-2">
+                        <div className="w-full h-12 flex">
+                            <input autoComplete="off" autoCorrect="off" autoCapitalize="none" spellCheck="false" value={searchQ} onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchQ(e.target.value)} type="text" placeholder="Search notes..." className="w-full h-full p-4 border-y-2 border-neutral-700"/>
+                        </div>
+                        <div className="w-full flex gap-2 p-2 border-y-2 border-neutral-700">
+                            <Button label="Filter All" type="custom" use="button" onClick={() => setFilter("All")} className={`p-2 h-12 rounded-md min-w-12 center outline-2 outline-(--accent) hover:brightness-125 cursor-pointer ${filter==="All"?"bg-(--accent)":"bg-(--accent)/25"}`}>All</Button>
+                            {labelQuery?.map((q, i) => <Button key={i} label={`Filter ${q}`} type="custom" use="button" onClick={() => setFilter(q)} className={`p-2 h-12 rounded-md min-w-12 center outline-2 outline-(--accent) hover:brightness-125 cursor-pointer ${filter.toLowerCase()===q.toLowerCase()?"bg-(--accent)":"bg-(--accent)/25"}`}>{q.toUpperCase()}</Button>)}
+                        </div>
+                        <div className="grid gap-4 lg:grid-cols-2">
+                            {filter.toLowerCase() === "all" ? data?.map((item) => (item?.title && item.title.toLowerCase().includes(searchQ?.toLowerCase())) ? <NoteAccordion key={item.note_id} {...item}/> : null) : 
+                            data?.filter(note => note?.label?.toLowerCase() === filter?.toLowerCase())?.map(item => (item?.title && item.title.toLowerCase().includes(searchQ?.toLowerCase())) ? <NoteAccordion key={item.note_id} {...item}/> : null) }
+                            <div className="min-h-60 w-full bg-(--primary) shadow-2xl overflow-hidden border-y-2 border-neutral-700">
+                                <form onClick={handleCreate} className="h-full w-full flex-col hover:bg-(--accent) center">
+                                    <span>{data.length} / {maxNote}</span>
+                                    <span className="text-white text-2xl"><code>+</code> Create New Character</span>
+                                </form>
+                            </div>
+                        </div>
+                    </div>}/>
+                    <Route path=":slug" element={<NotePage props={data} opt={labelQuery}/>}/>
+                </Routes>
+            </div>
+        </div>
     </section>
 }

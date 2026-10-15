@@ -1,10 +1,11 @@
 import Carrousel from "../Components/Carrousel"
 import Loading from "../Components/Loading"
 import Icon from "../Components/Icon"
-import Button, { BackButton } from "../Components/Button"
+import Button from "../Components/Button"
 import Editable from "../Components/Editable"
 import Error from "../Components/Error"
 import Modal from "../Components/Modal"
+import Header from "../Components/Header"
 
 import { useState, type ChangeEvent, type FormEvent } from "react"
 import { Routes, Route, useParams } from "react-router-dom" 
@@ -36,21 +37,21 @@ interface PlaceData {
 }
 
 function Content({timeline, name, map}: {timeline: string, name: string, map: string | null}) {
-    return <div className="h-full min-w-full p-8">
-        <div className="w-full h-full rounded-2xl shadow-inner overflow-hidden relative">
+    return <div className="h-full min-w-full">
+        <Button label={`Open ${name}`} type="custom" use="link" target={Slug(`Dunia ${name}`)} className="w-full h-full overflow-hidden relative">
             {map ? <div className="w-full h-full relative">
                 <img src={map} alt={timeline} className="w-full h-full object-cover"/>
-                <div className="absolute top-0 left-0 w-full h-full bg-linear-to-b from-black via-transparent to-black/50"></div>
-                <span className="absolute text-4xl font-bold left-4 top-4 z-10">{timeline}</span>
+                <div className="absolute top-0 left-0 w-full h-full bg-linear-140 from-(--bg) to-transparent"></div>
+                <div className="absolute left-0 top-0 m-4 z-10">
+                    <h3 className=" text-4xl font-bold">{timeline}</h3>
+                    <span className="text-xl uppercase">{name}</span>
+                </div>
             </div>:
-            <div className="w-full h-full bg-(--primary) center flex-col gap-4">
+            <div className="w-full h-full border-y-2 border-neutral-700 center flex-col gap-4">
                 <Icon type="online" use="danger" color="var(--text)" scale="2" fill/>
                 <i>File Not Found</i>
             </div>}
-            <Button label={"Open "+name} type="normal" use="link" target={Slug(`Dunia ${name}`)} className="p-4 rounded-md w-16 h-12 m-4 absolute bottom-0 right-0">
-                <Icon type="normal" use="submit" color="white" scale="2" width={4} fill/>
-            </Button>
-        </div>
+        </Button>
     </div>
 }
 
@@ -168,9 +169,9 @@ function ContinentPage({props, profiles}: {props: ContinentData, profiles: Profi
 
     if (result.loading && isLoading) return <Loading message="Continent"/>
     if (result.error || error || !data) return <Error err={result.error || "Continent not found!"}/>
-    return <div className="w-full h-full p-4 flex flex-col gap-4 overflow-auto">
-        <form onSubmit={handleSubmit} className="w-full bg-(--primary) rounded-xl center flex-col md:flex-row p-4 gap-4 shadow-md">
-            <div className="gap-4 h-full center flex-col md:flex-row">
+    return <div className="w-full h-full flex flex-col gap-4 overflow-auto">
+        <form onSubmit={handleSubmit} className="w-full border-y-2 border-neutral-700 center flex-col md:flex-row p-4 gap-4 shadow-md">
+            <div className="gap-4 w-full h-full center flex-col relative">
                 <Editable type="upload" editMode={mode} onChange={handleCoverUpload} uploading={uploading}>
                     {props.image==null||props.image==""?
                         <p>NotFound</p>:
@@ -178,7 +179,7 @@ function ContinentPage({props, profiles}: {props: ContinentData, profiles: Profi
                     }
                 </Editable>
                 <input type="hidden" name="image" value={currentCover} />
-                <div className="flex flex-col">
+                <div className="flex flex-col w-[80%]">
                     <Editable type="input" name='name' text={(getValue('name') as string) ?? props.name} onChange={(v)=>setValue('name', v)} editMode={mode} className='text-2xl font-bold capitalize'>
                         <h2 className="text-2xl font-bold capitalize">{(getValue('name') as string) ?? props.name}</h2>
                     </Editable>
@@ -186,40 +187,37 @@ function ContinentPage({props, profiles}: {props: ContinentData, profiles: Profi
                         <p className="opacity-75">{(getValue('desc') as string) ?? props.desc}</p>
                     </Editable>
                 </div>
-            </div>
-            {showModal && <Modal message={`Delete ${props.name}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
-            <div className='flex h-12 gap-2'>
                 {mode ? <>
-                    <Button label={"Cancel Edit "+props.name} type='warning' use="button" className='rounded-md w-12' onClick={() => {
+                    <Button label={"Cancel Edit "+props.name} type='custom' use="button" className='w-12 absolute top-0 right-0' onClick={() => {
                         setMode(false);
                         setUploadedCover(null);
                         setValue('name', props.name);
                         setValue('desc', props.desc);
                         setValue('image', props.image);
                     }}>
-                        <Icon type="normal" use="cancel" width={3} color="white"/>
+                        <Icon type="normal" use="cancel" width={3} color="var(--warning)" className="opacity-50 hover:opacity-100"/>
                     </Button>
-                    <Button label={"Submit Edit "+props.name} type='normal' use="submit" className='rounded-md w-12'>
-                        <Icon type="normal" use="submit" width={3} color="white" fill/>
+                    <Button label={"Submit Edit "+props.name} type='custom' use="submit" className='w-12 absolute bottom-0 right-0'>
+                        <Icon type="normal" use="submit" width={3} color="var(--text)" fill/>
                     </Button>
                 </> : <>
-                    <Button label={"Delete "+props.name} onClick={() => setShowModal(true)} type='warning' use='button' target={Slug(props.name)} className='rounded-md w-12'>
-                        <Icon type="online" use="trash" width={3} color="white" fill/>
+                    <Button label={"Delete "+props.name} onClick={() => setShowModal(true)} type='custom' use='button' className='absolute top-0 right-0'>
+                        <Icon type="online" use="trash" width={3} color="var(--warning)" fill className="opacity-50 hover:opacity-100"/>
                     </Button>
-                    <Button label={"Edit "+props.name} type='alternate' use='button' onClick={()=>{
+                    <Button label={"Edit "+props.name} type='custom' use='button' onClick={()=>{
                         setMode(true);
-                    }} className='rounded-md w-12'>
-                        <Icon type="online" use="edit" width={1} color="var(--bg)"/>
+                    }} className='absolute bottom-0 right-0'>
+                        <Icon type="online" use="edit" width={2} color="var(--text)" className="opacity-50 hover:opacity-100"/>
                     </Button>
                 </>}
             </div>
+            {showModal && <Modal message={`Delete ${props.name}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
         </form>
-        <div className="flex gap-4">
-            <h2 className="text-4xl font-black">Places ({data.length} / {maxPlace}) :</h2>
-            <Button label="Create New Place" type="normal" use="button" onClick={handleCreate} className="rounded-full w-12">+</Button>
+        <div className="flex gap-2 items-center">
+            <h2 className="text-xl font-black px-2">Places ({data.length} / {maxPlace}) :</h2>
+            <Button label="Create New Place" type="normal" use="button" onClick={handleCreate} className="rounded-full">+ ADD PLACE</Button>
         </div>
         {data.map((item, i) => <PlaceAccordion key={i} props={item}/>)}
-        <BackButton/>
     </div>
 }
 
@@ -255,13 +253,13 @@ function Continent({props, profiles}: {props: TimelineData[], profiles: Profiles
     if (error || !data) return <Error err={error || "Continents not found!"}/>
     return <div className="flex flex-col w-full h-full overflow-hidden">
         <Routes>
-            <Route path="/" element={<div className="w-full h-full flex flex-col overflow-hidden">
-                <div className="w-full p-4 flex shrink-0">
+            <Route path="/" element={<div className="w-full h-full flex flex-col overflow-hidden gap-4">
+                <div className="w-full border-y-2 border-neutral-700 flex shrink-0">
                     <Button label="Show Map Section" onClick={() => setOpen("map")} use="button" type="custom" className="w-[50%] h-12 center hover:bg-(--accent) hover:text-(--primary) transition-all ">Map Overview</Button>
                     <Button label="Show Contintent List Section" onClick={() => setOpen("continent")} use="button" type="custom" className="w-[50%] h-12 center hover:bg-(--accent) hover:text-(--primary) transition-all ">World Contintents</Button>
                 </div>
                 <div className="flex w-full min-h-0 transition-all duration-300" style={{transform: `translateX(-${isOpen === "map" ? 0 : 100}%)`}}>
-                    <div className="min-w-full h-full flex flex-col p-4">
+                    <div className="min-w-full h-full flex flex-col border-y-2 border-neutral-700">
                         <div className="w-full h-full overflow-auto">
                             <img src={world?.map || ""} alt={world?.name ?? ""} onClick={() => setZoomLevel(prev => Math.min(3, prev + 0.5))} onContextMenu={(e) => {
                                 e.preventDefault();
@@ -270,8 +268,8 @@ function Continent({props, profiles}: {props: TimelineData[], profiles: Profiles
                             style={{width:`calc(100% * ${zoomLevel})`}} className="cursor-zoom-in transition-all transition-300 top-0 inline-block vertical-align-center max-w-none"/>
                         </div>
                     </div>
-                    <div className="min-w-full p-4 flex flex-col gap-4 overflow-y-scroll">
-                        {data.map((item, i)=><div key={i} className="w-full min-h-32 bg-(--primary) rounded-xl shadow-md p-4 flex justify-between items-center">
+                    <div className="min-w-full flex flex-col gap-4 overflow-y-scroll">
+                        {data.map((item, i)=><div key={i} className="w-full min-h-32 border-y-2 border-neutral-700 shadow-md p-4 flex justify-between items-center">
                             <div className="flex flex-col gap-2">
                                 <h2 className="text-2xl font-bold">{item.name}</h2>
                                 <p className="text-sm opacity-50">{item.desc}</p>
@@ -280,8 +278,8 @@ function Continent({props, profiles}: {props: TimelineData[], profiles: Profiles
                                 <Icon type="online" use="eye" color="white" fill/>
                             </Button>
                         </div>)}
-                        <div className="w-full min-h-32 rounded-xl shadow-md overflow-hidden bg-(--primary)">
-                            <form onClick={handleCreate} className="h-full hover:bg-(--accent) center p-4 transition-colors transition-300 center flex-col">
+                        <div className="w-full min-h-32 shadow-md bg-(--primary)">
+                            <form onClick={handleCreate} className="h-full hover:bg-(--accent) center p-4 center flex-col">
                                 <span>{data.length} / {maxContinent}</span>
                                 <span className="text-white text-2xl"><code>+</code> Create New Continent</span>
                             </form>
@@ -291,7 +289,6 @@ function Continent({props, profiles}: {props: TimelineData[], profiles: Profiles
             </div>}/>
             {data.map((item, i) => <Route path={Slug(item.name)} element={<ContinentPage key={i} props={item} profiles={profiles}/>}/>)}
         </Routes>
-        <BackButton/>
     </div>
 }
 
@@ -306,16 +303,21 @@ export default function World({project_id, profiles}: {project_id: string, profi
 
     if (isLoading) return <Loading message="Timelines"/>
     if (error || !data) return <Error err={error || "Worlds not found!"}/>
-    return <section className="w-full h-full">
-        <Routes>
-            <Route path="/" element={<Carrousel length={(data.length+1)}>
-                {data.map((item, i)=><Content key={i} timeline={item.timeline} name={item.name} map={item.map}/>)}
-                <section className="w-full h-full center flex-col gap-4">
-                    <span className="text-xl">There Is No Continent Anymore!</span>
-                    <span className="opacity-75">Create Another on Timline Section</span>
-                </section>
-            </Carrousel>}/>
-            <Route path=":slug/*" element={<Continent props={data} profiles={profiles}/>}/>
-        </Routes>
+    return <section className="w-full h-full relative">
+        <Header title="World Building" desc="Create And Manage World Building!" profiles={profiles}/>
+        <div className="px-8">
+            <div className="h-screen w-full flex flex-col py-4 border-x-2 border-neutral-700">
+                <Routes>
+                    <Route path="/" element={<Carrousel length={(data.length+1)}>
+                        {data.map((item, i)=><Content key={i} timeline={item.timeline} name={item.name} map={item.map}/>)}
+                        <section className="w-full h-full center flex-col gap-4">
+                            <span className="text-xl">There Is No Continent Anymore!</span>
+                            <span className="opacity-75">Create Another on Timline Section</span>
+                        </section>
+                    </Carrousel>}/>
+                    <Route path=":slug/*" element={<Continent props={data} profiles={profiles}/>}/>
+                </Routes>
+            </div>
+        </div>
     </section>
 }
