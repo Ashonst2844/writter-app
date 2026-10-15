@@ -43,27 +43,27 @@ function Project(props: ProjectData) {
         <form className='flex flex-col justify-between h-full' onSubmit={handleSubmit}>
         <div className='flex flex-col gap-4'>
             <Editable type='input' name='name' text={(getValue('name') as string) ?? props.name} onChange={(v)=>setValue('name', v)} editMode={mode} className='text-4xl font-black'>
-            <h2 className='text-4xl font-black'>{(getValue('name') as string) ?? props.name}</h2>
+                <h2 className='text-4xl font-black'>{(getValue('name') as string) ?? props.name}</h2>
             </Editable>
             <span className='opacity-50'>Author: {props.author}</span>
             <span className='opacity-50'>Created: {props.created_at}</span>
         </div>
         {showModal && <Modal message={`Delete ${props.name}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
         {mode?<> 
-            <Button label={"Cancel Edit "+props.name} type='custom' use='button' onClick={()=>{setMode(false); setValue('name', props.name)}} className='absolute m-4 bottom-0 left-0 w-12'>
+            <Button label={"Cancel Edit "+props.name} type='custom' use='button' onClick={()=>{setMode(false); setValue('name', props.name)}} className='absolute bottom-0 left-0 w-12'>
                 <Icon type="normal" use="cancel" width={6} color="var(--warning)" className='opacity-50 hover:opacity-100'/>
             </Button>
-            <Button label={"Submit Edit "+props.name} type='custom' use='submit' className='absolute m-4 bottom-0 right-0 w-12'>
+            <Button label={"Submit Edit "+props.name} type='custom' use='submit' className='absolute bottom-0 right-0 w-12'>
                 <Icon type="normal" use="submit" width={3} fill color="var(--text)" className='opacity-50 hover:opacity-100'/>
             </Button>
             </>:<>
-            <Button label={"Delete "+props.name} type='custom' use='button' onClick={() => setShowModal(true)} className='absolute m-4 bottom-0 left-0 w-12'>
+            <Button label={"Delete "+props.name} type='custom' use='button' onClick={() => setShowModal(true)} className='absolute bottom-0 left-0'>
                 <Icon type="online" use="trash" width={1} fill color="var(--warning)" className='opacity-50 hover:opacity-100'/>
             </Button>
-            <Button label={"Edit "+props.name} type='custom' use='button' onClick={()=>setMode(prev=>!prev)} className='absolute m-4 top-0 right-0 w-12'>
+            <Button label={"Edit "+props.name} type='custom' use='button' onClick={()=>setMode(prev=>!prev)} className='absolute top-0 right-0'>
                 <Icon type="online" use="edit" width={1} color="var(--text)" className='opacity-50 hover:opacity-100'/>
             </Button>
-            <Button label={"Open "+props.name} type='normal' use='link' target={`/projects/${props.user_id}/dashboard/${props.project_id}`} className='absolute bottom-0 right-0 m-4 rounded-md w-24'><p>Open</p></Button>
+            <Button label={"Open "+props.name} type='normal' use='link' target={`/projects/${props.user_id}/dashboard/${props.project_id}`} className='absolute bottom-0 right-0 rounded-md w-24'><p>Open</p></Button>
         </>}
         </form>
     </Card>
@@ -107,22 +107,22 @@ export default function Projects() {
         <Routes>
             <Route path='/' element={<section className='px-8'>
                 <div className='border-x-2 border-neutral-700 py-2 h-screen flex flex-col gap-4'>
-                    <div className='text-center flex justify-between p-4 items-center border-y-2 border-neutral-700'>
-                        <Button label='Back' use='link' type='custom' target='/' className='hover:brightness-125'>
-                            <Icon type='online' use='exit' fill color='var(--warning)'/>
-                        </Button>
+                    <div className='text-center center border-y-2 border-neutral-700'>
                         <div className='flex flex-col gap-2'>
-                            <h1 className='text-4xl font-bold uppercase'>Universes</h1>
+                            <div className='flex items-center gap-4'>
+                                <Button label='Back' use='link' type='custom' target='/' className='hover:brightness-125'>
+                                    <Icon type='online' use='exit' fill color='var(--warning)' className='rotate-180'/>
+                                </Button>
+                                <h1 className='text-4xl font-bold uppercase'>Universes</h1>
+                            </div>
                             <span className='opacity-50'>{author || "User"}</span>
-                        </div>
-                        <div className='center p-4'>
-                            <code className='text-xl'>{project.length} / {maxProject}</code>
                         </div>
                     </div>
                     <div className='grid gap-2 grid-cols-[repeat(auto-fit,minmax(200px,1fr))] lg:grid-cols-3'>
                         {project.map(item => <Project key={item.project_id} author={item.author} user_id={item.user_id} name={item.name} created_at={item.created_at.slice(0,10)} project_id={item.project_id}/>) }
                         <div className="min-h-60 w-full bg-(--primary) shadow-xl border-y-2 border-neutral-700">
-                            <form onClick={handleCreate} className="h-full w-full hover:bg-(--accent) center">
+                            <form onClick={handleCreate} className="h-full w-full hover:bg-(--accent) center flex-col gap-2">
+                                <code className='text-xl'>{project.length} / {maxProject}</code>
                                 <span className="text-white text-xl"><code>+</code> Create New Universe</span>
                             </form>
                         </div>

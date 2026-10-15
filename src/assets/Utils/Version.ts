@@ -113,5 +113,8 @@ export const changelog = [
             "Menghapus Relic And Event Section",
             "Menambahkan fitur grouping di Note Section",
         ]},
+        {id:24,version:"12.1",date:"15 Oct. 2026",desc:[
+            "Fix UI/UX",
+        ]},
     ]}
 ]

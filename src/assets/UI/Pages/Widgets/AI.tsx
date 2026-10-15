@@ -52,13 +52,13 @@ export default function AI({profiles}: {profiles: Profiles}) {
         setMessages([{role: "model", text: "Halo! Saya Writer Companion ✍️. Butuh inspirasi cerita atau panduan menggunakan fitur di aplikasi ini?"}])
     }
 
-    return <div className="w-full h-full grid grid-cols-1 md:grid-cols-2">
-        <div className="flex gap-2 fixed bottom-0 right-0 m-4 rounded-full z-50">
+    return <div className="w-full h-full flex flex-col">
+        <div className="flex p-2 w-full">
             {showModal && <Modal message={`Clear All Your Chat History?`} type="alert" onConfirm={() => {clearHistory(); window.location.reload()}} onClose={() => setShowModal(false)}/> }
-            <Button label="Clear Chat History" type="warning" use="button" onClick={(() => setShowModal(true))} className="rounded-md">Clear Chat</Button>
+            <Button label="Clear Chat History" type="warning" use="button" onClick={(() => setShowModal(true))} className="w-24 h-12 rounded-md">Clear Chat</Button>
         </div>
-        <div className="w-full h-150 bg-(--primary) rounded-xl p-4 flex flex-col gap-2">
-            <div className="w-full min-h-0 flex-1 rounded-lg bg-(--bg) overflow-y-auto shadow-inner p-4 flex gap-2 flex-col">
+        <div className="w-full h-screen bg-(--primary) p-4 flex flex-col gap-2">
+            <div className="w-full min-h-0 flex-1 bg-(--bg) overflow-y-auto shadow-inner p-4 flex gap-2 flex-col">
                 {messages?.map((item, i) => {
                     const isUser = item.role === "user";
                     const senderName = isUser 
@@ -78,7 +78,7 @@ export default function AI({profiles}: {profiles: Profiles}) {
             </div>
             <form onSubmit={handleSend} className="flex gap-2 w-full h-11 shrink-0">
                 <input type="text" value={input} onChange={(e: ChangeEvent<HTMLInputElement>) => setInput(e.target.value)} disabled={loading} className="flex-1 rounded-lg bg-(--bg) px-4 py-2 text-sm text-(--text) border border-(--text)/10 focus:outline-none focus:ring-2 focus:ring-(--accent) disabled:opacity-50 transition-all placeholder:text-sm" placeholder="Tanyakan ide cerita atau fitur aplikasi..."/>
-                <button aria-label="Send Button" type="submit" disabled={loading || !input.trim()} className="px-4 h-full bg-(--accent) text-white rounded-lg hover:brightness-110 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center shrink-0 cursor-pointer">
+                <button aria-label="Send Button" type="submit" disabled={loading || !input.trim()} className="h-full bg-(--accent) text-white rounded-lg hover:brightness-110 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center shrink-0 cursor-pointer">
                     {loading ? "..." : <Icon type="normal" use="submit" color="white" fill width={1} />}
                 </button>
             </form>

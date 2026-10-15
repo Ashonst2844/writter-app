@@ -179,7 +179,7 @@ function ContinentPage({props, profiles}: {props: ContinentData, profiles: Profi
                     }
                 </Editable>
                 <input type="hidden" name="image" value={currentCover} />
-                <div className="flex flex-col w-[80%]">
+                <div className="flex flex-col w-full">
                     <Editable type="input" name='name' text={(getValue('name') as string) ?? props.name} onChange={(v)=>setValue('name', v)} editMode={mode} className='text-2xl font-bold capitalize'>
                         <h2 className="text-2xl font-bold capitalize">{(getValue('name') as string) ?? props.name}</h2>
                     </Editable>
@@ -188,7 +188,7 @@ function ContinentPage({props, profiles}: {props: ContinentData, profiles: Profi
                     </Editable>
                 </div>
                 {mode ? <>
-                    <Button label={"Cancel Edit "+props.name} type='custom' use="button" className='w-12 absolute top-0 right-0' onClick={() => {
+                    <Button label={"Cancel Edit "+props.name} type='custom' use="button" className='w-12 absolute top-0 left-0' onClick={() => {
                         setMode(false);
                         setUploadedCover(null);
                         setValue('name', props.name);
@@ -197,16 +197,16 @@ function ContinentPage({props, profiles}: {props: ContinentData, profiles: Profi
                     }}>
                         <Icon type="normal" use="cancel" width={3} color="var(--warning)" className="opacity-50 hover:opacity-100"/>
                     </Button>
-                    <Button label={"Submit Edit "+props.name} type='custom' use="submit" className='w-12 absolute bottom-0 right-0'>
-                        <Icon type="normal" use="submit" width={3} color="var(--text)" fill/>
+                    <Button label={"Submit Edit "+props.name} type='custom' use="submit" className='w-12 absolute top-0 right-0'>
+                        <Icon type="normal" use="submit" width={3} color="var(--text)" fill className="opacity-50 hover:opacity-100"/>
                     </Button>
                 </> : <>
-                    <Button label={"Delete "+props.name} onClick={() => setShowModal(true)} type='custom' use='button' className='absolute top-0 right-0'>
+                    <Button label={"Delete "+props.name} onClick={() => setShowModal(true)} type='custom' use='button' className='absolute top-0 left-0'>
                         <Icon type="online" use="trash" width={3} color="var(--warning)" fill className="opacity-50 hover:opacity-100"/>
                     </Button>
                     <Button label={"Edit "+props.name} type='custom' use='button' onClick={()=>{
                         setMode(true);
-                    }} className='absolute bottom-0 right-0'>
+                    }} className='absolute top-0 right-0'>
                         <Icon type="online" use="edit" width={2} color="var(--text)" className="opacity-50 hover:opacity-100"/>
                     </Button>
                 </>}
@@ -255,8 +255,8 @@ function Continent({props, profiles}: {props: TimelineData[], profiles: Profiles
         <Routes>
             <Route path="/" element={<div className="w-full h-full flex flex-col overflow-hidden gap-4">
                 <div className="w-full border-y-2 border-neutral-700 flex shrink-0">
-                    <Button label="Show Map Section" onClick={() => setOpen("map")} use="button" type="custom" className="w-[50%] h-12 center hover:bg-(--accent) hover:text-(--primary) transition-all ">Map Overview</Button>
-                    <Button label="Show Contintent List Section" onClick={() => setOpen("continent")} use="button" type="custom" className="w-[50%] h-12 center hover:bg-(--accent) hover:text-(--primary) transition-all ">World Contintents</Button>
+                    <Button label="Show Map Section" onClick={() => setOpen("map")} use="button" type="custom" className="w-[50%] h-12 center hover:bg-(--accent) hover:text-(--primary) transition-all ">Map</Button>
+                    <Button label="Show Contintent List Section" onClick={() => setOpen("continent")} use="button" type="custom" className="w-[50%] h-12 center hover:bg-(--accent) hover:text-(--primary) transition-all ">World</Button>
                 </div>
                 <div className="flex w-full min-h-0 transition-all duration-300" style={{transform: `translateX(-${isOpen === "map" ? 0 : 100}%)`}}>
                     <div className="min-w-full h-full flex flex-col border-y-2 border-neutral-700">
@@ -269,17 +269,14 @@ function Continent({props, profiles}: {props: TimelineData[], profiles: Profiles
                         </div>
                     </div>
                     <div className="min-w-full flex flex-col gap-4 overflow-y-scroll">
-                        {data.map((item, i)=><div key={i} className="w-full min-h-32 border-y-2 border-neutral-700 shadow-md p-4 flex justify-between items-center">
+                        {data?.map((item, i) => <Button label={"Open"+(world?.name||"")} type="custom" use="link" target={Slug(item?.name)} key={i} className="w-full min-h-60 border-y-2 border-neutral-700 shadow-md p-4 flex justify-between items-center">
                             <div className="flex flex-col gap-2">
                                 <h2 className="text-2xl font-bold">{item.name}</h2>
                                 <p className="text-sm opacity-50">{item.desc}</p>
                             </div>
-                            <Button label={"Open "+(world?.name||"")} type="normal" use="link" target={Slug(item.name)} className="rounded-xl">
-                                <Icon type="online" use="eye" color="white" fill/>
-                            </Button>
-                        </div>)}
-                        <div className="w-full min-h-32 shadow-md bg-(--primary)">
-                            <form onClick={handleCreate} className="h-full hover:bg-(--accent) center p-4 center flex-col">
+                        </Button>)}
+                        <div className="w-full border-y-2 border-neutral-700 shadow-md bg-(--primary)">
+                            <form onClick={handleCreate} className="min-h-60 hover:bg-(--accent) center p-4 center flex-col">
                                 <span>{data.length} / {maxContinent}</span>
                                 <span className="text-white text-2xl"><code>+</code> Create New Continent</span>
                             </form>
@@ -305,7 +302,7 @@ export default function World({project_id, profiles}: {project_id: string, profi
     if (error || !data) return <Error err={error || "Worlds not found!"}/>
     return <section className="w-full h-full relative">
         <Header title="World Building" desc="Create And Manage World Building!" profiles={profiles}/>
-        <div className="px-8">
+        <div className="px-4 lg:px-8">
             <div className="h-screen w-full flex flex-col py-4 border-x-2 border-neutral-700">
                 <Routes>
                     <Route path="/" element={<Carrousel length={(data.length+1)}>

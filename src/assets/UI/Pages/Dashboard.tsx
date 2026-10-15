@@ -44,7 +44,6 @@ function Navigation({name, click, state}:{name:string, click:()=>void, state:boo
         <div className="flex lg:flex-col overflow-x-auto">
             {nav.map((item, i) => {
             const active = item === currNav
-            
             return <Button label={item} key={i} type="custom" target={`/projects/${user_id}/dashboard/${id}/${item}`} onClick={() => setCurrNav(Slug(item))} use="link" className={`${active?"bg-(--accent) text-(--bg)":"bg-(--primary) text-(--text)"} rounded-md w-full flex items-center text-xs hover:brightness-150 min-h-12 uppercase p-2`}>
                 {state ? <p className="hidden lg:block">{(item.replace("-"," ") ?? "").toUpperCase()}</p> : <Icon scale="0.75" type="online" use={item} fill color="var(--text)"/>}
             </Button>})}

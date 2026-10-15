@@ -128,7 +128,7 @@ export default function Goals({project_id, profiles}: {project_id: string, profi
     if (error || !data) return <Error err={error || "Goals not found!"}/>
     return <section className="w-full h-full relative">
         <Header title="Goals" desc="Create Goals Remainder!" profiles={profiles}/>
-        <div className="px-8">
+        <div className="px-4 lg:px-8">
             <div className="h-screen w-full flex flex-col py-4 border-x-2 border-neutral-700">
                 <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(250px,1fr))]s lg:grid-cols-4">
                     {data.map((item, i)=><StickyNotes key={i} goal_id={item.goal_id} name={item.name} created_at={item.created_at} due={item.due} status={item.status}/>)}

@@ -128,7 +128,7 @@ export default function Timeline({project_id, profiles}: {project_id: string, pr
     return <section className="w-full h-full relative">
         {deleteTarget && <Modal message={`Delete ${deleteTarget.name}?`} type="warning" onConfirm={async () => { await deleteTarget.onConfirm(); setDeleteTarget(null); }} onClose={() => setDeleteTarget(null)}/> }
         <Header title="Timeline Building" desc="Create Timeline Collection In Universe!" profiles={profiles}/>
-        <div className="px-8">
+        <div className="px-4 lg:px-8">
             <div className="h-screen w-full flex flex-col py-4 border-x-2 border-neutral-700">
                 <Carrousel length={(data.length+1)}>
                     {data.map((item, i)=><Content key={i} props={item} onRequestDelete={setDeleteTarget}/>) }

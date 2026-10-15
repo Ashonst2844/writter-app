@@ -45,20 +45,21 @@ function CharacterCard(props: CharacterProps) {
     }
 
     return <Card>
-        <div className="h-full flex flex-col justify-between relative">
-            <div className="flex flex-col gap-2">
-                <h2 className="text-xl md:text-4xl font-black">{props.name}</h2>
-                <span className="opacity-75 text-sm">{props.desc.slice(0, 100)}{props.desc.length >= 100 ? "..." : ""}</span>
+        <Button label={"Open "+props?.name} type="custom" use="link" target={Slug(props?.name)} className="w-full h-full">
+            <div className="h-full flex flex-col justify-between relative">
+                <div className="flex flex-col gap-2">
+                    <h2 className="text-xl md:text-4xl font-black">{props.name}</h2>
+                    <span className="opacity-75 text-sm">{props.desc.slice(0, 100)}{props.desc.length >= 100 ? "..." : ""}</span>
+                </div>
+                <Button label={"Delete Character " + props.name} onClick={() => setShowModal(true)} type='custom' use="button" className='absolute bottom-0 left-0'>
+                    <Icon type="online" use="trash" width={3} color="var(--warning)" fill className="opacity-50 hover:opacity-100"/>
+                </Button>
+                {showModal && <Modal message={`Delete ${props.name}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
+                <Button label={pinned ? "Unpin Character " + props.name : "Pin Character " + props.name} type="custom" use='button' className='absolute bottom-0 right-0' onClick={handlePin}>
+                    <Icon type="online" use="pin" color={pinned ? "var(--accent)" : "var(--text)"} fill className="opacity-50 hover:opacity-100"/>
+                </Button>
             </div>
-            <Button label={"Delete Character " + props.name} onClick={() => setShowModal(true)} type='custom' use="button" className='absolute top-0 right-0'>
-                <Icon type="online" use="trash" width={3} color="var(--warning)" fill className="opacity-50 hover:opacity-100"/>
-            </Button>
-            {showModal && <Modal message={`Delete ${props.name}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
-            <Button label={pinned ? "Unpin Character " + props.name : "Pin Character " + props.name} type="custom" use='button' className='absolute bottom-0 left-0' onClick={handlePin}>
-                <Icon type="online" use="pin" color={pinned ? "var(--accent)" : "var(--text)"} fill className="opacity-50 hover:opacity-100"/>
-            </Button>
-            <Button label={"Edit " + props.name} type='normal' use='link' target={Slug(props.name)} className='absolute bottom-0 right-0 w-24 h-12 rounded-md'>Open</Button>
-        </div>
+        </Button> 
     </Card>
 }
 
@@ -119,7 +120,7 @@ function CharacterPage({props}: {props: CharacterProps[]}) {
                     </Editable>
                 </div>
             </div>
-            <div className="md:flex grid grid-cols-2 gap-2 overflow-x-scroll border-y-2 border-neutral-700 p-2">
+            <div className="md:flex grid grid-cols-2 gap-2 overflow-x-scroll border-y-2 border-neutral-700">
                 {traits.map((item, i) => <Badge key={i} content={item}/>)}
             </div>
             <div className="flex gap-4 flex-col p-2 border-y-2 border-neutral-700">
@@ -197,7 +198,7 @@ export default function Character({project_id, profiles}: {project_id: string, p
     if (error || !data) return <Error err={error || "Characters not found!"}/>
     return <section className="w-full h-full relative">
         <Header title="Character Development" desc="Create And Customize Character!" profiles={profiles}/>
-        <div className="px-8">
+        <div className="px-4 lg:px-8">
             <div className="min-h-screen w-full flex flex-col py-4 border-x-2 border-neutral-700">                
                 <Routes>
                     <Route path="/" element={<div className="flex flex-col gap-4 overflow-y-auto">

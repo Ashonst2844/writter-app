@@ -31,6 +31,16 @@ export default function Button(props: ButtonProps) {
         props.onClick?.(event);
     };
 
+    const handleUrlClick: MouseEventHandler<HTMLElement> = (event) => {
+        if (props.disabled) {
+            event.preventDefault();
+            event.stopPropagation();
+            return;
+        }
+
+        props.onClick?.(event);
+    };
+
     if (props.use==="link") {
         return <Link aria-label={props.label+" Button"} to={props.target||"#"} onClick={props.onClick ? handleLinkClick : undefined} style={props.style} className={props.type=="custom"?props.className:buttonStyle}>{props.children}</Link> 
     }
@@ -47,8 +57,9 @@ export default function Button(props: ButtonProps) {
     if (props.use==="url") {
         const href = props.target || undefined;
         const isHashLink = !!props.target && props.target.startsWith("#");
+        const isExternal = !!href && !href.startsWith("/") && !href.startsWith("#") && !href.startsWith("?");
 
-        return <a aria-label={props.label+" Button"} href={href} style={props.style} className={props.type=="custom"?props.className:buttonStyle} target={isHashLink ? undefined : "_blank"} onClick={props.onClick}>
+        return <a aria-label={props.label+" Button"} href={href} style={props.style} className={props.type=="custom"?props.className:buttonStyle} target={isHashLink ? undefined : "_blank"} rel={isExternal ? "noreferrer" : undefined} onClick={handleUrlClick} aria-disabled={props.disabled}>
             {props.children}
         </a>
     }

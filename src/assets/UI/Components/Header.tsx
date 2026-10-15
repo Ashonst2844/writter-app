@@ -56,8 +56,8 @@ export default function Header({title, desc, profiles}: {title: string, desc: st
             </Button>
         </header>
         {/*//* Overlay */}
-        {openOverlay && <div className="absolute w-full h-full bg-black/75 z-60 p-4 overflow-hidden">
-            <Button label="Close" type="warning" use="button" onClick={() => setOpenOverlay(null)} className="z-70 w-12 h-12 absolute top-0 right-0 m-4 rounded-md">
+        {openOverlay && <div className="absolute w-full h-full bg-black/75 z-60 overflow-hidden">
+            <Button label="Close" type="warning" use="button" onClick={() => setOpenOverlay(null)} className="z-70 w-12 h-12 absolute top-0 right-0 m-2 rounded-md">
                 <Icon type="normal" use="cancel" color="var(--text)" width={6}/>
             </Button>
             {openOverlay=="pin"?<Pin pin={pin}/>:openOverlay=="chat"?<AI profiles={profiles}/>:null}

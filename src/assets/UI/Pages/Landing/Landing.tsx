@@ -186,7 +186,7 @@ function Builder() {
 //* About Section
 function About() {
     const aboutDetailData = [
-        {id: 1, context:'use', count:14, title:'Features'},
+        {id: 1, context:'use', count:13, title:'Features'},
         {id: 2, context:'create', count:5, title:'Universes'},
         {id: 3, context:'create', count:600, title:'Places'},
         {id: 4, context:'create', count:100, title:'Characters'},
@@ -319,7 +319,7 @@ function Planning() {
             "max. 10 Timeline, & 10 Continent per Timeline",
             "max. 20 Place per Continent",
             "max. 30 Character",
-            "max. 20 Goal, Event, Relic, Note",
+            "max. 50 Note",
             "max. 2 Novel in Libary",
             "max. 100 Chapter per Book",
         ],price:0},
@@ -329,7 +329,7 @@ function Planning() {
             "+5 Timeline, & +5 Continent/Timeline",
             "+5 Place per Continent",
             "+30 Character",
-            "+20 Goal, Event, Relic, Note",
+            "+50 Note",
             "+3 Novel in Libary",
             "+20 Chapter per Book",
             "Export to .docx Feature",
@@ -340,6 +340,7 @@ function Planning() {
             "+2 Universe",
             "+5 Timeline, +5 Continent/Timeline",
             "+5 Place per Continent",
+            "+100 Note",
             "+40 Character",
             "+5 Novel in Libary",
             "+20 Chapter per Book",

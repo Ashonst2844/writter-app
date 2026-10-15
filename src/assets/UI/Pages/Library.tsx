@@ -150,15 +150,7 @@ function Book({props, profiles}: {props: BookProps, profiles: Profiles}) {
     });
 
     const [showModal, setShowModal] = useState<boolean>(false)
-    const [showMenu, setShowMenu] = useState<boolean>(false)
     const [showExport, setShowExport] = useState<boolean>(false)
-
-    const wordAverage = () => {
-        const words = chapters.map(item => item.word)
-        return Math.round(words.reduce((a, b) => a + b, 0) / words.length)
-    }
-
-    const bookStatus = `${chapters.length || "..."} Total Chapters | ${chapters.filter(item => item.status==="finish").length || "..."} Finished | ${chapters.filter(item => item.status==="draft").length || "..."} On Draft | ${wordAverage()} Word Avrg(Est.)`
 
     const [mode, setMode] = useState<boolean>(false);
     const { onSubmit, onDelete, setValue, getValue } = useForm({inputs:['title', 'synopsys', 'link', 'cover'], enp:'book', id:props?.book_id});
@@ -192,58 +184,50 @@ function Book({props, profiles}: {props: BookProps, profiles: Profiles}) {
     if (isLoading) return <Loading message="Chapter" />
     if (error || !chapters) return <Error err={error || "Chapters not found!"}/>
     return <Card>
-        <form onSubmit={handleSubmit} className="h-full flex flex-col md:flex-row gap-4 relative">
-            <div>
-                <Editable type="upload" editMode={mode} onChange={handleCoverUpload} uploading={uploading}>
-                    {props.cover==null||props.cover==""?<div className="w-full h-full bg-(--accent) rounded-md"/>:
-                    <img src={currentCover} alt={props.title} className="w-full md:h-52 object-fit rounded-lg" />}
-                </Editable>
-            </div>
-            <input type="hidden" name="cover" value={currentCover} />
-            <div className="flex flex-col gap-2 w-full md:w-[calc(100%-13rem)]">
-                <Editable type="input" name='title' text={(getValue('title') as string) ?? props.title} onChange={(v)=>setValue('title', v)} editMode={mode} className='text-2xl font-black capitalize w-full'>
-                    <h2 className="text-2xl font-black capitalize">{(getValue('title') as string) ?? props.title}</h2>
-                </Editable>
-                <Editable type="input" name='link' text={(getValue('link') as string) ?? props.link} onChange={(v)=>setValue('link', v)} editMode={mode} className='text-xl font-black capitalize w-full'> </Editable>
-                <p>{bookStatus}</p>
-                <Editable type="textarea" name='synopsys' text={(getValue('synopsys') as string) ?? props.synopsys} onChange={(v)=>setValue('synopsys', v)} editMode={mode} className='w-full text-justify opacity-50"'>
-                    <p className="w-full text-justify opacity-50">{(getValue('synopsys') as string) ?? props.synopsys}</p>
-                </Editable>
-            </div>
-            {showModal && <Modal message={`Delete ${props.title}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
-            {mode ? <>
-                <Button label={"Cancel Edit "+props.title} type='custom' use="button" className='w-12 absolute top-0 right-0' onClick={() => {
-                    setMode(false);
-                    setUploadedCover(null);
-                    setValue('title', props.title);
-                    setValue('synopsys', props.synopsys);
-                    setValue('link', props.link);
-                    setValue('cover', props.cover);
-                }}>
-                    <Icon type="normal" use="cancel" width={3} color="var(--warning)" className="opacity-50 hover:opacity-100"/>
-                </Button>
-                <Button label={"Submit Edit "+props.title} type='custom' use="submit" className='w-12 absolute bottom-0 right-0'>
-                    <Icon type="normal" use="submit" width={3} color="var(--text)" fill className="opacity-50 hover:opacity-100"/>
-                </Button>
-            </> : <>
-                <div className="absolute bottom-0 right-0 flex gap-2">
-                    <Button label="Menu" onClick={() => setShowMenu(prev => !prev)} type='alternate' use='button' className='rounded-md w-12 h-12'>
-                        <Icon type="normal" use="burger" width={5} color="var(--bg)"/>
-                    </Button>
-                    <Button label={`Open ${props?.title}`} type='normal' use='link' target={Slug(props.title)} className='rounded-md w-24 h-12'>Open</Button>
-                    {showMenu && <div className="absolute z-50 top-0 -left-24 p-4 gap-4 shadow-md flex flex-col bg-(--bg) rounded overflow-hidden text-center">
-                        <Button label={"Read "+props.title} type='custom' use='url' target={props.link} className='hover:brightness-110'>Read!</Button>
-                        <Button label={"Export "+props.title} onClick={() => setShowExport(true)} type='custom' use='button' className={profiles?.plan === "free"?"opacity-75":"hover:brightness-125"}>Export</Button>
-                        <Button label={"Delete "+props.title} onClick={() => setShowModal(true)} type='custom' use='button' className='hover:brightness-110 text-(--warning)'>Delete</Button>
-                    </div>}
+        <div className="h-full flex flex-col gap-4">
+            <form onSubmit={handleSubmit} className="h-full flex flex-col gap-4 relative">
+                <div className="flex gap-4 flex-col lg:flex-row">
+                    <div>
+                        <Editable type="upload" editMode={mode} onChange={handleCoverUpload} uploading={uploading}>
+                            <Button label={"Open "+props?.title} type="custom" use="link" target={Slug(props?.title)}>
+                                {props.cover==null||props.cover==""?<div className="w-full h-full bg-(--accent)"/>:
+                                <img src={currentCover} alt={props.title} className="w-full md:h-52 object-fit" />}
+                            </Button>
+                        </Editable>
+                    </div>
+                    <input type="hidden" name="cover" value={currentCover} />
+                    <div className="flex flex-col gap-2 w-full md:w-[calc(100%-13rem)]">
+                        <Editable type="input" name='title' text={(getValue('title') as string) ?? props.title} onChange={(v)=>setValue('title', v)} editMode={mode} className='text-2xl font-black capitalize w-full'>
+                            <h2 className="text-2xl font-black capitalize">{(getValue('title') as string) ?? props.title}</h2>
+                        </Editable>
+                        <Editable type="input" name='link' text={(getValue('link') as string) ?? props.link} onChange={(v)=>setValue('link', v)} editMode={mode} className='text-xl font-black capitalize w-full'> </Editable>
+                        <Editable type="textarea" name='synopsys' text={(getValue('synopsys') as string) ?? props.synopsys} onChange={(v)=>setValue('synopsys', v)} editMode={mode} className='w-full text-justify opacity-50"'>
+                            <p className="w-full text-justify opacity-50">{(getValue('synopsys') as string) ?? props.synopsys}</p>
+                        </Editable>
+                    </div>
                 </div>
-                <Button label={"Edit "+props?.title} onClick={() => setMode(prev => !prev)} type='custom' use='button' className='w-12 absolute top-0 right-0'>
-                    <Icon type="online" use="edit" width={2} color="var(--text)" className="opacity-50 hover:opacity-100"/>
-                </Button>
-
-            </>}
-        </form>
-        {showExport && <Export bookTitle={props.title} chapters={chapters.filter(item => item.status === "finish")} onClose={() => setShowExport(false)}/>}
+                {showModal && <Modal message={`Delete ${props.title}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
+                <div className="w-full grid grid-cols-2 border-y-2 border-neutral-700">
+                    {mode ? <>
+                        <Button label={"Cancel Edit "+props.title} type='warning' use="button" className='h-12 center' onClick={() => {
+                            setMode(false);
+                            setUploadedCover(null);
+                            setValue('title', props.title);
+                            setValue('synopsys', props.synopsys);
+                            setValue('link', props.link);
+                            setValue('cover', props.cover);
+                        }}>Cancel</Button>
+                        <Button label={"Submit Edit "+props.title} type='normal' use="submit" className='h-12 center'>Confirm</Button> 
+                    </> : <>
+                        <Button label={"Delete "+props?.title} onClick={() => setShowModal(true)} type='warning' use='button' className='h-12 center'>Delete</Button>
+                        <Button label={"Edit "+props?.title} onClick={() => setMode(prev => !prev)} type='normal' use='button' className='h-12 center'>Edit</Button>
+                        <Button label={"Read "+props.title} type='custom' use='url' disabled={props?.link?false:true} target={props.link} className='h-12 center bg-(--primary) hover:brightness-125'>Read</Button>
+                        <Button label={"Export "+props.title} disabled={profiles?.plan==="free" ? true : false} onClick={() => setShowExport(true)} type='custom' use='button' className={`h-12 center bg-(--primary) hover:brightness-125`}>Export</Button>
+                    </>}
+                </div>
+            </form>
+            {showExport && <Export bookTitle={props.title} chapters={chapters.filter(item => item.status === "finish")} onClose={() => setShowExport(false)}/>}
+        </div>
     </Card>
 }
 
@@ -252,21 +236,15 @@ function Chapter({name, index, status, chapter_id}: {name: string, index: number
     const {onDelete} = useForm({inputs:[], enp:"chapter", id:chapter_id})
     const [showModal, setShowModal] = useState<boolean>(false)
 
-    return <div className="flex items-center w-full h-12 md:h-16 bg-(--primary) border-y-2 border-neutral-700 overflow-hidden">
-        <Button label={"Open Chapter "+index} type="normal" use="link" target={Slug(name)} className="w-[10%] h-full bg-(--accent) center text-4xl font-black">
-            <p className="text-2xl">{index}</p>
-        </Button>
-        <div className="flex justify-between items-center w-[90%] h-full px-4">
-            <h2 className="text-md md:text-2xl">{name}</h2>
+    return <Button label={"Open Chapter "+name} type="custom" use="link" target={Slug(name)} className="flex items-center justify-between w-full h-12 md:h-16 bg-(--primary) border-y-2 border-neutral-700 overflow-hidden">
+        <div className="flex justify-between items-center w-full px-2 h-full">
+            <h2 className={`text-sm md:text-2xl ${state?"text-(--success)":"text-(--warning)"}`}>{index}. {name}</h2>
             {showModal && <Modal message={`Delete ${name}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
-            <div className="flex h-12 gap-2">
-                <span className={`w-16 md:w-24 h-full inline-block text-sm center border-2 rounded-2xl transition-all duration-150 hover:brightness-125 ${state?"bg-(--success)/50 border-(--success)":"bg-(--warning)/50 border-(--warning)"}`}>{status.toUpperCase()}</span>
-                <Button label={"Delete "+name} onClick={() => setShowModal(true)} type='warning' use="button" target={Slug(name)} className='rounded-xl w-12'>
-                    <Icon type="online" use="trash" width={3} color="white" fill/>
-                </Button>
-            </div>
         </div>
-    </div>
+        <Button label={"Delete "+name} onClick={() => setShowModal(true)} type='warning' use="button" target={Slug(name)} className='size-12 lg:size-16'>
+            <Icon type="online" use="trash" width={3} color="white" fill/>
+        </Button>
+    </Button>
 }
 
 function ChapterPage({props,loading}: {props: ChapterProps[], loading: boolean}) {
@@ -350,7 +328,7 @@ function BookPage({props, profiles}: {props: BookProps[], profiles: Profiles}) {
     const from = (pageIndex - 1) * pageSize;
     const to = from + pageSize - 1;
 
-    const { data: chapter, isLoading, error } = useFetch<ChapterProps>("chapters", 'chapter_id', {
+    const { data: chapter, isLoading, error } = useFetch<ChapterProps>("chapters", 'chapter_id, status', {
         eq: { book_id: book?.book_id },
     });
     const { data, counted } = useFetch<ChapterProps>("chapters", '', {
@@ -365,6 +343,16 @@ function BookPage({props, profiles}: {props: BookProps[], profiles: Profiles}) {
         },
         count: "exact"
     });
+    
+    const wordAverage = () => {
+        const words = data?.map(item => item.word)
+        return Math.round(words.reduce((a, b) => a + b, 0) / words.length)
+    }
+    const bookStatus: {finish: number, draft: number, words: number} = {
+        finish: chapter?.filter(i => i?.status === "finish").length || 0,
+        draft: chapter?.filter(i => i?.status === "draft").length || 0,
+        words: wordAverage() || 0
+    } 
 
     const maxChapter = profiles?.plan === "free" ? 100 : profiles?.plan === "hobbies" ? 120 : 140
     const { onCreate } = useForm({inputs:[], enp:'chapter', id:data.length > 0 ? data[0]?.chapter_id : ''})
@@ -385,19 +373,34 @@ function BookPage({props, profiles}: {props: BookProps[], profiles: Profiles}) {
     return <>
         <Routes>
             <Route path="/" element={<div className="w-full flex flex-col border-y-2 border-neutral-700">
-                <div className="grid grid-cols-2 gap-2 items-center p-4 w-full border-y-2 border-neutral-700">
-                    <code className="text-xl border-r-2 border-neutral-700">{pageIndex} of {pageLength}</code>
-                    <code className="text-xl">{chapter?.length ?? 0} / {maxChapter}</code>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 items-center p-4 w-full border-y-2 border-neutral-700">
+                    <div className="flex flex-col gap-2 border-r-2 border-neutral-700">
+                        <span className="text-xs opacity-50">Page</span>
+                        <code className="text-xl">{pageIndex} of {pageLength}</code>
+                    </div>
+                    <div className="flex flex-col gap-2 border-r-2 border-neutral-700">
+                        <span className="text-xs opacity-50">Finish</span>
+                        <code className="text-xl">{bookStatus?.finish}</code>
+                    </div>
+                    <div className="flex flex-col gap-2 border-r-2 border-neutral-700">
+                        <span className="text-xs opacity-50">Draft</span>
+                        <code className="text-xl">{bookStatus?.draft}</code>
+                    </div>
+                    <div className="flex flex-col gap-2 border-r-2 border-neutral-700">
+                        <span className="text-xs opacity-50">Word Average</span>
+                        <code className="text-xl">{bookStatus?.words}</code>
+                    </div>
                 </div>
                 <div className="w-full h-full flex flex-col lg:flex-row">
-                    <div className="flex flex-row lg:flex-col gap-2 lg:p-4 p-2 overflow-auto border-r-2 border-neutral-700">
+                    <div className="flex flex-row lg:flex-col gap-2 lg:p-4 p-2 justify-center overflow-auto border-r-2 border-neutral-700">
                         {Array.from({length:pageLength}, (_,i) => <Button label={"Page "+i+1} type="custom" key={i} use="button" onClick={()=>setPageIndex(i+1)} className="w-12 h-12 border border-(--accent) rounded-full font-bold hover:bg-(--accent)">{i+1}</Button>)}
                     </div>
                     <div className="w-full h-full flex flex-col gap-2">
                         {data?.map((item, i)=><Chapter key={i} name={item.name} index={(pageIndex - 1) * 10 + i} status={item.status} chapter_id={item.chapter_id}/>)}
                         <div className="h-16 w-full bg-(--primary) shadow-2xl border-y-2 border-neutral-700">
-                            <form onClick={handleCreate} className="h-full flex flex-col hover:bg-(--accent) center p-4 transition-colors transition-300">
+                            <form onClick={handleCreate} className="h-full gap-4 hover:bg-(--accent) center">
                                 <span className="text-white text-2xl"><code>+</code> Create New Chapter</span>
+                                <code className="text-xl">{chapter?.length ?? 0} / {maxChapter}</code>
                             </form>
                         </div>
                     </div>
@@ -432,7 +435,7 @@ export default function Library({project_id, profiles}: {project_id: string, pro
     if (error || !data) return <Error err={error || "Books not found!"}/>
     return <section className="w-full h-full">
         <Header title="Library" desc="Create And Write Novels Book!" profiles={profiles}/>
-        <div className="px-8">
+        <div className="px-4 lg:px-8">
             <div className="min-h-screen w-full flex flex-col py-4 border-x-2 border-neutral-700">
                 <Routes>
                     <Route path="/" element={<div className="grid gap-4 lg:grid-cols-1">

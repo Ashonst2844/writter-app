@@ -193,3 +193,5 @@ Keterangan:
     - Big Update UI/UX
     - Menghapus Relic And Event Section
     - Menambahkan fitur grouping di Note Section
+  - (15 Oct. 2026) **update-build v1.12.1**
+    - Fix UI/UX

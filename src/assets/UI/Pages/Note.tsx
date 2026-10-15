@@ -34,20 +34,19 @@ function NoteAccordion(props: NoteProps) {
     }
 
     return <Card>
-        <div className="h-full flex flex-col gap-2 relative">
-            <h2 className="text-xl md:text-2xl font-black capitalize">{props.title}</h2>
-            <span className="text-xl text-(--accent) font-bold">{props?.label}</span>
-            {showModal && <Modal message={`Delete ${props.title}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
-            <Button label={pinned?"Unpin Note " + props.title : "Pin Note " + props.title} type="custom" use='button' className='absolute bottom-0 left-0' onClick={handlePin}>
-                <Icon type="online" use="pin" color={pinned ? "var(--accent)" : "var(--text)"} fill className="opacity-50 hover:opacity-100"/>
-            </Button>
-            <div className="absolute bottom-0 right-0 flex gap-2">
-                <Button label={"Delete "+props.title} onClick={() => setShowModal(true)} type='custom' use="button" target={Slug(props.title)} className='w-12'>
+        <Button label={"Open "+props.title} type='custom' use='link' target={Slug(props.title)} className="h-full">
+            <div className="h-full flex flex-col gap-2 relative">
+                <h2 className="text-xl md:text-2xl font-black capitalize">{props.title}</h2>
+                <span className="text-xl text-(--accent) font-bold">{props?.label}</span>
+                {showModal && <Modal message={`Delete ${props.title}?`} type="warning" onConfirm={async () => { await onDelete(); }} onClose={() => setShowModal(false)}/>}
+                <Button label={pinned?"Unpin Note " + props.title : "Pin Note " + props.title} type="custom" use='button' className='absolute bottom-0 left-0' onClick={handlePin}>
+                    <Icon type="online" use="pin" color={pinned ? "var(--accent)" : "var(--text)"} fill className="opacity-50 hover:opacity-100"/>
+                </Button>
+                <Button label={"Delete "+props.title} onClick={() => setShowModal(true)} type='custom' use="button" target={Slug(props.title)} className='absolute bottom-0 right-0'>
                     <Icon type="online" use="trash" width={3} color="var(--warning)" fill className="opacity-50 hover:opacity-100"/>
                 </Button>
-                <Button label={"Open "+props.title} type='normal' use='link' target={Slug(props.title)} className='rounded-md w-24 h-12'>Open</Button>
             </div>
-        </div>
+        </Button>
     </Card>
 }
 
@@ -134,7 +133,7 @@ export default function Note({project_id, profiles}: {project_id: string, profil
     if (error || !data) return <Error err={error || "Notes not found!"}/>
     return <section className="w-full h-full relative">
         <Header title="Note" desc="Create And Write Brainstormed Notes!" profiles={profiles}/>
-        <div className="px-8">
+        <div className="px-4 lg:px-8">
             <div className="min-h-screen w-full flex flex-col py-4 border-x-2 border-neutral-700">
                 <Routes>
                     <Route path="/" element={<div className="flex flex-col gap-2">
